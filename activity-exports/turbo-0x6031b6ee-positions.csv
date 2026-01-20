@@ -1,0 +1,25 @@
+market_id,market_name,outcome,shares,avg_price,current_price,cost_basis,current_value,unrealized_pnl
+0xe562fe53cd46d6500081fc6aced8c01f24ea37dd81bd60205b3457832a223789,"Bitcoin Up or Down - January 20, 12PM ET",Down,5175.8576,0.3451,0.0,0.0,2147.9809,0.0
+0xe562fe53cd46d6500081fc6aced8c01f24ea37dd81bd60205b3457832a223789,"Bitcoin Up or Down - January 20, 12PM ET",Up,5172.7193,0.6462,0.0,0.0,3026.0408,0.0
+0x754bd99de47eeefa59b74b9e762f058584695c49700cc2e4dca8e6bc13d7c3b5,"Bitcoin Up or Down - January 20, 12:00PM-12:15PM ET",Down,4525.3999,0.3431,0.0,0.0,0.0,0.0
+0x754bd99de47eeefa59b74b9e762f058584695c49700cc2e4dca8e6bc13d7c3b5,"Bitcoin Up or Down - January 20, 12:00PM-12:15PM ET",Up,4505.6931,0.6492,0.0,0.0,4505.6931,0.0
+0xb0949818ef813bfcca9ff8dc79233c59e7b5037471bc2a3330a47c0a2c92fd66,"Bitcoin Up or Down - January 20, 12:15PM-12:30PM ET",Up,3138.6328,0.2635,0.0,0.0,47.0794,0.0
+0xb0949818ef813bfcca9ff8dc79233c59e7b5037471bc2a3330a47c0a2c92fd66,"Bitcoin Up or Down - January 20, 12:15PM-12:30PM ET",Down,3131.3281,0.7303,0.0,0.0,3084.3582,0.0
+0xd9020457551745949856412c83cdeef20b19d7cb278adcedba544bccbe00fe2f,"Ethereum Up or Down - January 20, 12:00PM-12:15PM ET",Down,1683.166,0.2828,0.0,0.0,0.0,0.0
+0xd9020457551745949856412c83cdeef20b19d7cb278adcedba544bccbe00fe2f,"Ethereum Up or Down - January 20, 12:00PM-12:15PM ET",Up,1579.3698,0.6945,0.0,0.0,1579.3698,0.0
+0xb69c2ba3a1b490bc557916e176aa5d5a4d17c1e7208b50a90c19c8a9bb07a69b,"Ethereum Up or Down - January 20, 12:15PM-12:30PM ET",Up,1059.509,0.2835,0.0,0.0,5.2975,0.0
+0xb69c2ba3a1b490bc557916e176aa5d5a4d17c1e7208b50a90c19c8a9bb07a69b,"Ethereum Up or Down - January 20, 12:15PM-12:30PM ET",Down,1058.1943,0.7278,0.0,0.0,1052.9034,0.0
+0xec720384bc8c7ee2a718c80cb0cf69249b5e7162d48d1afbbaf8985ba069df38,"Ethereum Up or Down - January 20, 12PM ET",Up,901.372,0.6188,0.0,0.0,401.1105,0.0
+0xec720384bc8c7ee2a718c80cb0cf69249b5e7162d48d1afbbaf8985ba069df38,"Ethereum Up or Down - January 20, 12PM ET",Down,896.0497,0.3485,0.0,0.0,497.3075,0.0
+0xedd5cc8cec68b904aefe2d3ee16897cdcea250c4ae3e7d398ba49d718d83428d,"Ethereum Up or Down - January 20, 7:15AM-7:30AM ET",Up,93.7288,0.1498,0.0,0.0,0.0468,0.0
+0xb177a2020fe555f5fc83e8fec87eef19c8dc1bffc281eb949998cbcd2702c8eb,"Bitcoin Up or Down - January 19, 2PM ET",Up,76.4355,0.7987,0.0,0.0,76.3973,0.0
+0x2308e9ecca7e78ed7599cf5042b211c1967be11d214b33e7d91302a82189449d,"Ethereum Up or Down - January 20, 10AM ET",Up,70.3022,0.1001,0.0,0.0,0.0,0.0
+0x5c80210661fe9ea6b0bd6005f6a748325311709f143f3ee2e721d84e564e08be,"Bitcoin Up or Down - January 20, 10AM ET",Down,62.2376,0.5152,0.0,0.0,0.0,0.0
+0xd5fad671cab2d06b03ba12888c7fffbef98c14d12f8cb66037a4b1cbe3e7339b,"Bitcoin Up or Down - January 20, 11AM ET",Down,61.8201,0.9782,0.0,0.0,61.7892,0.0
+0x5ac0d4603078c4a4a150c4bb1115e7e7ca8c4ae9b4269078d364282e5dc2c379,"Ethereum Up or Down - January 20, 7:30AM-7:45AM ET",Down,47.1394,0.3334,0.0,0.0,0.0235,0.0
+0x46b14c5d89b42ebbcefc19c438cde436fb48375d3cc0202bd5ce1d16000a7175,"Ethereum Up or Down - January 19, 2PM ET",Down,41.9574,0.149,0.0,0.0,0.0209,0.0
+0xf6a728e2d4fcb1f31f77dea1c0bc75308a9ed0ec5b6fe6acbaaacea48b4c5df0,"Bitcoin Up or Down - January 20, 7:30AM-7:45AM ET",Up,40.7331,0.7052,0.0,0.0,40.509,0.0
+0x375eddd1a93efa9604797accd7b6c4d7a184911214ceaa94e64974441b23503b,"Bitcoin Up or Down - January 20, 11:45AM-12:00PM ET",Down,21.5883,0.3409,0.0,0.0,0.0,0.0
+0xc1b054051cd072ea2c98492dbaf4c100635a4d5423ba115b7a2e2683bfc119af,"Ethereum Up or Down - January 20, 11AM ET",Up,17.1558,0.2352,0.0,0.0,0.0085,0.0
+0x2a4a5d70e332c81d2bd51a52431f48b8f8ca8b1178e036eced5611696315b5a6,"Bitcoin Up or Down - January 20, 7:15AM-7:30AM ET",Up,9.542,0.0617,0.0,0.0,0.0477,0.0
+0x680f949583ccfd5b28f93caab2bd119b138dc1863dc55b233c90e00846d38354,"Ethereum Up or Down - January 20, 11:45AM-12:00PM ET",Up,4.3103,0.7373,0.0,0.0,4.3103,0.0
