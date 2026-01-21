@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 PolyEdge Analytics Engine
-Pattern detection and trade analysis for Polymarket wallets.
+Pattern detection, win/loss tracking, and wallet comparison for Polymarket.
 """
 
 from datetime import datetime, timedelta
@@ -9,9 +9,372 @@ from typing import List, Dict, Any, Optional
 from collections import defaultdict
 import statistics
 import json
+import requests
+
+# Polymarket API for market resolution data
+GAMMA_API = "https://gamma-api.polymarket.com"
+CLOB_API = "https://clob.polymarket.com"
 
 
-def analyze_trades(trades: List[Dict]) -> Dict[str, Any]:
+# =============================================================================
+# PRICING TIERS
+# =============================================================================
+
+PRICING_TIERS = {
+    "free": {
+        "name": "Free",
+        "price": 0,
+        "trades_per_month": 100,
+        "features": ["basic_analytics", "single_wallet"],
+        "comparison_wallets": 0,
+        "api_access": False,
+        "export_formats": ["csv"],
+    },
+    "starter": {
+        "name": "Starter",
+        "price": 19,
+        "trades_per_month": 1000,
+        "features": ["basic_analytics", "single_wallet", "win_loss_tracking"],
+        "comparison_wallets": 0,
+        "api_access": False,
+        "export_formats": ["csv", "json"],
+    },
+    "growth": {
+        "name": "Growth",
+        "price": 79,
+        "trades_per_month": 10000,
+        "features": ["basic_analytics", "advanced_analytics", "win_loss_tracking",
+                     "comparison_mode", "priority_support"],
+        "comparison_wallets": 3,
+        "api_access": True,
+        "export_formats": ["csv", "json", "markdown"],
+    },
+    "scale": {
+        "name": "Scale",
+        "price": 299,
+        "trades_per_month": 100000,
+        "features": ["basic_analytics", "advanced_analytics", "win_loss_tracking",
+                     "comparison_mode", "white_label", "dedicated_support", "webhooks"],
+        "comparison_wallets": 10,
+        "api_access": True,
+        "export_formats": ["csv", "json", "markdown", "api"],
+    }
+}
+
+OVERAGE_RATE = 0.01  # $0.01 per trade beyond limit
+
+
+def get_tier_info(tier: str) -> Dict:
+    """Get pricing tier information."""
+    return PRICING_TIERS.get(tier, PRICING_TIERS["free"])
+
+
+def check_feature_access(tier: str, feature: str) -> bool:
+    """Check if a tier has access to a feature."""
+    tier_info = get_tier_info(tier)
+    return feature in tier_info.get("features", [])
+
+
+def calculate_overage(tier: str, trades_used: int) -> Dict:
+    """Calculate overage charges."""
+    tier_info = get_tier_info(tier)
+    limit = tier_info["trades_per_month"]
+
+    if trades_used <= limit:
+        return {"overage_trades": 0, "overage_cost": 0}
+
+    overage = trades_used - limit
+    return {
+        "overage_trades": overage,
+        "overage_cost": round(overage * OVERAGE_RATE, 2)
+    }
+
+
+# =============================================================================
+# WIN/LOSS TRACKING
+# =============================================================================
+
+def fetch_market_resolution(condition_id: str) -> Optional[Dict]:
+    """Fetch market resolution status from Polymarket API."""
+    try:
+        response = requests.get(
+            f"{GAMMA_API}/markets",
+            params={"condition_id": condition_id},
+            timeout=10
+        )
+        if response.status_code == 200:
+            markets = response.json()
+            if markets:
+                return markets[0]
+    except Exception:
+        pass
+    return None
+
+
+def fetch_market_by_slug(slug: str) -> Optional[Dict]:
+    """Fetch market data by slug."""
+    try:
+        response = requests.get(
+            f"{GAMMA_API}/markets",
+            params={"slug": slug},
+            timeout=10
+        )
+        if response.status_code == 200:
+            markets = response.json()
+            if markets:
+                return markets[0]
+    except Exception:
+        pass
+    return None
+
+
+def calculate_position_pnl(trades: List[Dict]) -> Dict:
+    """
+    Calculate P&L for positions based on trades.
+    Groups trades by market and calculates realized/unrealized P&L.
+    """
+    positions = defaultdict(lambda: {
+        "market": "",
+        "slug": "",
+        "outcome": "",
+        "total_cost": 0,
+        "total_shares": 0,
+        "avg_entry_price": 0,
+        "trades": [],
+        "realized_pnl": 0,
+        "status": "open"
+    })
+
+    for trade in trades:
+        market_key = (trade.get('title', ''), trade.get('outcome', ''))
+        pos = positions[market_key]
+
+        pos["market"] = trade.get('title', 'Unknown')
+        pos["slug"] = trade.get('slug', '')
+        pos["outcome"] = trade.get('outcome', '')
+
+        side = trade.get('side', '')
+        price = trade.get('price', 0) or 0
+        size = trade.get('size', 0) or 0
+        usdc = trade.get('usdcSize', 0) or 0
+
+        if side == 'BUY':
+            pos["total_cost"] += usdc
+            pos["total_shares"] += size
+        elif side == 'SELL':
+            # Calculate realized P&L on sells
+            if pos["total_shares"] > 0:
+                avg_cost = pos["total_cost"] / pos["total_shares"]
+                realized = (price - avg_cost) * min(size, pos["total_shares"])
+                pos["realized_pnl"] += realized
+            pos["total_shares"] -= size
+            pos["total_cost"] = max(0, pos["total_cost"] - usdc)
+
+        pos["trades"].append(trade)
+
+    # Calculate averages and status
+    for key, pos in positions.items():
+        if pos["total_shares"] > 0:
+            pos["avg_entry_price"] = pos["total_cost"] / pos["total_shares"]
+        else:
+            pos["status"] = "closed"
+
+    return dict(positions)
+
+
+def analyze_win_loss(trades: List[Dict], resolved_markets: Dict = None) -> Dict:
+    """
+    Analyze win/loss statistics for trades.
+    Uses market resolution data to determine outcomes.
+    """
+    if resolved_markets is None:
+        resolved_markets = {}
+
+    positions = calculate_position_pnl(trades)
+
+    wins = 0
+    losses = 0
+    pending = 0
+    total_profit = 0
+    total_loss = 0
+
+    position_results = []
+
+    for key, pos in positions.items():
+        market_slug = pos.get("slug", "")
+        outcome = pos.get("outcome", "")
+
+        # Check if market is resolved
+        resolution = resolved_markets.get(market_slug)
+
+        result = {
+            "market": pos["market"][:60],
+            "outcome_bet": outcome,
+            "shares": round(pos["total_shares"], 2),
+            "cost_basis": round(pos["total_cost"], 2),
+            "avg_entry": round(pos["avg_entry_price"], 4),
+            "realized_pnl": round(pos["realized_pnl"], 2),
+            "status": "pending"
+        }
+
+        if resolution:
+            winning_outcome = resolution.get("outcome", "")
+            result["resolved_outcome"] = winning_outcome
+
+            if pos["total_shares"] > 0:  # Still holding
+                if outcome == winning_outcome:
+                    # Won - shares worth $1 each
+                    pnl = pos["total_shares"] - pos["total_cost"]
+                    result["status"] = "won"
+                    result["pnl"] = round(pnl, 2)
+                    wins += 1
+                    total_profit += max(0, pnl)
+                else:
+                    # Lost - shares worth $0
+                    pnl = -pos["total_cost"]
+                    result["status"] = "lost"
+                    result["pnl"] = round(pnl, 2)
+                    losses += 1
+                    total_loss += abs(pnl)
+            else:
+                result["status"] = "closed"
+                result["pnl"] = round(pos["realized_pnl"], 2)
+                if pos["realized_pnl"] > 0:
+                    wins += 1
+                    total_profit += pos["realized_pnl"]
+                elif pos["realized_pnl"] < 0:
+                    losses += 1
+                    total_loss += abs(pos["realized_pnl"])
+        else:
+            pending += 1
+            result["pnl"] = round(pos["realized_pnl"], 2)
+
+        position_results.append(result)
+
+    # Sort by absolute PnL
+    position_results.sort(key=lambda x: abs(x.get("pnl", 0)), reverse=True)
+
+    total_resolved = wins + losses
+    win_rate = (wins / total_resolved * 100) if total_resolved > 0 else 0
+
+    return {
+        "summary": {
+            "total_positions": len(positions),
+            "wins": wins,
+            "losses": losses,
+            "pending": pending,
+            "win_rate": round(win_rate, 1),
+            "total_profit": round(total_profit, 2),
+            "total_loss": round(total_loss, 2),
+            "net_pnl": round(total_profit - total_loss, 2),
+            "profit_factor": round(total_profit / total_loss, 2) if total_loss > 0 else float('inf'),
+        },
+        "positions": position_results[:50],  # Top 50 by PnL
+        "best_trade": position_results[0] if position_results else None,
+        "worst_trade": min(position_results, key=lambda x: x.get("pnl", 0)) if position_results else None,
+    }
+
+
+# =============================================================================
+# COMPARISON MODE
+# =============================================================================
+
+def compare_wallets(wallet_analyses: List[Dict]) -> Dict:
+    """
+    Compare multiple wallet analyses side-by-side.
+    Returns comparative metrics and rankings.
+    """
+    if not wallet_analyses:
+        return {"error": "No wallets to compare"}
+
+    if len(wallet_analyses) == 1:
+        return {"error": "Need at least 2 wallets to compare", "single": wallet_analyses[0]}
+
+    comparison = {
+        "wallet_count": len(wallet_analyses),
+        "wallets": [],
+        "rankings": {},
+        "insights": []
+    }
+
+    # Extract key metrics for each wallet
+    for wa in wallet_analyses:
+        summary = wa.get("analysis", {}).get("summary", {})
+        pnl = wa.get("pnl", {}).get("summary", {})
+        behavior = wa.get("analysis", {}).get("behavioral_patterns", {})
+
+        wallet_data = {
+            "wallet": wa.get("wallet", "")[:10] + "...",
+            "username": wa.get("username", "Unknown"),
+            "total_trades": summary.get("total_trades", 0),
+            "total_volume": summary.get("total_volume_usd", 0),
+            "avg_trade_size": summary.get("avg_trade_size", 0),
+            "trades_per_day": summary.get("trades_per_day", 0),
+            "win_rate": pnl.get("win_rate", 0),
+            "net_pnl": pnl.get("net_pnl", 0),
+            "profit_factor": pnl.get("profit_factor", 0),
+            "trader_type": behavior.get("trader_classification", {}).get("primary_type", "unknown"),
+        }
+        comparison["wallets"].append(wallet_data)
+
+    # Generate rankings for each metric
+    metrics_to_rank = [
+        ("total_trades", "Most Active", True),
+        ("total_volume", "Highest Volume", True),
+        ("win_rate", "Best Win Rate", True),
+        ("net_pnl", "Most Profitable", True),
+        ("profit_factor", "Best Risk/Reward", True),
+        ("avg_trade_size", "Largest Avg Trade", True),
+    ]
+
+    for metric, label, higher_better in metrics_to_rank:
+        sorted_wallets = sorted(
+            comparison["wallets"],
+            key=lambda x: x.get(metric, 0),
+            reverse=higher_better
+        )
+        comparison["rankings"][metric] = {
+            "label": label,
+            "ranking": [w["username"] for w in sorted_wallets],
+            "values": [w.get(metric, 0) for w in sorted_wallets]
+        }
+
+    # Generate comparison insights
+    best_volume = max(comparison["wallets"], key=lambda x: x["total_volume"])
+    best_winrate = max(comparison["wallets"], key=lambda x: x["win_rate"])
+    best_pnl = max(comparison["wallets"], key=lambda x: x["net_pnl"])
+
+    comparison["insights"] = [
+        {
+            "title": "Volume Leader",
+            "description": f"{best_volume['username']} has the highest trading volume at ${best_volume['total_volume']:,.0f}",
+            "winner": best_volume["username"]
+        },
+        {
+            "title": "Best Win Rate",
+            "description": f"{best_winrate['username']} has the highest win rate at {best_winrate['win_rate']:.1f}%",
+            "winner": best_winrate["username"]
+        },
+        {
+            "title": "Most Profitable",
+            "description": f"{best_pnl['username']} has the highest net P&L at ${best_pnl['net_pnl']:,.2f}",
+            "winner": best_pnl["username"]
+        }
+    ]
+
+    # Strategy diversity comparison
+    trader_types = [w["trader_type"] for w in comparison["wallets"]]
+    if len(set(trader_types)) > 1:
+        comparison["insights"].append({
+            "title": "Strategy Diversity",
+            "description": f"Wallets use different strategies: {', '.join(set(trader_types))}",
+            "winner": None
+        })
+
+    return comparison
+
+
+def analyze_trades(trades: List[Dict], include_pnl: bool = True) -> Dict[str, Any]:
     """
     Comprehensive trade analysis with pattern detection.
     Returns structured insights for UI display and export.
@@ -29,6 +392,10 @@ def analyze_trades(trades: List[Dict]) -> Dict[str, Any]:
         "risk_metrics": calculate_risk_metrics(trades),
         "insights": [],  # Natural language insights
     }
+
+    # Add P&L analysis if requested
+    if include_pnl:
+        analysis["pnl"] = analyze_win_loss(trades)
 
     # Generate natural language insights
     analysis["insights"] = generate_insights(analysis, trades)
@@ -507,6 +874,51 @@ def generate_insights(analysis: Dict, trades: List[Dict]) -> List[Dict]:
             "importance": "high"
         })
 
+    # P&L insights
+    pnl = analysis.get("pnl", {}).get("summary", {})
+    if pnl:
+        win_rate = pnl.get("win_rate", 0)
+        net_pnl = pnl.get("net_pnl", 0)
+        profit_factor = pnl.get("profit_factor", 0)
+
+        if win_rate > 60:
+            insights.append({
+                "category": "performance",
+                "title": "Strong Win Rate",
+                "description": f"{win_rate:.1f}% win rate indicates consistent profitable trading.",
+                "importance": "high"
+            })
+        elif win_rate < 40 and win_rate > 0:
+            insights.append({
+                "category": "performance",
+                "title": "Low Win Rate",
+                "description": f"{win_rate:.1f}% win rate. May rely on larger wins to offset frequent losses.",
+                "importance": "medium"
+            })
+
+        if net_pnl > 10000:
+            insights.append({
+                "category": "performance",
+                "title": "Highly Profitable",
+                "description": f"Net P&L of ${net_pnl:,.2f}. This wallet has generated significant returns.",
+                "importance": "high"
+            })
+        elif net_pnl < -5000:
+            insights.append({
+                "category": "performance",
+                "title": "Significant Losses",
+                "description": f"Net P&L of ${net_pnl:,.2f}. Strategy may need review.",
+                "importance": "high"
+            })
+
+        if profit_factor > 2:
+            insights.append({
+                "category": "performance",
+                "title": "Excellent Risk/Reward",
+                "description": f"Profit factor of {profit_factor:.2f}. Wins significantly outpace losses.",
+                "importance": "high"
+            })
+
     return insights
 
 
@@ -580,6 +992,33 @@ def generate_report(analysis: Dict, wallet: str, username: str = None) -> str:
     report.append(f"- **Market Concentration Risk:** {risk.get('market_concentration_risk', 0):.1f}%")
     report.append(f"- **Overall Risk Score:** {risk.get('risk_score', 0):.0f}/100")
     report.append("")
+
+    # P&L Analysis
+    pnl = analysis.get("pnl", {})
+    if pnl:
+        pnl_summary = pnl.get("summary", {})
+        report.append("## Win/Loss Analysis")
+        report.append(f"- **Total Positions:** {pnl_summary.get('total_positions', 0)}")
+        report.append(f"- **Wins:** {pnl_summary.get('wins', 0)} | **Losses:** {pnl_summary.get('losses', 0)} | **Pending:** {pnl_summary.get('pending', 0)}")
+        report.append(f"- **Win Rate:** {pnl_summary.get('win_rate', 0):.1f}%")
+        report.append(f"- **Total Profit:** ${pnl_summary.get('total_profit', 0):,.2f}")
+        report.append(f"- **Total Loss:** ${pnl_summary.get('total_loss', 0):,.2f}")
+        report.append(f"- **Net P&L:** ${pnl_summary.get('net_pnl', 0):,.2f}")
+        report.append(f"- **Profit Factor:** {pnl_summary.get('profit_factor', 0):.2f}")
+        report.append("")
+
+        best = pnl.get("best_trade")
+        worst = pnl.get("worst_trade")
+        if best:
+            report.append(f"### Best Trade")
+            report.append(f"- **Market:** {best.get('market', 'Unknown')}")
+            report.append(f"- **P&L:** ${best.get('pnl', 0):,.2f}")
+            report.append("")
+        if worst and worst.get("pnl", 0) < 0:
+            report.append(f"### Worst Trade")
+            report.append(f"- **Market:** {worst.get('market', 'Unknown')}")
+            report.append(f"- **P&L:** ${worst.get('pnl', 0):,.2f}")
+            report.append("")
 
     report.append("---")
     report.append("*Generated by PolyEdge.io*")

@@ -574,6 +574,225 @@
             color: hsl(var(--primary-foreground));
             margin-bottom: 16px;
         }
+
+        /* P&L Styles */
+        .pnl-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .pnl-card {
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .pnl-card.win { border-color: hsl(142 50% 45%); }
+        .pnl-card.loss { border-color: hsl(0 62% 50%); }
+
+        .pnl-label {
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 4px;
+        }
+
+        .pnl-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .pnl-positions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .pnl-position {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+        }
+
+        .pnl-position.won { border-left: 3px solid hsl(142 50% 45%); }
+        .pnl-position.lost { border-left: 3px solid hsl(0 62% 50%); }
+        .pnl-position.pending { border-left: 3px solid hsl(45 80% 50%); }
+
+        .pnl-market {
+            flex: 1;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 16px;
+        }
+
+        .pnl-outcome {
+            font-size: 0.8rem;
+            color: hsl(var(--muted-foreground));
+            margin-right: 16px;
+        }
+
+        .pnl-amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .pnl-amount.positive { color: hsl(142 50% 45%); }
+        .pnl-amount.negative { color: hsl(0 62% 50%); }
+
+        /* Comparison Mode */
+        .comparison-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid hsl(var(--border));
+        }
+
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .comparison-header span {
+            font-weight: 500;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: hsl(var(--secondary));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        .comparison-wallets {
+            margin-top: 12px;
+        }
+
+        .comparison-inputs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .compare-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            background: hsl(var(--input));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            color: hsl(var(--foreground));
+        }
+
+        /* Comparison Results */
+        .comparison-results {
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .comparison-table th {
+            font-weight: 600;
+            color: hsl(var(--muted-foreground));
+            font-size: 0.85rem;
+        }
+
+        .comparison-winner {
+            background: hsl(var(--primary) / 0.1);
+            font-weight: 600;
+        }
+
+        /* Pricing Banner */
+        .pricing-banner {
+            background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--secondary)));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .pricing-tiers {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tier-card {
+            background: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 16px 24px;
+            min-width: 120px;
+            position: relative;
+        }
+
+        .tier-card.popular {
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 1px hsl(var(--primary));
+        }
+
+        .tier-badge {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .tier-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .tier-price {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: hsl(var(--primary));
+        }
+
+        .tier-limit {
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+        }
     </style>
 </head>
 <body>
@@ -611,6 +830,50 @@
             <p class="hint-text">
                 Select trade count for analysis depth. More trades = richer patterns but longer fetch time.
             </p>
+
+            <!-- Comparison Mode -->
+            <div class="comparison-section" id="comparisonSection">
+                <div class="comparison-header">
+                    <span>Compare Wallets</span>
+                    <button class="btn-small" onclick="toggleComparison()">+ Add Wallet</button>
+                </div>
+                <div id="comparisonWallets" class="comparison-wallets hidden">
+                    <div class="comparison-inputs">
+                        <input type="text" id="compareWallet1" placeholder="Wallet 1 (0x...)" class="compare-input">
+                        <input type="text" id="compareWallet2" placeholder="Wallet 2 (0x...)" class="compare-input">
+                        <input type="text" id="compareWallet3" placeholder="Wallet 3 (optional)" class="compare-input">
+                    </div>
+                    <button class="btn-analyze" onclick="runComparison()">Compare Wallets</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing Banner -->
+        <div class="pricing-banner" id="pricingBanner">
+            <div class="pricing-tiers">
+                <div class="tier-card free">
+                    <div class="tier-name">Free</div>
+                    <div class="tier-price">$0</div>
+                    <div class="tier-limit">100 trades/mo</div>
+                </div>
+                <div class="tier-card starter">
+                    <div class="tier-name">Starter</div>
+                    <div class="tier-price">$19/mo</div>
+                    <div class="tier-limit">1,000 trades</div>
+                </div>
+                <div class="tier-card growth popular">
+                    <div class="tier-badge">POPULAR</div>
+                    <div class="tier-name">Growth</div>
+                    <div class="tier-price">$79/mo</div>
+                    <div class="tier-limit">10,000 trades</div>
+                </div>
+                <div class="tier-card scale">
+                    <div class="tier-name">Scale</div>
+                    <div class="tier-price">$299/mo</div>
+                    <div class="tier-limit">100,000 trades</div>
+                </div>
+            </div>
+            <button class="btn-small" onclick="hidePricing()">Dismiss</button>
         </div>
 
         <div id="error" class="error hidden"></div>
@@ -664,12 +927,54 @@
 
             <div class="tabs">
                 <button class="tab active" onclick="showTab('insights')">Key Insights</button>
+                <button class="tab" onclick="showTab('pnl')">Win/Loss</button>
                 <button class="tab" onclick="showTab('markets')">Top Markets</button>
                 <button class="tab" onclick="showTab('metrics')">All Metrics</button>
             </div>
 
             <div id="insightsTab" class="tab-content active">
                 <div id="insightsGrid" class="insights-grid"></div>
+            </div>
+
+            <div id="pnlTab" class="tab-content">
+                <div class="pnl-summary">
+                    <div class="pnl-cards">
+                        <div class="pnl-card">
+                            <div class="pnl-label">Win Rate</div>
+                            <div class="pnl-value" id="pnlWinRate">0%</div>
+                        </div>
+                        <div class="pnl-card">
+                            <div class="pnl-label">Net P&L</div>
+                            <div class="pnl-value" id="pnlNet">$0</div>
+                        </div>
+                        <div class="pnl-card win">
+                            <div class="pnl-label">Total Profit</div>
+                            <div class="pnl-value" id="pnlProfit">$0</div>
+                        </div>
+                        <div class="pnl-card loss">
+                            <div class="pnl-label">Total Loss</div>
+                            <div class="pnl-value" id="pnlLoss">$0</div>
+                        </div>
+                        <div class="pnl-card">
+                            <div class="pnl-label">Wins</div>
+                            <div class="pnl-value" id="pnlWins">0</div>
+                        </div>
+                        <div class="pnl-card">
+                            <div class="pnl-label">Losses</div>
+                            <div class="pnl-value" id="pnlLosses">0</div>
+                        </div>
+                        <div class="pnl-card">
+                            <div class="pnl-label">Pending</div>
+                            <div class="pnl-value" id="pnlPending">0</div>
+                        </div>
+                        <div class="pnl-card">
+                            <div class="pnl-label">Profit Factor</div>
+                            <div class="pnl-value" id="pnlFactor">0</div>
+                        </div>
+                    </div>
+                </div>
+                <h3 style="margin: 24px 0 16px;">Top Positions by P&L</h3>
+                <div id="pnlPositions" class="pnl-positions"></div>
             </div>
 
             <div id="marketsTab" class="tab-content">
@@ -1017,6 +1322,20 @@
                 ['Top 5 Concentration', markets.concentration_top5?.toFixed(1) + '%' || '0%'],
                 ['Diversification', markets.diversification_score?.toFixed(0) + '/100' || '0/100'],
             ]);
+
+            // P&L metrics if available
+            const pnl = analysis.pnl || {};
+            if (pnl.summary) {
+                addMetricGroup(metricsGrid, 'Performance', [
+                    ['Win Rate', pnl.summary.win_rate?.toFixed(1) + '%' || '0%'],
+                    ['Net P&L', '$' + (pnl.summary.net_pnl?.toLocaleString() || '0')],
+                    ['Profit Factor', pnl.summary.profit_factor === Infinity ? 'N/A' : pnl.summary.profit_factor?.toFixed(2) || '0'],
+                    ['Wins/Losses', `${pnl.summary.wins || 0}/${pnl.summary.losses || 0}`],
+                ]);
+
+                // Display P&L tab
+                displayPnL(pnl);
+            }
         }
 
         function addMetricGroup(container, title, metrics) {
@@ -1079,6 +1398,165 @@
 
         function hideError() {
             document.getElementById('error').classList.add('hidden');
+        }
+
+        // P&L Display
+        function displayPnL(pnl) {
+            if (!pnl || !pnl.summary) return;
+
+            const summary = pnl.summary;
+            document.getElementById('pnlWinRate').textContent = summary.win_rate?.toFixed(1) + '%' || '0%';
+            document.getElementById('pnlNet').textContent = '$' + (summary.net_pnl?.toLocaleString(undefined, {maximumFractionDigits: 2}) || '0');
+            document.getElementById('pnlNet').className = 'pnl-value ' + (summary.net_pnl >= 0 ? 'positive' : 'negative');
+            document.getElementById('pnlProfit').textContent = '$' + (summary.total_profit?.toLocaleString(undefined, {maximumFractionDigits: 2}) || '0');
+            document.getElementById('pnlLoss').textContent = '$' + (summary.total_loss?.toLocaleString(undefined, {maximumFractionDigits: 2}) || '0');
+            document.getElementById('pnlWins').textContent = summary.wins || '0';
+            document.getElementById('pnlLosses').textContent = summary.losses || '0';
+            document.getElementById('pnlPending').textContent = summary.pending || '0';
+            document.getElementById('pnlFactor').textContent = summary.profit_factor === Infinity ? 'N/A' : summary.profit_factor?.toFixed(2) || '0';
+
+            // Positions
+            const positionsDiv = document.getElementById('pnlPositions');
+            positionsDiv.innerHTML = '';
+            const positions = pnl.positions || [];
+
+            positions.slice(0, 20).forEach(pos => {
+                const div = document.createElement('div');
+                div.className = 'pnl-position ' + pos.status;
+                const pnlClass = pos.pnl >= 0 ? 'positive' : 'negative';
+                div.innerHTML = `
+                    <span class="pnl-market" title="${pos.market}">${pos.market}</span>
+                    <span class="pnl-outcome">${pos.outcome_bet} @ $${pos.avg_entry?.toFixed(2) || '0'}</span>
+                    <span class="pnl-amount ${pnlClass}">$${pos.pnl?.toLocaleString(undefined, {maximumFractionDigits: 2}) || '0'}</span>
+                `;
+                positionsDiv.appendChild(div);
+            });
+
+            if (positions.length === 0) {
+                positionsDiv.innerHTML = '<p style="color: hsl(var(--muted-foreground));">No position data available.</p>';
+            }
+        }
+
+        // Comparison Mode
+        function toggleComparison() {
+            const el = document.getElementById('comparisonWallets');
+            el.classList.toggle('hidden');
+        }
+
+        async function runComparison() {
+            const wallet1 = document.getElementById('compareWallet1').value.trim();
+            const wallet2 = document.getElementById('compareWallet2').value.trim();
+            const wallet3 = document.getElementById('compareWallet3').value.trim();
+
+            const wallets = [wallet1, wallet2, wallet3].filter(w => w);
+
+            if (wallets.length < 2) {
+                showError('Please enter at least 2 wallet addresses to compare');
+                return;
+            }
+
+            showLoading(true, 'Comparing wallets...');
+            hideError();
+
+            try {
+                const response = await fetch('/api/compare', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        wallets: wallets,
+                        limit: 1000,
+                        tier: 'growth'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                    showLoading(false);
+                    return;
+                }
+
+                displayComparison(data);
+            } catch (err) {
+                showError('Failed to compare: ' + err.message);
+            }
+
+            showLoading(false);
+        }
+
+        function displayComparison(data) {
+            // Remove existing comparison results
+            const existing = document.getElementById('comparisonResults');
+            if (existing) existing.remove();
+
+            const comparison = data.comparison;
+            const wallets = comparison.wallets || [];
+
+            const div = document.createElement('div');
+            div.id = 'comparisonResults';
+            div.className = 'comparison-results';
+
+            let html = '<h2>Wallet Comparison</h2>';
+
+            // Insights
+            if (comparison.insights) {
+                html += '<div class="insights-grid">';
+                comparison.insights.forEach(insight => {
+                    html += `
+                        <div class="insight-card medium">
+                            <div class="insight-title">${insight.title}</div>
+                            <div class="insight-description">${insight.description}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            // Comparison table
+            html += '<table class="comparison-table"><thead><tr><th>Metric</th>';
+            wallets.forEach(w => {
+                html += `<th>${w.username || w.wallet}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            const metrics = [
+                { key: 'total_trades', label: 'Total Trades', format: v => v.toLocaleString() },
+                { key: 'total_volume', label: 'Volume', format: v => '$' + v.toLocaleString(undefined, {maximumFractionDigits: 0}) },
+                { key: 'avg_trade_size', label: 'Avg Trade', format: v => '$' + v.toFixed(0) },
+                { key: 'win_rate', label: 'Win Rate', format: v => v.toFixed(1) + '%' },
+                { key: 'net_pnl', label: 'Net P&L', format: v => '$' + v.toLocaleString(undefined, {maximumFractionDigits: 2}) },
+                { key: 'trader_type', label: 'Style', format: v => v.replace(/_/g, ' ') },
+            ];
+
+            metrics.forEach(metric => {
+                html += `<tr><td>${metric.label}</td>`;
+                const values = wallets.map(w => w[metric.key] || 0);
+                const maxVal = Math.max(...values.filter(v => typeof v === 'number'));
+
+                wallets.forEach(w => {
+                    const val = w[metric.key];
+                    const isWinner = typeof val === 'number' && val === maxVal && metric.key !== 'trader_type';
+                    html += `<td class="${isWinner ? 'comparison-winner' : ''}">${metric.format(val)}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+
+            div.innerHTML = html;
+            document.querySelector('.container').appendChild(div);
+        }
+
+        // Pricing
+        function hidePricing() {
+            document.getElementById('pricingBanner').style.display = 'none';
+            localStorage.setItem('hidePricing', 'true');
+        }
+
+        // Check if pricing should be hidden
+        if (localStorage.getItem('hidePricing') === 'true') {
+            document.getElementById('pricingBanner').style.display = 'none';
         }
     </script>
 </body>

@@ -13,7 +13,10 @@ import os
 import time
 from datetime import datetime, timezone
 from typing import List, Dict, Set, Optional
-from analytics import analyze_trades, generate_report
+from analytics import (
+    analyze_trades, generate_report, compare_wallets,
+    PRICING_TIERS, get_tier_info, check_feature_access, calculate_overage
+)
 
 app = Flask(__name__, static_folder='.')
 
@@ -362,6 +365,123 @@ TRADE_PRESETS = [100, 1000, 5000, 10000, 50000]
 def get_presets():
     """Return available trade count presets."""
     return jsonify({"presets": TRADE_PRESETS})
+
+
+# =============================================================================
+# COMPARISON MODE
+# =============================================================================
+
+@app.route('/api/compare', methods=['POST'])
+def compare_wallets_endpoint():
+    """Compare multiple wallets side-by-side."""
+    data = request.get_json()
+    wallets = data.get('wallets', [])
+    limit = data.get('limit', 1000)
+    tier = data.get('tier', 'free')
+
+    if not wallets:
+        return jsonify({"error": "No wallets provided"}), 400
+
+    # Check tier access
+    tier_info = get_tier_info(tier)
+    max_wallets = tier_info.get("comparison_wallets", 0)
+
+    if len(wallets) > max_wallets and tier != 'scale':
+        return jsonify({
+            "error": f"Your plan allows comparing up to {max_wallets} wallets. Upgrade to compare more.",
+            "tier": tier,
+            "max_wallets": max_wallets,
+            "upgrade_needed": True
+        }), 403
+
+    # Fetch and analyze each wallet
+    wallet_analyses = []
+    for wallet in wallets[:max_wallets or len(wallets)]:
+        result = fetch_trades_with_limit(wallet, limit)
+        trades = result.get('trades', [])
+
+        if trades:
+            analysis = analyze_trades(trades)
+            wallet_analyses.append({
+                "wallet": wallet,
+                "username": result.get('username'),
+                "trade_count": len(trades),
+                "analysis": analysis,
+                "pnl": analysis.get("pnl", {})
+            })
+
+    # Run comparison
+    comparison = compare_wallets(wallet_analyses)
+
+    return jsonify({
+        "comparison": comparison,
+        "wallet_data": wallet_analyses,
+        "tier": tier
+    })
+
+
+# =============================================================================
+# PRICING ENDPOINTS
+# =============================================================================
+
+@app.route('/api/pricing')
+def get_pricing():
+    """Return pricing tier information."""
+    return jsonify({
+        "tiers": PRICING_TIERS,
+        "overage_rate": 0.01,
+        "currency": "USD"
+    })
+
+
+@app.route('/api/pricing/<tier>')
+def get_tier(tier):
+    """Get specific tier information."""
+    tier_info = get_tier_info(tier)
+    if tier_info:
+        return jsonify(tier_info)
+    return jsonify({"error": "Invalid tier"}), 404
+
+
+@app.route('/api/usage/check', methods=['POST'])
+def check_usage():
+    """Check if usage is within tier limits."""
+    data = request.get_json()
+    tier = data.get('tier', 'free')
+    trades_used = data.get('trades_used', 0)
+
+    tier_info = get_tier_info(tier)
+    limit = tier_info.get("trades_per_month", 100)
+    overage = calculate_overage(tier, trades_used)
+
+    return jsonify({
+        "tier": tier,
+        "limit": limit,
+        "used": trades_used,
+        "remaining": max(0, limit - trades_used),
+        "percentage_used": round(trades_used / limit * 100, 1),
+        "overage": overage,
+        "within_limit": trades_used <= limit
+    })
+
+
+@app.route('/api/features/<feature>')
+def check_feature(feature):
+    """Check which tiers have access to a feature."""
+    tiers_with_access = []
+    for tier_id, tier_info in PRICING_TIERS.items():
+        if feature in tier_info.get("features", []):
+            tiers_with_access.append({
+                "tier": tier_id,
+                "name": tier_info["name"],
+                "price": tier_info["price"]
+            })
+
+    return jsonify({
+        "feature": feature,
+        "available_in": tiers_with_access,
+        "minimum_tier": tiers_with_access[0]["tier"] if tiers_with_access else None
+    })
 
 
 if __name__ == '__main__':
