@@ -10,6 +10,7 @@ venv/
 # Data exports (keep structure, ignore data)
 activity-exports/*.csv
 activity-exports/*.json
+activity-exports/*.db
 !activity-exports/.gitkeep
 
 # macOS
