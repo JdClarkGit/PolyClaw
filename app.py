@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Polymarket Trade Analyzer - Web App
-Full historical trade fetching with download capabilities.
+PolyEdge.io - Trade Analytics Platform
+Full historical trade fetching with pattern detection and analytics.
 """
 
-from flask import Flask, jsonify, request, send_from_directory, send_file
+from flask import Flask, jsonify, request, send_from_directory, send_file, Response
 import requests
 import json
 import csv
@@ -13,6 +13,7 @@ import os
 import time
 from datetime import datetime, timezone
 from typing import List, Dict, Set, Optional
+from analytics import analyze_trades, generate_report
 
 app = Flask(__name__, static_folder='.')
 
@@ -229,6 +230,138 @@ def check_existing(wallet):
                 files.append({"path": path, "size": size})
 
     return jsonify({"wallet": wallet, "files": files})
+
+
+@app.route('/api/analyze/<wallet>')
+def analyze_wallet(wallet):
+    """Analyze trades and return pattern insights."""
+    limit = request.args.get('limit', 1000, type=int)
+    mode = request.args.get('mode', 'recent')
+
+    # Fetch trades
+    if mode == 'full':
+        result = fetch_all_trades(wallet)
+    else:
+        # Use limit for scalable fetching
+        result = fetch_trades_with_limit(wallet, limit)
+
+    trades = result.get('trades', [])
+    if not trades:
+        return jsonify({"error": "No trades found", "wallet": wallet})
+
+    # Run analysis
+    analysis = analyze_trades(trades)
+
+    return jsonify({
+        "wallet": wallet,
+        "username": result.get('username'),
+        "trade_count": len(trades),
+        "analysis": analysis
+    })
+
+
+@app.route('/api/analyze/<wallet>/report')
+def get_analysis_report(wallet):
+    """Generate and download markdown analysis report."""
+    limit = request.args.get('limit', 1000, type=int)
+    mode = request.args.get('mode', 'recent')
+
+    # Fetch trades
+    if mode == 'full':
+        result = fetch_all_trades(wallet)
+    else:
+        result = fetch_trades_with_limit(wallet, limit)
+
+    trades = result.get('trades', [])
+    if not trades:
+        return jsonify({"error": "No trades found"}), 404
+
+    # Run analysis
+    analysis = analyze_trades(trades)
+
+    # Generate report
+    report = generate_report(analysis, wallet, result.get('username'))
+
+    # Return as downloadable markdown
+    username = result.get('username') or wallet[:10]
+    return Response(
+        report,
+        mimetype='text/markdown',
+        headers={'Content-Disposition': f'attachment; filename={username}-analysis.md'}
+    )
+
+
+def fetch_trades_with_limit(wallet: str, limit: int) -> Dict:
+    """Fetch trades up to a specific limit using pagination."""
+    all_trades = []
+    seen_keys: Set[tuple] = set()
+    end_ts = None
+    username = None
+
+    while len(all_trades) < limit:
+        batch_limit = min(BATCH_SIZE, limit - len(all_trades))
+        params = {"user": wallet, "limit": batch_limit}
+        if end_ts:
+            params["end"] = end_ts
+
+        try:
+            response = requests.get(f"{DATA_API}/activity", params=params, timeout=30)
+            response.raise_for_status()
+            trades = response.json()
+        except Exception as e:
+            break
+
+        if not trades or not isinstance(trades, list):
+            break
+
+        if not username and trades[0].get('name'):
+            username = trades[0].get('name')
+
+        oldest_ts = float('inf')
+        new_count = 0
+
+        for t in trades:
+            if len(all_trades) >= limit:
+                break
+            key = (t.get('transactionHash'), t.get('timestamp'), t.get('asset'))
+            if key not in seen_keys:
+                seen_keys.add(key)
+                all_trades.append(t)
+                new_count += 1
+
+            ts = t.get('timestamp', 0)
+            if ts and ts < oldest_ts:
+                oldest_ts = ts
+
+        if len(trades) < batch_limit or new_count == 0:
+            break
+
+        if oldest_ts != float('inf'):
+            end_ts = oldest_ts
+        else:
+            break
+
+        time.sleep(0.1)
+
+    all_trades.sort(key=lambda t: t.get('timestamp', 0), reverse=True)
+
+    return {
+        "wallet": wallet,
+        "username": username,
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+        "trade_count": len(all_trades),
+        "trades": all_trades
+    }
+
+
+# Trade count presets for UI
+TRADE_PRESETS = [100, 1000, 5000, 10000, 50000]
+
+
+@app.route('/api/presets')
+def get_presets():
+    """Return available trade count presets."""
+    return jsonify({"presets": TRADE_PRESETS})
 
 
 if __name__ == '__main__':

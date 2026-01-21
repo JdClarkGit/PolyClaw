@@ -29,7 +29,6 @@
             --radius: 0.5rem;
         }
 
-        /* Dark mode */
         :root.dark {
             --background: 20 10% 10%;
             --foreground: 40 20% 92%;
@@ -94,6 +93,14 @@
         }
         h1 span { color: hsl(var(--primary)); }
 
+        h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: hsl(var(--foreground));
+        }
+
         .subtitle {
             color: hsl(var(--muted-foreground));
             margin-bottom: 24px;
@@ -117,7 +124,7 @@
 
         input[type="text"] {
             flex: 1;
-            min-width: 300px;
+            min-width: 280px;
             padding: 12px 16px;
             font-size: 14px;
             font-family: 'JetBrains Mono', monospace;
@@ -134,6 +141,18 @@
         }
         input[type="text"]::placeholder { color: hsl(var(--muted-foreground)); }
 
+        select {
+            padding: 12px 16px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            background: hsl(var(--input));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            color: hsl(var(--foreground));
+            outline: none;
+            cursor: pointer;
+        }
+
         button {
             padding: 12px 20px;
             font-size: 14px;
@@ -149,27 +168,20 @@
             background: hsl(var(--primary));
             color: hsl(var(--primary-foreground));
         }
-        .btn-primary:hover {
-            background: hsl(var(--primary) / 0.9);
-        }
+        .btn-primary:hover { background: hsl(var(--primary) / 0.9); }
 
-        .btn-full {
-            background: hsl(var(--secondary));
-            color: hsl(var(--secondary-foreground));
-            border: 1px solid hsl(var(--border));
+        .btn-analyze {
+            background: linear-gradient(135deg, hsl(var(--primary)), hsl(200 70% 45%));
+            color: hsl(var(--primary-foreground));
         }
-        .btn-full:hover {
-            background: hsl(var(--muted));
-        }
+        .btn-analyze:hover { opacity: 0.9; }
 
         .btn-secondary {
             background: hsl(var(--secondary));
             color: hsl(var(--secondary-foreground));
             border: 1px solid hsl(var(--border));
         }
-        .btn-secondary:hover {
-            background: hsl(var(--muted));
-        }
+        .btn-secondary:hover { background: hsl(var(--muted)); }
 
         button:disabled {
             background: hsl(var(--muted));
@@ -227,7 +239,7 @@
             border: 1px solid hsl(var(--border));
             border-radius: var(--radius);
             overflow: hidden;
-            max-height: 600px;
+            max-height: 500px;
             overflow-y: auto;
         }
 
@@ -262,7 +274,7 @@
         .side-sell { color: hsl(var(--destructive)); font-weight: 600; }
 
         .market-name {
-            max-width: 280px;
+            max-width: 240px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -360,38 +372,11 @@
             color: hsl(var(--primary-foreground));
         }
 
-        .progress-bar {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-        .progress-bar .bar {
-            height: 6px;
-            background: hsl(var(--muted));
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .progress-bar .bar-fill {
-            height: 100%;
-            background: hsl(var(--primary));
-            width: 0%;
-            transition: width 0.3s;
-        }
-        .progress-bar .text {
-            margin-top: 8px;
-            font-size: 0.8rem;
-            color: hsl(var(--muted-foreground));
-        }
-
-        /* Monospace for data cells */
         td {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.8rem;
         }
 
-        /* Header with theme toggle */
         .header {
             display: flex;
             justify-content: space-between;
@@ -399,9 +384,7 @@
             margin-bottom: 24px;
         }
 
-        .header-left {
-            flex: 1;
-        }
+        .header-left { flex: 1; }
 
         .theme-toggle {
             background: hsl(var(--secondary));
@@ -416,14 +399,180 @@
             color: hsl(var(--foreground));
             transition: all 0.2s;
         }
+        .theme-toggle:hover { background: hsl(var(--muted)); }
+        .theme-toggle svg { width: 16px; height: 16px; }
 
-        .theme-toggle:hover {
-            background: hsl(var(--muted));
+        /* Analytics Section */
+        .analytics-section {
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
         }
 
-        .theme-toggle svg {
-            width: 16px;
-            height: 16px;
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .insight-card {
+            background: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+
+        .insight-card.high {
+            border-left: 3px solid hsl(var(--destructive));
+        }
+        .insight-card.medium {
+            border-left: 3px solid hsl(45 90% 50%);
+        }
+        .insight-card.low {
+            border-left: 3px solid hsl(var(--primary));
+        }
+
+        .insight-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .insight-description {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.85rem;
+        }
+
+        .insight-category {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            background: hsl(var(--muted));
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 8px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .metric-group {
+            background: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+
+        .metric-group h3 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: hsl(var(--muted-foreground));
+            margin-bottom: 12px;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid hsl(var(--border));
+            font-size: 0.85rem;
+        }
+        .metric-item:last-child { border-bottom: none; }
+
+        .metric-label { color: hsl(var(--muted-foreground)); }
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid hsl(var(--border));
+            padding-bottom: 4px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            background: transparent;
+            border: none;
+            color: hsl(var(--muted-foreground));
+            cursor: pointer;
+            border-radius: var(--radius) var(--radius) 0 0;
+        }
+        .tab:hover { color: hsl(var(--foreground)); }
+        .tab.active {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .top-markets {
+            display: grid;
+            gap: 8px;
+        }
+
+        .market-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+        }
+
+        .market-rank {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: hsl(var(--muted-foreground));
+            width: 24px;
+        }
+
+        .market-info { flex: 1; min-width: 0; }
+
+        .market-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+        }
+
+        .market-stats {
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .market-volume {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: hsl(var(--primary));
+        }
+
+        .trader-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: var(--radius);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, hsl(var(--primary)), hsl(200 70% 45%));
+            color: hsl(var(--primary-foreground));
+            margin-bottom: 16px;
         }
     </style>
 </head>
@@ -432,7 +581,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>Poly<span>Edge</span>.io</h1>
-                <p class="subtitle">Fetch and analyze trading history for any wallet</p>
+                <p class="subtitle">Trade analytics and pattern detection for Polymarket</p>
             </div>
             <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
                 <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -448,26 +597,33 @@
         <div class="input-section">
             <div class="input-row">
                 <input type="text" id="walletInput" placeholder="Enter wallet address (0x...)">
-                <button class="btn-primary" id="fetchBtn" onclick="fetchTrades('recent')">Quick Fetch</button>
-                <button class="btn-full" id="fullBtn" onclick="fetchTrades('full')">Full History</button>
+                <select id="tradeCount">
+                    <option value="100">100 trades</option>
+                    <option value="1000" selected>1,000 trades</option>
+                    <option value="5000">5,000 trades</option>
+                    <option value="10000">10,000 trades</option>
+                    <option value="50000">50,000 trades</option>
+                    <option value="full">Full History</option>
+                </select>
+                <button class="btn-primary" id="fetchBtn" onclick="fetchTrades()">Fetch Trades</button>
+                <button class="btn-analyze" id="analyzeBtn" onclick="analyzeTrades()">Analyze Patterns</button>
             </div>
             <p class="hint-text">
-                <strong>Quick Fetch:</strong> Last 100 trades &nbsp;&bull;&nbsp;
-                <strong>Full History:</strong> All trades (may take longer for active wallets)
+                Select trade count for analysis depth. More trades = richer patterns but longer fetch time.
             </p>
         </div>
 
         <div id="error" class="error hidden"></div>
 
-        <div id="progressBar" class="progress-bar hidden">
-            <div class="bar"><div class="bar-fill" id="progressFill"></div></div>
-            <div class="text" id="progressText">Fetching trades...</div>
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p id="loadingText">Fetching trades...</p>
         </div>
 
         <div id="userInfo" class="user-info hidden">
             <div>
                 <span class="username" id="displayUsername">-</span>
-                <span class="mode-indicator mode-recent" id="modeIndicator">RECENT</span>
+                <span class="mode-indicator mode-recent" id="modeIndicator">1,000 TRADES</span>
             </div>
             <span class="wallet" id="displayWallet">-</span>
             <span class="date-range" id="dateRange">-</span>
@@ -494,16 +650,41 @@
                 <div class="stat-value" id="uniqueMarkets">0</div>
                 <div class="stat-label">Markets</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgTradeSize">$0</div>
+                <div class="stat-label">Avg Size</div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analyticsSection" class="analytics-section hidden">
+            <h2>Pattern Analysis</h2>
+
+            <div id="traderType" class="trader-badge">Standard Trader</div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('insights')">Key Insights</button>
+                <button class="tab" onclick="showTab('markets')">Top Markets</button>
+                <button class="tab" onclick="showTab('metrics')">All Metrics</button>
+            </div>
+
+            <div id="insightsTab" class="tab-content active">
+                <div id="insightsGrid" class="insights-grid"></div>
+            </div>
+
+            <div id="marketsTab" class="tab-content">
+                <div id="topMarkets" class="top-markets"></div>
+            </div>
+
+            <div id="metricsTab" class="tab-content">
+                <div id="metricsGrid" class="metrics-grid"></div>
+            </div>
         </div>
 
         <div id="downloadSection" class="download-section hidden">
             <button class="btn-secondary" onclick="downloadJSON()">Download JSON</button>
             <button class="btn-secondary" onclick="downloadCSV()">Download CSV</button>
-        </div>
-
-        <div id="loading" class="loading hidden">
-            <div class="spinner"></div>
-            <p id="loadingText">Fetching trades from Polymarket...</p>
+            <button class="btn-secondary" onclick="downloadReport()">Download Analysis Report</button>
         </div>
 
         <div id="tableContainer" class="table-container hidden">
@@ -527,8 +708,9 @@
 
     <script>
         let currentWallet = '';
-        let currentMode = 'recent';
+        let currentLimit = 1000;
         let currentData = null;
+        let currentAnalysis = null;
 
         // Theme management
         function initTheme() {
@@ -542,7 +724,6 @@
                 document.documentElement.classList.remove('dark');
                 updateThemeUI(false);
             } else {
-                // Use system preference
                 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 updateThemeUI(prefersDark);
             }
@@ -575,25 +756,28 @@
         initTheme();
 
         document.getElementById('walletInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') fetchTrades('recent');
+            if (e.key === 'Enter') fetchTrades();
         });
 
-        async function fetchTrades(mode) {
+        async function fetchTrades() {
             const wallet = document.getElementById('walletInput').value.trim();
             if (!wallet) {
                 showError('Please enter a wallet address');
                 return;
             }
 
+            const limitSelect = document.getElementById('tradeCount').value;
             currentWallet = wallet;
-            currentMode = mode;
-            showLoading(true, mode);
+            currentLimit = limitSelect === 'full' ? 'full' : parseInt(limitSelect);
+
+            showLoading(true, `Fetching ${currentLimit === 'full' ? 'full history' : currentLimit.toLocaleString() + ' trades'}...`);
             hideError();
+            hideAnalytics();
 
             try {
-                const url = mode === 'full'
+                const url = currentLimit === 'full'
                     ? `/api/trades/${wallet}?mode=full`
-                    : `/api/trades/${wallet}?limit=100`;
+                    : `/api/trades/${wallet}?limit=${currentLimit}`;
 
                 const response = await fetch(url);
                 const data = await response.json();
@@ -605,7 +789,7 @@
                 }
 
                 currentData = data;
-                displayResults(data, mode);
+                displayResults(data);
             } catch (err) {
                 showError('Failed to fetch trades: ' + err.message);
             }
@@ -613,26 +797,68 @@
             showLoading(false);
         }
 
-        function displayResults(data, mode) {
-            // User info
+        async function analyzeTrades() {
+            const wallet = document.getElementById('walletInput').value.trim();
+            if (!wallet) {
+                showError('Please enter a wallet address');
+                return;
+            }
+
+            const limitSelect = document.getElementById('tradeCount').value;
+            currentWallet = wallet;
+            currentLimit = limitSelect === 'full' ? 'full' : parseInt(limitSelect);
+
+            showLoading(true, `Analyzing ${currentLimit === 'full' ? 'full history' : currentLimit.toLocaleString() + ' trades'}...`);
+            hideError();
+
+            try {
+                const url = currentLimit === 'full'
+                    ? `/api/analyze/${wallet}?mode=full`
+                    : `/api/analyze/${wallet}?limit=${currentLimit}`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                    showLoading(false);
+                    return;
+                }
+
+                currentAnalysis = data;
+
+                // Also fetch the raw trades for display
+                const tradesUrl = currentLimit === 'full'
+                    ? `/api/trades/${wallet}?mode=full`
+                    : `/api/trades/${wallet}?limit=${currentLimit}`;
+                const tradesResponse = await fetch(tradesUrl);
+                currentData = await tradesResponse.json();
+
+                displayResults(currentData);
+                displayAnalytics(data.analysis);
+            } catch (err) {
+                showError('Failed to analyze: ' + err.message);
+            }
+
+            showLoading(false);
+        }
+
+        function displayResults(data) {
             document.getElementById('displayUsername').textContent = data.username || 'Unknown';
             document.getElementById('displayWallet').textContent = data.wallet;
 
             const modeIndicator = document.getElementById('modeIndicator');
-            modeIndicator.textContent = mode === 'full' ? 'FULL HISTORY' : 'RECENT';
-            modeIndicator.className = 'mode-indicator ' + (mode === 'full' ? 'mode-full' : 'mode-recent');
+            const tradeCount = data.trade_count || data.trades?.length || 0;
+            modeIndicator.textContent = tradeCount.toLocaleString() + ' TRADES';
+            modeIndicator.className = 'mode-indicator ' + (tradeCount > 10000 ? 'mode-full' : 'mode-recent');
 
-            // Date range
             if (data.stats) {
                 document.getElementById('dateRange').textContent =
                     `${data.stats.oldest_trade || '?'} → ${data.stats.newest_trade || '?'}`;
-            } else {
-                document.getElementById('dateRange').textContent = '';
             }
 
             document.getElementById('userInfo').classList.remove('hidden');
 
-            // Stats
             const trades = data.trades || [];
             let totalVolume = 0, buyCount = 0, sellCount = 0;
             const markets = new Set();
@@ -644,19 +870,22 @@
                 if (t.title) markets.add(t.title);
             });
 
+            const avgSize = trades.length > 0 ? totalVolume / trades.length : 0;
+
             document.getElementById('totalTrades').textContent = trades.length.toLocaleString();
-            document.getElementById('totalVolume').textContent = '$' + totalVolume.toLocaleString(undefined, {maximumFractionDigits: 2});
+            document.getElementById('totalVolume').textContent = '$' + totalVolume.toLocaleString(undefined, {maximumFractionDigits: 0});
             document.getElementById('buyCount').textContent = buyCount.toLocaleString();
             document.getElementById('sellCount').textContent = sellCount.toLocaleString();
             document.getElementById('uniqueMarkets').textContent = markets.size.toLocaleString();
+            document.getElementById('avgTradeSize').textContent = '$' + avgSize.toLocaleString(undefined, {maximumFractionDigits: 0});
             document.getElementById('stats').classList.remove('hidden');
             document.getElementById('downloadSection').classList.remove('hidden');
 
-            // Table (limit to 1000 rows for performance)
+            // Table
             const tbody = document.getElementById('tradesBody');
             tbody.innerHTML = '';
 
-            const displayTrades = trades.slice(0, 1000);
+            const displayTrades = trades.slice(0, 500);
             displayTrades.forEach(trade => {
                 const row = document.createElement('tr');
                 const ts = trade.timestamp;
@@ -682,36 +911,164 @@
                 tbody.appendChild(row);
             });
 
-            if (trades.length > 1000) {
+            if (trades.length > 500) {
                 const note = document.createElement('tr');
-                note.innerHTML = `<td colspan="8" style="text-align:center;color:hsl(var(--muted-foreground));padding:20px;">Showing 1,000 of ${trades.length.toLocaleString()} trades. Download CSV for full data.</td>`;
+                note.innerHTML = `<td colspan="8" style="text-align:center;color:hsl(var(--muted-foreground));padding:20px;">Showing 500 of ${trades.length.toLocaleString()} trades. Download for full data.</td>`;
                 tbody.appendChild(note);
             }
 
             document.getElementById('tableContainer').classList.remove('hidden');
         }
 
+        function displayAnalytics(analysis) {
+            document.getElementById('analyticsSection').classList.remove('hidden');
+
+            // Trader type badge
+            const traderType = analysis.behavioral_patterns?.trader_classification?.primary_type || 'standard';
+            document.getElementById('traderType').textContent = traderType.replace(/_/g, ' ').toUpperCase() + ' TRADER';
+
+            // Insights
+            const insightsGrid = document.getElementById('insightsGrid');
+            insightsGrid.innerHTML = '';
+            const insights = analysis.insights || [];
+            insights.forEach(insight => {
+                const card = document.createElement('div');
+                card.className = `insight-card ${insight.importance}`;
+                card.innerHTML = `
+                    <span class="insight-category">${insight.category}</span>
+                    <div class="insight-title">${insight.title}</div>
+                    <div class="insight-description">${insight.description}</div>
+                `;
+                insightsGrid.appendChild(card);
+            });
+
+            if (insights.length === 0) {
+                insightsGrid.innerHTML = '<p style="color: hsl(var(--muted-foreground));">No significant patterns detected. Try analyzing more trades.</p>';
+            }
+
+            // Top markets
+            const topMarketsDiv = document.getElementById('topMarkets');
+            topMarketsDiv.innerHTML = '';
+            const topMarkets = analysis.market_analysis?.top_markets || [];
+            topMarkets.slice(0, 15).forEach((market, i) => {
+                const row = document.createElement('div');
+                row.className = 'market-row';
+                row.innerHTML = `
+                    <span class="market-rank">#${i + 1}</span>
+                    <div class="market-info">
+                        <div class="market-title">${market.name}</div>
+                        <div class="market-stats">${market.trade_count} trades | ${market.buys} buys, ${market.sells} sells</div>
+                    </div>
+                    <span class="market-volume">$${market.volume.toLocaleString(undefined, {maximumFractionDigits: 0})}</span>
+                `;
+                topMarketsDiv.appendChild(row);
+            });
+
+            // Metrics
+            const metricsGrid = document.getElementById('metricsGrid');
+            metricsGrid.innerHTML = '';
+
+            // Summary metrics
+            const summary = analysis.summary || {};
+            addMetricGroup(metricsGrid, 'Summary', [
+                ['Trades/Day', summary.trades_per_day?.toFixed(1) || '0'],
+                ['Days Active', summary.days_active || '0'],
+                ['Buy/Sell Ratio', summary.buy_sell_ratio?.toFixed(2) || '0'],
+                ['Largest Trade', '$' + (summary.largest_trade?.toLocaleString() || '0')],
+            ]);
+
+            // Position sizing
+            const sizing = analysis.position_sizing || {};
+            addMetricGroup(metricsGrid, 'Position Sizing', [
+                ['Style', sizing.sizing_style?.replace(/_/g, ' ') || 'N/A'],
+                ['Median Size', '$' + (sizing.percentiles?.p50?.toFixed(0) || '0')],
+                ['95th Percentile', '$' + (sizing.percentiles?.p95?.toFixed(0) || '0')],
+                ['Variability', sizing.coefficient_of_variation?.toFixed(2) || '0'],
+            ]);
+
+            // Outcome analysis
+            const outcomes = analysis.outcome_analysis || {};
+            addMetricGroup(metricsGrid, 'Outcome Bias', [
+                ['Yes/Up %', outcomes.yes_percentage?.toFixed(1) + '%' || '0%'],
+                ['No/Down %', outcomes.no_percentage?.toFixed(1) + '%' || '0%'],
+                ['Preference', outcomes.preference || 'neutral'],
+            ]);
+
+            // Risk metrics
+            const risk = analysis.risk_metrics || {};
+            addMetricGroup(metricsGrid, 'Risk Metrics', [
+                ['Max Trade Risk', risk.max_single_trade_risk?.toFixed(1) + '%' || '0%'],
+                ['Concentration', risk.market_concentration_risk?.toFixed(1) + '%' || '0%'],
+                ['Risk Score', risk.risk_score?.toFixed(0) + '/100' || '0/100'],
+            ]);
+
+            // Timing
+            const timing = analysis.timing_patterns || {};
+            addMetricGroup(metricsGrid, 'Timing', [
+                ['Peak Day', timing.peak_day || 'N/A'],
+                ['Peak Hours', timing.peak_hours?.join(', ') || 'N/A'],
+                ['Primary Session', timing.primary_session?.replace(/_/g, ' ') || 'N/A'],
+            ]);
+
+            // Market analysis
+            const markets = analysis.market_analysis || {};
+            addMetricGroup(metricsGrid, 'Market Focus', [
+                ['Unique Markets', markets.unique_markets || '0'],
+                ['Top 5 Concentration', markets.concentration_top5?.toFixed(1) + '%' || '0%'],
+                ['Diversification', markets.diversification_score?.toFixed(0) + '/100' || '0/100'],
+            ]);
+        }
+
+        function addMetricGroup(container, title, metrics) {
+            const group = document.createElement('div');
+            group.className = 'metric-group';
+            group.innerHTML = `<h3>${title}</h3>`;
+            metrics.forEach(([label, value]) => {
+                const item = document.createElement('div');
+                item.className = 'metric-item';
+                item.innerHTML = `<span class="metric-label">${label}</span><span class="metric-value">${value}</span>`;
+                group.appendChild(item);
+            });
+            container.appendChild(group);
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        function hideAnalytics() {
+            document.getElementById('analyticsSection').classList.add('hidden');
+        }
+
         function downloadJSON() {
             if (!currentWallet) return;
-            window.location.href = `/api/download/${currentWallet}/json?mode=${currentMode}`;
+            const mode = currentLimit === 'full' ? 'full' : 'recent';
+            const limit = currentLimit === 'full' ? '' : `&limit=${currentLimit}`;
+            window.location.href = `/api/download/${currentWallet}/json?mode=${mode}${limit}`;
         }
 
         function downloadCSV() {
             if (!currentWallet) return;
-            window.location.href = `/api/download/${currentWallet}/csv?mode=${currentMode}`;
+            const mode = currentLimit === 'full' ? 'full' : 'recent';
+            const limit = currentLimit === 'full' ? '' : `&limit=${currentLimit}`;
+            window.location.href = `/api/download/${currentWallet}/csv?mode=${mode}${limit}`;
         }
 
-        function showLoading(show, mode = 'recent') {
-            document.getElementById('loading').classList.toggle('hidden', !show);
-            document.getElementById('fetchBtn').disabled = show;
-            document.getElementById('fullBtn').disabled = show;
+        function downloadReport() {
+            if (!currentWallet) return;
+            const mode = currentLimit === 'full' ? 'full' : 'recent';
+            const limit = currentLimit === 'full' ? '' : `&limit=${currentLimit}`;
+            window.location.href = `/api/analyze/${currentWallet}/report?mode=${mode}${limit}`;
+        }
 
-            if (show && mode === 'full') {
-                document.getElementById('loadingText').textContent =
-                    'Fetching full history... This may take a few minutes for active wallets.';
-            } else {
-                document.getElementById('loadingText').textContent = 'Fetching trades...';
-            }
+        function showLoading(show, text = 'Fetching trades...') {
+            document.getElementById('loading').classList.toggle('hidden', !show);
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('fetchBtn').disabled = show;
+            document.getElementById('analyzeBtn').disabled = show;
         }
 
         function showError(msg) {
