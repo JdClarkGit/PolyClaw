@@ -13,12 +13,34 @@ import os
 import time
 from datetime import datetime, timezone
 from typing import List, Dict, Set, Optional
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 from analytics import (
     analyze_trades, generate_report, compare_wallets,
     PRICING_TIERS, get_tier_info, check_feature_access, calculate_overage
 )
 
 app = Flask(__name__, static_folder='.')
+
+# Configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///polyedge.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize database
+from models import db, init_db
+init_db(app)
+
+# Initialize authentication
+from auth import init_auth
+init_auth(app)
+
+# Initialize payments
+from payments import init_payments
+init_payments(app)
 
 DATA_API = "https://data-api.polymarket.com"
 OUTPUT_DIR = "activity-exports"
