@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polymarket Trade Viewer</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        h1 span { color: #00d4ff; }
+
+        /* Input Section */
+        .input-section {
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .input-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        input[type="text"] {
+            flex: 1;
+            min-width: 300px;
+            padding: 14px 18px;
+            font-size: 16px;
+            background: #0a0a0f;
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            font-family: monospace;
+        }
+        input[type="text"]:focus { border-color: #00d4ff; }
+        input[type="text"]::placeholder { color: #666; }
+
+        button {
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #00d4ff;
+            color: #000;
+        }
+        .btn-primary:hover { background: #00b8e6; }
+        .btn-primary:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background: #2a2a3e;
+            color: #fff;
+        }
+        .btn-secondary:hover { background: #3a3a4e; }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* Download buttons */
+        .download-section {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        /* Table */
+        .table-container {
+            background: #1a1a2e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #2a2a3e;
+        }
+        th {
+            background: #0a0a0f;
+            font-weight: 600;
+            color: #888;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover { background: #222238; }
+        .side-buy { color: #00ff88; font-weight: 600; }
+        .side-sell { color: #ff3366; font-weight: 600; }
+        .price { font-family: monospace; }
+        .market-name {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .outcome-up { color: #00ff88; }
+        .outcome-down { color: #ff3366; }
+        .tx-hash {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .tx-hash a { color: #00d4ff; text-decoration: none; }
+        .tx-hash a:hover { text-decoration: underline; }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #333;
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Error */
+        .error {
+            background: #3a1a1a;
+            border: 1px solid #ff3366;
+            border-radius: 8px;
+            padding: 16px;
+            color: #ff6688;
+            margin-bottom: 24px;
+        }
+
+        /* Username display */
+        .user-info {
+            background: #1a2a1a;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .user-info strong { color: #00ff88; }
+
+        /* Hidden */
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Polymarket <span>Trade Viewer</span></h1>
+
+        <div class="input-section">
+            <div class="input-row">
+                <input type="text" id="walletInput" placeholder="Enter wallet address (0x...) or username">
+                <button class="btn-primary" id="fetchBtn" onclick="fetchTrades()">Fetch Trades</button>
+            </div>
+            <p style="margin-top: 12px; color: #666; font-size: 0.9rem;">
+                Example: 0x6031b6eed1c97e853c6e0f03ad3ce3529351f96d (gabagool22)
+            </p>
+        </div>
+
+        <div id="error" class="error hidden"></div>
+
+        <div id="userInfo" class="user-info hidden">
+            <span>Wallet:</span>
+            <strong id="displayUsername"></strong>
+            <span id="displayWallet" style="color: #666; font-family: monospace; font-size: 0.85rem;"></span>
+        </div>
+
+        <div id="stats" class="stats hidden">
+            <div class="stat-card">
+                <div class="stat-value" id="totalTrades">0</div>
+                <div class="stat-label">Total Trades</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalVolume">$0</div>
+                <div class="stat-label">Total Volume</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="buyCount">0</div>
+                <div class="stat-label">Buys</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="sellCount">0</div>
+                <div class="stat-label">Sells</div>
+            </div>
+        </div>
+
+        <div id="downloadSection" class="download-section hidden">
+            <button class="btn-secondary" onclick="downloadJSON()">Download JSON</button>
+            <button class="btn-secondary" onclick="downloadCSV()">Download CSV</button>
+        </div>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Fetching trades from Polymarket...</p>
+        </div>
+
+        <div id="tableContainer" class="table-container hidden">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Side</th>
+                        <th>Market</th>
+                        <th>Outcome</th>
+                        <th>Price</th>
+                        <th>Size</th>
+                        <th>Value (USD)</th>
+                        <th>Tx Hash</th>
+                    </tr>
+                </thead>
+                <tbody id="tradesBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let currentWallet = '';
+        let currentData = null;
+
+        // Allow Enter key to submit
+        document.getElementById('walletInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') fetchTrades();
+        });
+
+        async function fetchTrades() {
+            const wallet = document.getElementById('walletInput').value.trim();
+            if (!wallet) {
+                showError('Please enter a wallet address');
+                return;
+            }
+
+            currentWallet = wallet;
+            showLoading(true);
+            hideError();
+
+            try {
+                const response = await fetch(`/api/trades/${wallet}?limit=100`);
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                    showLoading(false);
+                    return;
+                }
+
+                currentData = data;
+                displayResults(data);
+            } catch (err) {
+                showError('Failed to fetch trades: ' + err.message);
+            }
+
+            showLoading(false);
+        }
+
+        function displayResults(data) {
+            // Show user info
+            const userInfo = document.getElementById('userInfo');
+            document.getElementById('displayUsername').textContent = data.username || 'Unknown';
+            document.getElementById('displayWallet').textContent = data.wallet;
+            userInfo.classList.remove('hidden');
+
+            // Calculate stats
+            const trades = data.trades || [];
+            let totalVolume = 0;
+            let buyCount = 0;
+            let sellCount = 0;
+
+            trades.forEach(t => {
+                totalVolume += t.usdcSize || 0;
+                if (t.side === 'BUY') buyCount++;
+                else if (t.side === 'SELL') sellCount++;
+            });
+
+            // Display stats
+            document.getElementById('totalTrades').textContent = trades.length;
+            document.getElementById('totalVolume').textContent = '$' + totalVolume.toFixed(2);
+            document.getElementById('buyCount').textContent = buyCount;
+            document.getElementById('sellCount').textContent = sellCount;
+            document.getElementById('stats').classList.remove('hidden');
+
+            // Show download buttons
+            document.getElementById('downloadSection').classList.remove('hidden');
+
+            // Build table
+            const tbody = document.getElementById('tradesBody');
+            tbody.innerHTML = '';
+
+            trades.forEach(trade => {
+                const row = document.createElement('tr');
+
+                // Format timestamp
+                const ts = trade.timestamp;
+                const date = new Date(ts * 1000);
+                const timeStr = date.toLocaleString();
+
+                // Side styling
+                const sideClass = trade.side === 'BUY' ? 'side-buy' : 'side-sell';
+
+                // Outcome styling
+                const outcomeClass = trade.outcome === 'Up' || trade.outcome === 'Yes' ? 'outcome-up' : 'outcome-down';
+
+                // Short tx hash
+                const txHash = trade.transactionHash || '';
+                const shortTx = txHash ? txHash.slice(0, 10) + '...' : '-';
+                const txLink = txHash ? `https://polygonscan.com/tx/${txHash}` : '#';
+
+                row.innerHTML = `
+                    <td>${timeStr}</td>
+                    <td class="${sideClass}">${trade.side || '-'}</td>
+                    <td class="market-name" title="${trade.title || ''}">${trade.title || '-'}</td>
+                    <td class="${outcomeClass}">${trade.outcome || '-'}</td>
+                    <td class="price">$${(trade.price || 0).toFixed(2)}</td>
+                    <td>${(trade.size || 0).toFixed(2)}</td>
+                    <td>$${(trade.usdcSize || 0).toFixed(2)}</td>
+                    <td class="tx-hash"><a href="${txLink}" target="_blank">${shortTx}</a></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('tableContainer').classList.remove('hidden');
+        }
+
+        function downloadJSON() {
+            if (!currentWallet) return;
+            window.location.href = `/api/download/${currentWallet}/json`;
+        }
+
+        function downloadCSV() {
+            if (!currentWallet) return;
+            window.location.href = `/api/download/${currentWallet}/csv`;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('hidden', !show);
+            document.getElementById('fetchBtn').disabled = show;
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('error').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
