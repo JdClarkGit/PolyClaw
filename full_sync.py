@@ -41,6 +41,34 @@ def fetch_batch(wallet: str, end_ts: Optional[int] = None) -> List[Dict]:
         return []
 
 
+def save_checkpoint(wallet: str, username: str, all_trades: List[Dict], batch_num: int):
+    """Save incremental checkpoint."""
+    prefix = username or wallet[:10]
+    checkpoint_file = f"{OUTPUT_DIR}/{prefix}-checkpoint.json"
+
+    # Calculate quick stats
+    timestamps = [t.get('timestamp', 0) for t in all_trades if t.get('timestamp')]
+    oldest = datetime.fromtimestamp(min(timestamps)).strftime('%Y-%m-%d %H:%M') if timestamps else 'Unknown'
+    newest = datetime.fromtimestamp(max(timestamps)).strftime('%Y-%m-%d %H:%M') if timestamps else 'Unknown'
+
+    checkpoint = {
+        "wallet": wallet,
+        "username": username,
+        "checkpoint_at": datetime.now().isoformat(),
+        "trade_count": len(all_trades),
+        "batches": batch_num,
+        "oldest_trade": oldest,
+        "newest_trade": newest,
+        "status": "in_progress",
+        "trades": sorted(all_trades, key=lambda t: t.get('timestamp', 0), reverse=True)
+    }
+
+    with open(checkpoint_file, 'w') as f:
+        json.dump(checkpoint, f, indent=2)
+
+    return checkpoint_file
+
+
 def full_sync(wallet: str) -> Dict:
     """Pull complete trade history using backward pagination."""
 
@@ -53,6 +81,7 @@ def full_sync(wallet: str) -> Dict:
     end_ts = None
     username = None
     batch_num = 0
+    checkpoint_interval = 50  # Save every 50 batches (~35-40k trades)
 
     start_time = time.time()
 
@@ -121,6 +150,11 @@ def full_sync(wallet: str) -> Dict:
 
         # Rate limit
         time.sleep(RATE_LIMIT)
+
+        # Save checkpoint periodically
+        if batch_num % checkpoint_interval == 0:
+            cp_file = save_checkpoint(wallet, username, all_trades, batch_num)
+            print(f"\n   💾 Checkpoint saved: {len(all_trades):,} trades → {cp_file}")
 
     elapsed = time.time() - start_time
 
