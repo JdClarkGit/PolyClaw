@@ -29,8 +29,29 @@
             --radius: 0.5rem;
         }
 
+        /* Dark mode */
+        :root.dark {
+            --background: 20 10% 10%;
+            --foreground: 40 20% 92%;
+            --card: 20 10% 14%;
+            --card-foreground: 40 20% 92%;
+            --primary: 142 50% 45%;
+            --primary-foreground: 20 10% 10%;
+            --secondary: 20 10% 18%;
+            --secondary-foreground: 40 20% 92%;
+            --muted: 20 10% 20%;
+            --muted-foreground: 40 15% 60%;
+            --accent: 142 50% 45%;
+            --accent-foreground: 20 10% 10%;
+            --destructive: 0 62.8% 50%;
+            --destructive-foreground: 40 30% 96%;
+            --border: 20 10% 25%;
+            --input: 20 10% 20%;
+            --ring: 142 50% 45%;
+        }
+
         @media (prefers-color-scheme: dark) {
-            :root {
+            :root:not(.light) {
                 --background: 20 10% 10%;
                 --foreground: 40 20% 92%;
                 --card: 20 10% 14%;
@@ -369,12 +390,60 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.8rem;
         }
+
+        /* Header with theme toggle */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .theme-toggle {
+            background: hsl(var(--secondary));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: hsl(var(--foreground));
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background: hsl(var(--muted));
+        }
+
+        .theme-toggle svg {
+            width: 16px;
+            height: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Polymarket <span>Trade Analyzer</span></h1>
-        <p class="subtitle">Fetch and analyze trading history for any wallet</p>
+        <div class="header">
+            <div class="header-left">
+                <h1>Polymarket <span>Trade Analyzer</span></h1>
+                <p class="subtitle">Fetch and analyze trading history for any wallet</p>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+                <span id="themeLabel">Light</span>
+            </button>
+        </div>
 
         <div class="input-section">
             <div class="input-row">
@@ -460,6 +529,50 @@
         let currentWallet = '';
         let currentMode = 'recent';
         let currentData = null;
+
+        // Theme management
+        function initTheme() {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+                updateThemeUI(true);
+            } else if (saved === 'light') {
+                document.documentElement.classList.add('light');
+                document.documentElement.classList.remove('dark');
+                updateThemeUI(false);
+            } else {
+                // Use system preference
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                updateThemeUI(prefersDark);
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark') ||
+                (!document.documentElement.classList.contains('light') &&
+                 window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+                localStorage.setItem('theme', 'light');
+                updateThemeUI(false);
+            } else {
+                document.documentElement.classList.remove('light');
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                updateThemeUI(true);
+            }
+        }
+
+        function updateThemeUI(isDark) {
+            document.getElementById('sunIcon').style.display = isDark ? 'block' : 'none';
+            document.getElementById('moonIcon').style.display = isDark ? 'none' : 'block';
+            document.getElementById('themeLabel').textContent = isDark ? 'Dark' : 'Light';
+        }
+
+        initTheme();
 
         document.getElementById('walletInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') fetchTrades('recent');
