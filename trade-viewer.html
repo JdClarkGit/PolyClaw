@@ -1,1968 +1,2320 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PolyEdge.io</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        :root {
-            --background: 45 20% 92%;
-            --foreground: 20 10% 15%;
-            --card: 40 20% 92%;
-            --card-foreground: 20 10% 15%;
-            --primary: 142 50% 35%;
-            --primary-foreground: 40 30% 96%;
-            --secondary: 40 15% 88%;
-            --secondary-foreground: 20 10% 15%;
-            --muted: 40 15% 85%;
-            --muted-foreground: 20 10% 45%;
-            --accent: 142 50% 35%;
-            --accent-foreground: 40 30% 96%;
-            --destructive: 0 62.8% 30.6%;
-            --destructive-foreground: 40 30% 96%;
-            --border: 40 15% 80%;
-            --input: 40 15% 85%;
-            --ring: 142 50% 35%;
-            --radius: 0.5rem;
-        }
-
-        :root.dark {
-            --background: 20 10% 10%;
-            --foreground: 40 20% 92%;
-            --card: 20 10% 14%;
-            --card-foreground: 40 20% 92%;
-            --primary: 142 50% 45%;
-            --primary-foreground: 20 10% 10%;
-            --secondary: 20 10% 18%;
-            --secondary-foreground: 40 20% 92%;
-            --muted: 20 10% 20%;
-            --muted-foreground: 40 15% 60%;
-            --accent: 142 50% 45%;
-            --accent-foreground: 20 10% 10%;
-            --destructive: 0 62.8% 50%;
-            --destructive-foreground: 40 30% 96%;
-            --border: 20 10% 25%;
-            --input: 20 10% 20%;
-            --ring: 142 50% 45%;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root:not(.light) {
-                --background: 20 10% 10%;
-                --foreground: 40 20% 92%;
-                --card: 20 10% 14%;
-                --card-foreground: 40 20% 92%;
-                --primary: 142 50% 45%;
-                --primary-foreground: 20 10% 10%;
-                --secondary: 20 10% 18%;
-                --secondary-foreground: 40 20% 92%;
-                --muted: 20 10% 20%;
-                --muted-foreground: 40 15% 60%;
-                --accent: 142 50% 45%;
-                --accent-foreground: 20 10% 10%;
-                --destructive: 0 62.8% 50%;
-                --destructive-foreground: 40 30% 96%;
-                --border: 20 10% 25%;
-                --input: 20 10% 20%;
-                --ring: 142 50% 45%;
-            }
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: hsl(var(--background));
-            color: hsl(var(--foreground));
-            min-height: 100vh;
-            padding: 24px;
-            line-height: 1.5;
-        }
-
-        .container { max-width: 1400px; margin: 0 auto; }
-
-        h1 {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.75rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: hsl(var(--foreground));
-        }
-        h1 span { color: hsl(var(--primary)); }
-
-        h2 {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: hsl(var(--foreground));
-        }
-
-        .subtitle {
-            color: hsl(var(--muted-foreground));
-            margin-bottom: 24px;
-            font-size: 0.9rem;
-        }
-
-        .input-section {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .input-row {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            min-width: 280px;
-            padding: 12px 16px;
-            font-size: 14px;
-            font-family: 'JetBrains Mono', monospace;
-            background: hsl(var(--input));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            color: hsl(var(--foreground));
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        input[type="text"]:focus {
-            border-color: hsl(var(--ring));
-            box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
-        }
-        input[type="text"]::placeholder { color: hsl(var(--muted-foreground)); }
-
-        select {
-            padding: 12px 16px;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            background: hsl(var(--input));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            color: hsl(var(--foreground));
-            outline: none;
-            cursor: pointer;
-        }
-
-        button {
-            padding: 12px 20px;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: hsl(var(--primary));
-            color: hsl(var(--primary-foreground));
-        }
-        .btn-primary:hover { background: hsl(var(--primary) / 0.9); }
-
-        .btn-analyze {
-            background: linear-gradient(135deg, hsl(var(--primary)), hsl(200 70% 45%));
-            color: hsl(var(--primary-foreground));
-        }
-        .btn-analyze:hover { opacity: 0.9; }
-
-        .btn-secondary {
-            background: hsl(var(--secondary));
-            color: hsl(var(--secondary-foreground));
-            border: 1px solid hsl(var(--border));
-        }
-        .btn-secondary:hover { background: hsl(var(--muted)); }
-
-        button:disabled {
-            background: hsl(var(--muted));
-            color: hsl(var(--muted-foreground));
-            cursor: not-allowed;
-        }
-
-        .hint-text {
-            margin-top: 12px;
-            color: hsl(var(--muted-foreground));
-            font-size: 0.8rem;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 16px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: hsl(var(--primary));
-        }
-        .stat-value.green { color: hsl(var(--primary)); }
-        .stat-value.red { color: hsl(var(--destructive)); }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: hsl(var(--muted-foreground));
-            margin-top: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .download-section {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
-
-        .table-container {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            overflow: hidden;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.875rem;
-        }
-
-        th, td {
-            padding: 10px 14px;
-            text-align: left;
-            border-bottom: 1px solid hsl(var(--border));
-        }
-
-        th {
-            background: hsl(var(--muted));
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 500;
-            color: hsl(var(--muted-foreground));
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        tr:hover { background: hsl(var(--muted) / 0.5); }
-
-        .side-buy { color: hsl(var(--primary)); font-weight: 600; }
-        .side-sell { color: hsl(var(--destructive)); font-weight: 600; }
-
-        .market-name {
-            max-width: 240px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .outcome-up, .outcome-yes { color: hsl(var(--primary)); }
-        .outcome-down, .outcome-no { color: hsl(var(--destructive)); }
-
-        .tx-hash {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            color: hsl(var(--muted-foreground));
-        }
-        .tx-hash a {
-            color: hsl(var(--primary));
-            text-decoration: none;
-        }
-        .tx-hash a:hover { text-decoration: underline; }
-
-        .loading {
-            text-align: center;
-            padding: 60px;
-            color: hsl(var(--muted-foreground));
-        }
-
-        .spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid hsl(var(--border));
-            border-top-color: hsl(var(--primary));
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 16px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .error {
-            background: hsl(var(--destructive) / 0.1);
-            border: 1px solid hsl(var(--destructive));
-            border-radius: var(--radius);
-            padding: 16px;
-            color: hsl(var(--destructive));
-            margin-bottom: 24px;
-        }
-
-        .user-info {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 16px 20px;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-        .user-info .username {
-            font-family: 'JetBrains Mono', monospace;
-            color: hsl(var(--primary));
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .user-info .wallet {
-            font-family: 'JetBrains Mono', monospace;
-            color: hsl(var(--muted-foreground));
-            font-size: 0.8rem;
-        }
-
-        .user-info .date-range {
-            color: hsl(var(--muted-foreground));
-            font-size: 0.8rem;
-            margin-left: auto;
-        }
-
-        .hidden { display: none; }
-
-        .mode-indicator {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: var(--radius);
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-left: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .mode-recent {
-            background: hsl(var(--muted));
-            color: hsl(var(--muted-foreground));
-        }
-        .mode-full {
-            background: hsl(var(--primary));
-            color: hsl(var(--primary-foreground));
-        }
-
-        td {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 24px;
-        }
-
-        .header-left { flex: 1; }
-
-        .theme-toggle {
-            background: hsl(var(--secondary));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 8px 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.8rem;
-            color: hsl(var(--foreground));
-            transition: all 0.2s;
-        }
-        .theme-toggle:hover { background: hsl(var(--muted)); }
-        .theme-toggle svg { width: 16px; height: 16px; }
-
-        /* Analytics Section */
-        .analytics-section {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .insights-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .insight-card {
-            background: hsl(var(--background));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 16px;
-        }
-
-        .insight-card.high {
-            border-left: 3px solid hsl(var(--destructive));
-        }
-        .insight-card.medium {
-            border-left: 3px solid hsl(45 90% 50%);
-        }
-        .insight-card.low {
-            border-left: 3px solid hsl(var(--primary));
-        }
-
-        .insight-title {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-        }
-
-        .insight-description {
-            color: hsl(var(--muted-foreground));
-            font-size: 0.85rem;
-        }
-
-        .insight-category {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            background: hsl(var(--muted));
-            color: hsl(var(--muted-foreground));
-            margin-bottom: 8px;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
-
-        .metric-group {
-            background: hsl(var(--background));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 16px;
-        }
-
-        .metric-group h3 {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: hsl(var(--muted-foreground));
-            margin-bottom: 12px;
-        }
-
-        .metric-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px solid hsl(var(--border));
-            font-size: 0.85rem;
-        }
-        .metric-item:last-child { border-bottom: none; }
-
-        .metric-label { color: hsl(var(--muted-foreground)); }
-        .metric-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 500;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid hsl(var(--border));
-            padding-bottom: 4px;
-        }
-
-        .tab {
-            padding: 8px 16px;
-            font-size: 0.85rem;
-            background: transparent;
-            border: none;
-            color: hsl(var(--muted-foreground));
-            cursor: pointer;
-            border-radius: var(--radius) var(--radius) 0 0;
-        }
-        .tab:hover { color: hsl(var(--foreground)); }
-        .tab.active {
-            background: hsl(var(--primary));
-            color: hsl(var(--primary-foreground));
-        }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        .top-markets {
-            display: grid;
-            gap: 8px;
-        }
-
-        .market-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            background: hsl(var(--background));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            font-size: 0.85rem;
-        }
-
-        .market-rank {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-            color: hsl(var(--muted-foreground));
-            width: 24px;
-        }
-
-        .market-info { flex: 1; min-width: 0; }
-
-        .market-title {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 500;
-        }
-
-        .market-stats {
-            font-size: 0.75rem;
-            color: hsl(var(--muted-foreground));
-        }
-
-        .market-volume {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-            color: hsl(var(--primary));
-        }
-
-        .trader-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: var(--radius);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, hsl(var(--primary)), hsl(200 70% 45%));
-            color: hsl(var(--primary-foreground));
-            margin-bottom: 16px;
-        }
-
-        /* P&L Styles */
-        .pnl-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .pnl-card {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 16px;
-            text-align: center;
-        }
-
-        .pnl-card.win { border-color: hsl(142 50% 45%); }
-        .pnl-card.loss { border-color: hsl(0 62% 50%); }
-
-        .pnl-label {
-            font-size: 0.75rem;
-            color: hsl(var(--muted-foreground));
-            margin-bottom: 4px;
-        }
-
-        .pnl-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .pnl-positions {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .pnl-position {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-        }
-
-        .pnl-position.won { border-left: 3px solid hsl(142 50% 45%); }
-        .pnl-position.lost { border-left: 3px solid hsl(0 62% 50%); }
-        .pnl-position.pending { border-left: 3px solid hsl(45 80% 50%); }
-
-        .pnl-market {
-            flex: 1;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-right: 16px;
-        }
-
-        .pnl-outcome {
-            font-size: 0.8rem;
-            color: hsl(var(--muted-foreground));
-            margin-right: 16px;
-        }
-
-        .pnl-amount {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-        }
-
-        .pnl-amount.positive { color: hsl(142 50% 45%); }
-        .pnl-amount.negative { color: hsl(0 62% 50%); }
-
-        /* Comparison Mode */
-        .comparison-section {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid hsl(var(--border));
-        }
-
-        .comparison-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .comparison-header span {
-            font-weight: 500;
-            color: hsl(var(--muted-foreground));
-        }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-            background: hsl(var(--secondary));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            cursor: pointer;
-        }
-
-        .comparison-wallets {
-            margin-top: 12px;
-        }
-
-        .comparison-inputs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .compare-input {
-            flex: 1;
-            min-width: 200px;
-            padding: 10px 12px;
-            font-size: 13px;
-            font-family: 'JetBrains Mono', monospace;
-            background: hsl(var(--input));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            color: hsl(var(--foreground));
-        }
-
-        /* Comparison Results */
-        .comparison-results {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 24px;
-            margin-top: 24px;
-        }
-
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 16px;
-        }
-
-        .comparison-table th,
-        .comparison-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid hsl(var(--border));
-        }
-
-        .comparison-table th {
-            font-weight: 600;
-            color: hsl(var(--muted-foreground));
-            font-size: 0.85rem;
-        }
-
-        .comparison-winner {
-            background: hsl(var(--primary) / 0.1);
-            font-weight: 600;
-        }
-
-        /* Pricing Banner */
-        .pricing-banner {
-            background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--secondary)));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-
-        .pricing-tiers {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .tier-card {
-            background: hsl(var(--background));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 16px 24px;
-            min-width: 120px;
-            position: relative;
-        }
-
-        .tier-card.popular {
-            border-color: hsl(var(--primary));
-            box-shadow: 0 0 0 1px hsl(var(--primary));
-        }
-
-        .tier-badge {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: hsl(var(--primary));
-            color: hsl(var(--primary-foreground));
-            font-size: 0.65rem;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-
-        .tier-name {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .tier-price {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: hsl(var(--primary));
-        }
-
-        .tier-limit {
-            font-size: 0.75rem;
-            color: hsl(var(--muted-foreground));
-        }
-
-        /* Auth Styles */
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-small {
-            padding: 8px 12px;
-            font-size: 13px;
-        }
-
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .user-email {
-            font-size: 0.85rem;
-            color: hsl(var(--muted-foreground));
-        }
-
-        .tier-badge-small {
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            background: hsl(var(--primary));
-            color: hsl(var(--primary-foreground));
-            font-weight: 600;
-        }
-
-        /* Modal */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 32px;
-            width: 100%;
-            max-width: 400px;
-            position: relative;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: hsl(var(--muted-foreground));
-        }
-
-        .auth-form h2 {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .auth-input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            font-size: 14px;
-            background: hsl(var(--input));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            color: hsl(var(--foreground));
-        }
-
-        .auth-submit {
-            width: 100%;
-            margin-top: 8px;
-        }
-
-        .auth-switch {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 0.9rem;
-            color: hsl(var(--muted-foreground));
-        }
-
-        .auth-switch a {
-            color: hsl(var(--primary));
-        }
-
-        .auth-error {
-            background: hsl(var(--destructive) / 0.1);
-            border: 1px solid hsl(var(--destructive));
-            color: hsl(var(--destructive));
-            padding: 10px;
-            border-radius: var(--radius);
-            margin-top: 12px;
-            font-size: 0.9rem;
-        }
-
-        /* Account dropdown */
-        .account-dropdown {
-            position: absolute;
-            top: 60px;
-            right: 24px;
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 16px;
-            min-width: 250px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            z-index: 100;
-        }
-
-        .account-info {
-            margin-bottom: 16px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid hsl(var(--border));
-        }
-
-        .account-email {
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .account-tier {
-            font-size: 0.85rem;
-            color: hsl(var(--primary));
-            margin-bottom: 4px;
-        }
-
-        .account-usage {
-            font-size: 0.8rem;
-            color: hsl(var(--muted-foreground));
-        }
-
-        .account-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .account-actions button {
-            text-align: left;
-        }
+      :root {
+        --background: 45 20% 92%;
+        --foreground: 20 10% 15%;
+        --card: 40 20% 92%;
+        --card-foreground: 20 10% 15%;
+        --primary: 142 50% 35%;
+        --primary-foreground: 40 30% 96%;
+        --secondary: 40 15% 88%;
+        --secondary-foreground: 20 10% 15%;
+        --muted: 40 15% 85%;
+        --muted-foreground: 20 10% 45%;
+        --accent: 142 50% 35%;
+        --accent-foreground: 40 30% 96%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 40 30% 96%;
+        --border: 40 15% 80%;
+        --input: 40 15% 85%;
+        --ring: 142 50% 35%;
+        --radius: 0.5rem;
+      }
+
+      :root.dark {
+        --background: 20 10% 10%;
+        --foreground: 40 20% 92%;
+        --card: 20 10% 14%;
+        --card-foreground: 40 20% 92%;
+        --primary: 142 50% 45%;
+        --primary-foreground: 20 10% 10%;
+        --secondary: 20 10% 18%;
+        --secondary-foreground: 40 20% 92%;
+        --muted: 20 10% 20%;
+        --muted-foreground: 40 15% 60%;
+        --accent: 142 50% 45%;
+        --accent-foreground: 20 10% 10%;
+        --destructive: 0 62.8% 50%;
+        --destructive-foreground: 40 30% 96%;
+        --border: 20 10% 25%;
+        --input: 20 10% 20%;
+        --ring: 142 50% 45%;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not(.light) {
+          --background: 20 10% 10%;
+          --foreground: 40 20% 92%;
+          --card: 20 10% 14%;
+          --card-foreground: 40 20% 92%;
+          --primary: 142 50% 45%;
+          --primary-foreground: 20 10% 10%;
+          --secondary: 20 10% 18%;
+          --secondary-foreground: 40 20% 92%;
+          --muted: 20 10% 20%;
+          --muted-foreground: 40 15% 60%;
+          --accent: 142 50% 45%;
+          --accent-foreground: 20 10% 10%;
+          --destructive: 0 62.8% 50%;
+          --destructive-foreground: 40 30% 96%;
+          --border: 20 10% 25%;
+          --input: 20 10% 20%;
+          --ring: 142 50% 45%;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: hsl(var(--background));
+        color: hsl(var(--foreground));
+        min-height: 100vh;
+        padding: 24px;
+        line-height: 1.5;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: hsl(var(--foreground));
+      }
+      h1 span {
+        color: hsl(var(--primary));
+      }
+
+      h2 {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: hsl(var(--foreground));
+      }
+
+      .subtitle {
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 24px;
+        font-size: 0.9rem;
+      }
+
+      .input-section {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 24px;
+        margin-bottom: 24px;
+      }
+
+      .input-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      input[type="text"] {
+        flex: 1;
+        min-width: 280px;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-family: "JetBrains Mono", monospace;
+        background: hsl(var(--input));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        color: hsl(var(--foreground));
+        outline: none;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      input[type="text"]:focus {
+        border-color: hsl(var(--ring));
+        box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+      }
+      input[type="text"]::placeholder {
+        color: hsl(var(--muted-foreground));
+      }
+
+      select {
+        padding: 12px 16px;
+        font-size: 14px;
+        font-family: "Inter", sans-serif;
+        background: hsl(var(--input));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        color: hsl(var(--foreground));
+        outline: none;
+        cursor: pointer;
+      }
+
+      button {
+        padding: 12px 20px;
+        font-size: 14px;
+        font-family: "Inter", sans-serif;
+        font-weight: 500;
+        border: none;
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+      }
+      .btn-primary:hover {
+        background: hsl(var(--primary) / 0.9);
+      }
+
+      .btn-analyze {
+        background: linear-gradient(
+          135deg,
+          hsl(var(--primary)),
+          hsl(200 70% 45%)
+        );
+        color: hsl(var(--primary-foreground));
+      }
+      .btn-analyze:hover {
+        opacity: 0.9;
+      }
+
+      .btn-secondary {
+        background: hsl(var(--secondary));
+        color: hsl(var(--secondary-foreground));
+        border: 1px solid hsl(var(--border));
+      }
+      .btn-secondary:hover {
+        background: hsl(var(--muted));
+      }
+
+      button:disabled {
+        background: hsl(var(--muted));
+        color: hsl(var(--muted-foreground));
+        cursor: not-allowed;
+      }
+
+      .hint-text {
+        margin-top: 12px;
+        color: hsl(var(--muted-foreground));
+        font-size: 0.8rem;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+
+      .stat-card {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 16px;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: hsl(var(--primary));
+      }
+      .stat-value.green {
+        color: hsl(var(--primary));
+      }
+      .stat-value.red {
+        color: hsl(var(--destructive));
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .download-section {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+
+      .table-container {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        overflow: hidden;
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+      }
+
+      th,
+      td {
+        padding: 10px 14px;
+        text-align: left;
+        border-bottom: 1px solid hsl(var(--border));
+      }
+
+      th {
+        background: hsl(var(--muted));
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 500;
+        color: hsl(var(--muted-foreground));
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      tr:hover {
+        background: hsl(var(--muted) / 0.5);
+      }
+
+      .side-buy {
+        color: hsl(var(--primary));
+        font-weight: 600;
+      }
+      .side-sell {
+        color: hsl(var(--destructive));
+        font-weight: 600;
+      }
+
+      .market-name {
+        max-width: 240px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .outcome-up,
+      .outcome-yes {
+        color: hsl(var(--primary));
+      }
+      .outcome-down,
+      .outcome-no {
+        color: hsl(var(--destructive));
+      }
+
+      .tx-hash {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        color: hsl(var(--muted-foreground));
+      }
+      .tx-hash a {
+        color: hsl(var(--primary));
+        text-decoration: none;
+      }
+      .tx-hash a:hover {
+        text-decoration: underline;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 60px;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .spinner {
+        width: 36px;
+        height: 36px;
+        border: 3px solid hsl(var(--border));
+        border-top-color: hsl(var(--primary));
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error {
+        background: hsl(var(--destructive) / 0.1);
+        border: 1px solid hsl(var(--destructive));
+        border-radius: var(--radius);
+        padding: 16px;
+        color: hsl(var(--destructive));
+        margin-bottom: 24px;
+      }
+
+      .user-info {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .user-info .username {
+        font-family: "JetBrains Mono", monospace;
+        color: hsl(var(--primary));
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+
+      .user-info .wallet {
+        font-family: "JetBrains Mono", monospace;
+        color: hsl(var(--muted-foreground));
+        font-size: 0.8rem;
+      }
+
+      .user-info .date-range {
+        color: hsl(var(--muted-foreground));
+        font-size: 0.8rem;
+        margin-left: auto;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .mode-indicator {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: var(--radius);
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-left: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .mode-recent {
+        background: hsl(var(--muted));
+        color: hsl(var(--muted-foreground));
+      }
+      .mode-full {
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+      }
+
+      td {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+      }
+
+      .header-left {
+        flex: 1;
+      }
+
+      .theme-toggle {
+        background: hsl(var(--secondary));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 8px 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.8rem;
+        color: hsl(var(--foreground));
+        transition: all 0.2s;
+      }
+      .theme-toggle:hover {
+        background: hsl(var(--muted));
+      }
+      .theme-toggle svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* Analytics Section */
+      .analytics-section {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 24px;
+        margin-bottom: 24px;
+      }
+
+      .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .insight-card {
+        background: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 16px;
+      }
+
+      .insight-card.high {
+        border-left: 3px solid hsl(var(--destructive));
+      }
+      .insight-card.medium {
+        border-left: 3px solid hsl(45 90% 50%);
+      }
+      .insight-card.low {
+        border-left: 3px solid hsl(var(--primary));
+      }
+
+      .insight-title {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+      }
+
+      .insight-description {
+        color: hsl(var(--muted-foreground));
+        font-size: 0.85rem;
+      }
+
+      .insight-category {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        background: hsl(var(--muted));
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 8px;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+      }
+
+      .metric-group {
+        background: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 16px;
+      }
+
+      .metric-group h3 {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 12px;
+      }
+
+      .metric-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid hsl(var(--border));
+        font-size: 0.85rem;
+      }
+      .metric-item:last-child {
+        border-bottom: none;
+      }
+
+      .metric-label {
+        color: hsl(var(--muted-foreground));
+      }
+      .metric-value {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 500;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid hsl(var(--border));
+        padding-bottom: 4px;
+      }
+
+      .tab {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        background: transparent;
+        border: none;
+        color: hsl(var(--muted-foreground));
+        cursor: pointer;
+        border-radius: var(--radius) var(--radius) 0 0;
+      }
+      .tab:hover {
+        color: hsl(var(--foreground));
+      }
+      .tab.active {
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+      }
+
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+
+      .top-markets {
+        display: grid;
+        gap: 8px;
+      }
+
+      .market-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        background: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        font-size: 0.85rem;
+      }
+
+      .market-rank {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+        color: hsl(var(--muted-foreground));
+        width: 24px;
+      }
+
+      .market-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .market-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 500;
+      }
+
+      .market-stats {
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .market-volume {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+        color: hsl(var(--primary));
+      }
+
+      .trader-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: var(--radius);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background: linear-gradient(
+          135deg,
+          hsl(var(--primary)),
+          hsl(200 70% 45%)
+        );
+        color: hsl(var(--primary-foreground));
+        margin-bottom: 16px;
+      }
+
+      /* P&L Styles */
+      .pnl-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .pnl-card {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 16px;
+        text-align: center;
+      }
+
+      .pnl-card.win {
+        border-color: hsl(142 50% 45%);
+      }
+      .pnl-card.loss {
+        border-color: hsl(0 62% 50%);
+      }
+
+      .pnl-label {
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 4px;
+      }
+
+      .pnl-value {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+
+      .pnl-positions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .pnl-position {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+      }
+
+      .pnl-position.won {
+        border-left: 3px solid hsl(142 50% 45%);
+      }
+      .pnl-position.lost {
+        border-left: 3px solid hsl(0 62% 50%);
+      }
+      .pnl-position.pending {
+        border-left: 3px solid hsl(45 80% 50%);
+      }
+
+      .pnl-market {
+        flex: 1;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-right: 16px;
+      }
+
+      .pnl-outcome {
+        font-size: 0.8rem;
+        color: hsl(var(--muted-foreground));
+        margin-right: 16px;
+      }
+
+      .pnl-amount {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+      }
+
+      .pnl-amount.positive {
+        color: hsl(142 50% 45%);
+      }
+      .pnl-amount.negative {
+        color: hsl(0 62% 50%);
+      }
+
+      /* Comparison Mode */
+      .comparison-section {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid hsl(var(--border));
+      }
+
+      .comparison-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .comparison-header span {
+        font-weight: 500;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .btn-small {
+        padding: 6px 12px;
+        font-size: 12px;
+        background: hsl(var(--secondary));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        cursor: pointer;
+      }
+
+      .comparison-wallets {
+        margin-top: 12px;
+      }
+
+      .comparison-inputs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+
+      .compare-input {
+        flex: 1;
+        min-width: 200px;
+        padding: 10px 12px;
+        font-size: 13px;
+        font-family: "JetBrains Mono", monospace;
+        background: hsl(var(--input));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        color: hsl(var(--foreground));
+      }
+
+      /* Comparison Results */
+      .comparison-results {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 24px;
+        margin-top: 24px;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid hsl(var(--border));
+      }
+
+      .comparison-table th {
+        font-weight: 600;
+        color: hsl(var(--muted-foreground));
+        font-size: 0.85rem;
+      }
+
+      .comparison-winner {
+        background: hsl(var(--primary) / 0.1);
+        font-weight: 600;
+      }
+
+      /* Pricing Banner */
+      .pricing-banner {
+        background: linear-gradient(
+          135deg,
+          hsl(var(--card)),
+          hsl(var(--secondary))
+        );
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-bottom: 24px;
+        text-align: center;
+      }
+
+      .pricing-tiers {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+
+      .tier-card {
+        background: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 16px 24px;
+        min-width: 120px;
+        position: relative;
+      }
+
+      .tier-card.popular {
+        border-color: hsl(var(--primary));
+        box-shadow: 0 0 0 1px hsl(var(--primary));
+      }
+
+      .tier-badge {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 10px;
+      }
+
+      .tier-name {
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .tier-price {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+      }
+
+      .tier-limit {
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+      }
+
+      /* Auth Styles */
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .auth-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn-small {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+
+      .user-menu {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .user-email {
+        font-size: 0.85rem;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .tier-badge-small {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        font-weight: 600;
+      }
+
+      /* Modal */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 32px;
+        width: 100%;
+        max-width: 400px;
+        position: relative;
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .auth-form h2 {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .auth-input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 12px;
+        font-size: 14px;
+        background: hsl(var(--input));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        color: hsl(var(--foreground));
+      }
+
+      .auth-submit {
+        width: 100%;
+        margin-top: 8px;
+      }
+
+      .auth-switch {
+        text-align: center;
+        margin-top: 16px;
+        font-size: 0.9rem;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .auth-switch a {
+        color: hsl(var(--primary));
+      }
+
+      .auth-error {
+        background: hsl(var(--destructive) / 0.1);
+        border: 1px solid hsl(var(--destructive));
+        color: hsl(var(--destructive));
+        padding: 10px;
+        border-radius: var(--radius);
+        margin-top: 12px;
+        font-size: 0.9rem;
+      }
+
+      /* Account dropdown */
+      .account-dropdown {
+        position: absolute;
+        top: 60px;
+        right: 24px;
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        padding: 16px;
+        min-width: 250px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+      }
+
+      .account-info {
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid hsl(var(--border));
+      }
+
+      .account-email {
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+
+      .account-tier {
+        font-size: 0.85rem;
+        color: hsl(var(--primary));
+        margin-bottom: 4px;
+      }
+
+      .account-usage {
+        font-size: 0.8rem;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .account-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .account-actions button {
+        text-align: left;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <div class="header-left">
-                <h1>Poly<span>Edge</span>.io</h1>
-                <p class="subtitle">Trade analytics and pattern detection for Polymarket</p>
+      <div class="header">
+        <div class="header-left">
+          <h1>Poly<span>Edge</span>.io</h1>
+          <p class="subtitle">
+            Trade analytics and pattern detection for Polymarket
+          </p>
+        </div>
+        <div class="header-right">
+          <!-- Auth UI (hidden for local use) -->
+          <div id="authSection" style="display: none">
+            <div id="loggedOut" class="auth-buttons">
+              <button class="btn-small" onclick="showAuthModal('login')">
+                Login
+              </button>
+              <button
+                class="btn-primary btn-small"
+                onclick="showAuthModal('register')"
+              >
+                Sign Up
+              </button>
             </div>
-            <div class="header-right">
-                <!-- Auth UI -->
-                <div id="authSection">
-                    <div id="loggedOut" class="auth-buttons">
-                        <button class="btn-small" onclick="showAuthModal('login')">Login</button>
-                        <button class="btn-primary btn-small" onclick="showAuthModal('register')">Sign Up</button>
-                    </div>
-                    <div id="loggedIn" class="user-menu hidden">
-                        <span id="userEmail" class="user-email"></span>
-                        <span id="userTier" class="tier-badge-small">FREE</span>
-                        <button class="btn-small" onclick="showAccountMenu()">Account</button>
-                    </div>
-                </div>
-                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
-                <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-                <span id="themeLabel">Light</span>
+            <div id="loggedIn" class="user-menu hidden">
+              <span id="userEmail" class="user-email"></span>
+              <span id="userTier" class="tier-badge-small">FREE</span>
+              <button class="btn-small" onclick="showAccountMenu()">
+                Account
+              </button>
+            </div>
+          </div>
+          <button
+            class="theme-toggle"
+            onclick="toggleTheme()"
+            title="Toggle theme"
+          >
+            <svg
+              id="sunIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+            <svg
+              id="moonIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              style="display: none"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+              />
+            </svg>
+            <span id="themeLabel">Light</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Auth Modal (hidden for local use) -->
+      <div id="authModal" class="modal hidden" style="display: none !important">
+        <div class="modal-content">
+          <button class="modal-close" onclick="hideAuthModal()">&times;</button>
+
+          <div id="loginForm" class="auth-form">
+            <h2>Login</h2>
+            <input
+              type="email"
+              id="loginEmail"
+              placeholder="Email"
+              class="auth-input"
+            />
+            <input
+              type="password"
+              id="loginPassword"
+              placeholder="Password"
+              class="auth-input"
+            />
+            <button class="btn-primary auth-submit" onclick="doLogin()">
+              Login
             </button>
-            </div>
-        </div>
-
-        <!-- Auth Modal -->
-        <div id="authModal" class="modal hidden">
-            <div class="modal-content">
-                <button class="modal-close" onclick="hideAuthModal()">&times;</button>
-
-                <div id="loginForm" class="auth-form">
-                    <h2>Login</h2>
-                    <input type="email" id="loginEmail" placeholder="Email" class="auth-input">
-                    <input type="password" id="loginPassword" placeholder="Password" class="auth-input">
-                    <button class="btn-primary auth-submit" onclick="doLogin()">Login</button>
-                    <p class="auth-switch">Don't have an account? <a href="#" onclick="showAuthModal('register')">Sign up</a></p>
-                    <div id="loginError" class="auth-error hidden"></div>
-                </div>
-
-                <div id="registerForm" class="auth-form hidden">
-                    <h2>Create Account</h2>
-                    <input type="email" id="registerEmail" placeholder="Email" class="auth-input">
-                    <input type="password" id="registerPassword" placeholder="Password (min 8 chars)" class="auth-input">
-                    <input type="text" id="registerUsername" placeholder="Username (optional)" class="auth-input">
-                    <button class="btn-primary auth-submit" onclick="doRegister()">Sign Up</button>
-                    <p class="auth-switch">Already have an account? <a href="#" onclick="showAuthModal('login')">Login</a></p>
-                    <div id="registerError" class="auth-error hidden"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Account Menu -->
-        <div id="accountMenu" class="account-dropdown hidden">
-            <div class="account-info">
-                <div id="accountEmail" class="account-email"></div>
-                <div id="accountTier" class="account-tier">Free Tier</div>
-                <div id="accountUsage" class="account-usage">0 / 100 trades used</div>
-            </div>
-            <div class="account-actions">
-                <button class="btn-small" onclick="upgradePlan()">Upgrade Plan</button>
-                <button class="btn-small" onclick="manageSubscription()">Manage Subscription</button>
-                <button class="btn-small" onclick="doLogout()">Logout</button>
-            </div>
-        </div>
-
-        <div class="input-section">
-            <div class="input-row">
-                <input type="text" id="walletInput" placeholder="Enter wallet address (0x...)">
-                <select id="tradeCount">
-                    <option value="100">100 trades</option>
-                    <option value="1000" selected>1,000 trades</option>
-                    <option value="5000">5,000 trades</option>
-                    <option value="10000">10,000 trades</option>
-                    <option value="50000">50,000 trades</option>
-                    <option value="full">Full History</option>
-                </select>
-                <button class="btn-primary" id="fetchBtn" onclick="fetchTrades()">Fetch Trades</button>
-                <button class="btn-analyze" id="analyzeBtn" onclick="analyzeTrades()">Analyze Patterns</button>
-            </div>
-            <p class="hint-text">
-                Select trade count for analysis depth. More trades = richer patterns but longer fetch time.
+            <p class="auth-switch">
+              Don't have an account?
+              <a href="#" onclick="showAuthModal('register')">Sign up</a>
             </p>
+            <div id="loginError" class="auth-error hidden"></div>
+          </div>
 
-            <!-- Comparison Mode -->
-            <div class="comparison-section" id="comparisonSection">
-                <div class="comparison-header">
-                    <span>Compare Wallets</span>
-                    <button class="btn-small" onclick="toggleComparison()">+ Add Wallet</button>
-                </div>
-                <div id="comparisonWallets" class="comparison-wallets hidden">
-                    <div class="comparison-inputs">
-                        <input type="text" id="compareWallet1" placeholder="Wallet 1 (0x...)" class="compare-input">
-                        <input type="text" id="compareWallet2" placeholder="Wallet 2 (0x...)" class="compare-input">
-                        <input type="text" id="compareWallet3" placeholder="Wallet 3 (optional)" class="compare-input">
-                    </div>
-                    <button class="btn-analyze" onclick="runComparison()">Compare Wallets</button>
-                </div>
+          <div id="registerForm" class="auth-form hidden">
+            <h2>Create Account</h2>
+            <input
+              type="email"
+              id="registerEmail"
+              placeholder="Email"
+              class="auth-input"
+            />
+            <input
+              type="password"
+              id="registerPassword"
+              placeholder="Password (min 8 chars)"
+              class="auth-input"
+            />
+            <input
+              type="text"
+              id="registerUsername"
+              placeholder="Username (optional)"
+              class="auth-input"
+            />
+            <button class="btn-primary auth-submit" onclick="doRegister()">
+              Sign Up
+            </button>
+            <p class="auth-switch">
+              Already have an account?
+              <a href="#" onclick="showAuthModal('login')">Login</a>
+            </p>
+            <div id="registerError" class="auth-error hidden"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Menu -->
+      <div id="accountMenu" class="account-dropdown hidden">
+        <div class="account-info">
+          <div id="accountEmail" class="account-email"></div>
+          <div id="accountTier" class="account-tier">Free Tier</div>
+          <div id="accountUsage" class="account-usage">0 / 100 trades used</div>
+        </div>
+        <div class="account-actions">
+          <button class="btn-small" onclick="upgradePlan()">
+            Upgrade Plan
+          </button>
+          <button class="btn-small" onclick="manageSubscription()">
+            Manage Subscription
+          </button>
+          <button class="btn-small" onclick="doLogout()">Logout</button>
+        </div>
+      </div>
+
+      <div class="input-section">
+        <div class="input-row">
+          <input
+            type="text"
+            id="walletInput"
+            placeholder="Enter wallet address (0x...)"
+          />
+          <select id="tradeCount">
+            <option value="100">100 trades</option>
+            <option value="1000" selected>1,000 trades</option>
+            <option value="5000">5,000 trades</option>
+            <option value="10000">10,000 trades</option>
+            <option value="50000">50,000 trades</option>
+            <option value="full">Full History</option>
+          </select>
+          <button class="btn-primary" id="fetchBtn" onclick="fetchTrades()">
+            Fetch Trades
+          </button>
+          <button class="btn-analyze" id="analyzeBtn" onclick="analyzeTrades()">
+            Analyze Patterns
+          </button>
+        </div>
+        <p class="hint-text">
+          Select trade count for analysis depth. More trades = richer patterns
+          but longer fetch time.
+        </p>
+
+        <!-- Comparison Mode -->
+        <div class="comparison-section" id="comparisonSection">
+          <div class="comparison-header">
+            <span>Compare Wallets</span>
+            <button class="btn-small" onclick="toggleComparison()">
+              + Add Wallet
+            </button>
+          </div>
+          <div id="comparisonWallets" class="comparison-wallets hidden">
+            <div class="comparison-inputs">
+              <input
+                type="text"
+                id="compareWallet1"
+                placeholder="Wallet 1 (0x...)"
+                class="compare-input"
+              />
+              <input
+                type="text"
+                id="compareWallet2"
+                placeholder="Wallet 2 (0x...)"
+                class="compare-input"
+              />
+              <input
+                type="text"
+                id="compareWallet3"
+                placeholder="Wallet 3 (optional)"
+                class="compare-input"
+              />
             </div>
+            <button class="btn-analyze" onclick="runComparison()">
+              Compare Wallets
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing Banner (hidden for local use) -->
+      <div class="pricing-banner" id="pricingBanner" style="display: none">
+        <div class="pricing-tiers">
+          <div class="tier-card free">
+            <div class="tier-name">Free</div>
+            <div class="tier-price">$0</div>
+            <div class="tier-limit">100 trades/mo</div>
+          </div>
+          <div class="tier-card starter">
+            <div class="tier-name">Starter</div>
+            <div class="tier-price">$19/mo</div>
+            <div class="tier-limit">1,000 trades</div>
+          </div>
+          <div class="tier-card growth popular">
+            <div class="tier-badge">POPULAR</div>
+            <div class="tier-name">Growth</div>
+            <div class="tier-price">$79/mo</div>
+            <div class="tier-limit">10,000 trades</div>
+          </div>
+          <div class="tier-card scale">
+            <div class="tier-name">Scale</div>
+            <div class="tier-price">$299/mo</div>
+            <div class="tier-limit">100,000 trades</div>
+          </div>
+        </div>
+        <button class="btn-small" onclick="hidePricing()">Dismiss</button>
+      </div>
+
+      <div id="error" class="error hidden"></div>
+
+      <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <p id="loadingText">Fetching trades...</p>
+      </div>
+
+      <div id="userInfo" class="user-info hidden">
+        <div>
+          <span class="username" id="displayUsername">-</span>
+          <span class="mode-indicator mode-recent" id="modeIndicator"
+            >1,000 TRADES</span
+          >
+        </div>
+        <span class="wallet" id="displayWallet">-</span>
+        <span class="date-range" id="dateRange">-</span>
+      </div>
+
+      <div id="stats" class="stats hidden">
+        <div class="stat-card">
+          <div class="stat-value" id="totalTrades">0</div>
+          <div class="stat-label">Total Trades</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalVolume">$0</div>
+          <div class="stat-label">Total Volume</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value green" id="buyCount">0</div>
+          <div class="stat-label">Buys</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value red" id="sellCount">0</div>
+          <div class="stat-label">Sells</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="uniqueMarkets">0</div>
+          <div class="stat-label">Markets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="avgTradeSize">$0</div>
+          <div class="stat-label">Avg Size</div>
+        </div>
+      </div>
+
+      <!-- Analytics Section -->
+      <div id="analyticsSection" class="analytics-section hidden">
+        <h2>Pattern Analysis</h2>
+
+        <div id="traderType" class="trader-badge">Standard Trader</div>
+
+        <div class="tabs">
+          <button class="tab active" onclick="showTab('insights')">
+            Key Insights
+          </button>
+          <button class="tab" onclick="showTab('pnl')">Win/Loss</button>
+          <button class="tab" onclick="showTab('markets')">Top Markets</button>
+          <button class="tab" onclick="showTab('metrics')">All Metrics</button>
         </div>
 
-        <!-- Pricing Banner -->
-        <div class="pricing-banner" id="pricingBanner">
-            <div class="pricing-tiers">
-                <div class="tier-card free">
-                    <div class="tier-name">Free</div>
-                    <div class="tier-price">$0</div>
-                    <div class="tier-limit">100 trades/mo</div>
-                </div>
-                <div class="tier-card starter">
-                    <div class="tier-name">Starter</div>
-                    <div class="tier-price">$19/mo</div>
-                    <div class="tier-limit">1,000 trades</div>
-                </div>
-                <div class="tier-card growth popular">
-                    <div class="tier-badge">POPULAR</div>
-                    <div class="tier-name">Growth</div>
-                    <div class="tier-price">$79/mo</div>
-                    <div class="tier-limit">10,000 trades</div>
-                </div>
-                <div class="tier-card scale">
-                    <div class="tier-name">Scale</div>
-                    <div class="tier-price">$299/mo</div>
-                    <div class="tier-limit">100,000 trades</div>
-                </div>
-            </div>
-            <button class="btn-small" onclick="hidePricing()">Dismiss</button>
+        <div id="insightsTab" class="tab-content active">
+          <div id="insightsGrid" class="insights-grid"></div>
         </div>
 
-        <div id="error" class="error hidden"></div>
-
-        <div id="loading" class="loading hidden">
-            <div class="spinner"></div>
-            <p id="loadingText">Fetching trades...</p>
+        <div id="pnlTab" class="tab-content">
+          <div class="pnl-summary">
+            <div class="pnl-cards">
+              <div class="pnl-card">
+                <div class="pnl-label">Win Rate</div>
+                <div class="pnl-value" id="pnlWinRate">0%</div>
+              </div>
+              <div class="pnl-card">
+                <div class="pnl-label">Net P&L</div>
+                <div class="pnl-value" id="pnlNet">$0</div>
+              </div>
+              <div class="pnl-card win">
+                <div class="pnl-label">Total Profit</div>
+                <div class="pnl-value" id="pnlProfit">$0</div>
+              </div>
+              <div class="pnl-card loss">
+                <div class="pnl-label">Total Loss</div>
+                <div class="pnl-value" id="pnlLoss">$0</div>
+              </div>
+              <div class="pnl-card">
+                <div class="pnl-label">Wins</div>
+                <div class="pnl-value" id="pnlWins">0</div>
+              </div>
+              <div class="pnl-card">
+                <div class="pnl-label">Losses</div>
+                <div class="pnl-value" id="pnlLosses">0</div>
+              </div>
+              <div class="pnl-card">
+                <div class="pnl-label">Pending</div>
+                <div class="pnl-value" id="pnlPending">0</div>
+              </div>
+              <div class="pnl-card">
+                <div class="pnl-label">Profit Factor</div>
+                <div class="pnl-value" id="pnlFactor">0</div>
+              </div>
+            </div>
+          </div>
+          <h3 style="margin: 24px 0 16px">Top Positions by P&L</h3>
+          <div id="pnlPositions" class="pnl-positions"></div>
         </div>
 
-        <div id="userInfo" class="user-info hidden">
-            <div>
-                <span class="username" id="displayUsername">-</span>
-                <span class="mode-indicator mode-recent" id="modeIndicator">1,000 TRADES</span>
-            </div>
-            <span class="wallet" id="displayWallet">-</span>
-            <span class="date-range" id="dateRange">-</span>
+        <div id="marketsTab" class="tab-content">
+          <div id="topMarkets" class="top-markets"></div>
         </div>
 
-        <div id="stats" class="stats hidden">
-            <div class="stat-card">
-                <div class="stat-value" id="totalTrades">0</div>
-                <div class="stat-label">Total Trades</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="totalVolume">$0</div>
-                <div class="stat-label">Total Volume</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value green" id="buyCount">0</div>
-                <div class="stat-label">Buys</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value red" id="sellCount">0</div>
-                <div class="stat-label">Sells</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="uniqueMarkets">0</div>
-                <div class="stat-label">Markets</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="avgTradeSize">$0</div>
-                <div class="stat-label">Avg Size</div>
-            </div>
+        <div id="metricsTab" class="tab-content">
+          <div id="metricsGrid" class="metrics-grid"></div>
         </div>
+      </div>
 
-        <!-- Analytics Section -->
-        <div id="analyticsSection" class="analytics-section hidden">
-            <h2>Pattern Analysis</h2>
+      <div id="downloadSection" class="download-section hidden">
+        <button class="btn-secondary" onclick="downloadJSON()">
+          Download JSON
+        </button>
+        <button class="btn-secondary" onclick="downloadCSV()">
+          Download CSV
+        </button>
+        <button class="btn-secondary" onclick="downloadReport()">
+          Download Analysis Report
+        </button>
+      </div>
 
-            <div id="traderType" class="trader-badge">Standard Trader</div>
-
-            <div class="tabs">
-                <button class="tab active" onclick="showTab('insights')">Key Insights</button>
-                <button class="tab" onclick="showTab('pnl')">Win/Loss</button>
-                <button class="tab" onclick="showTab('markets')">Top Markets</button>
-                <button class="tab" onclick="showTab('metrics')">All Metrics</button>
-            </div>
-
-            <div id="insightsTab" class="tab-content active">
-                <div id="insightsGrid" class="insights-grid"></div>
-            </div>
-
-            <div id="pnlTab" class="tab-content">
-                <div class="pnl-summary">
-                    <div class="pnl-cards">
-                        <div class="pnl-card">
-                            <div class="pnl-label">Win Rate</div>
-                            <div class="pnl-value" id="pnlWinRate">0%</div>
-                        </div>
-                        <div class="pnl-card">
-                            <div class="pnl-label">Net P&L</div>
-                            <div class="pnl-value" id="pnlNet">$0</div>
-                        </div>
-                        <div class="pnl-card win">
-                            <div class="pnl-label">Total Profit</div>
-                            <div class="pnl-value" id="pnlProfit">$0</div>
-                        </div>
-                        <div class="pnl-card loss">
-                            <div class="pnl-label">Total Loss</div>
-                            <div class="pnl-value" id="pnlLoss">$0</div>
-                        </div>
-                        <div class="pnl-card">
-                            <div class="pnl-label">Wins</div>
-                            <div class="pnl-value" id="pnlWins">0</div>
-                        </div>
-                        <div class="pnl-card">
-                            <div class="pnl-label">Losses</div>
-                            <div class="pnl-value" id="pnlLosses">0</div>
-                        </div>
-                        <div class="pnl-card">
-                            <div class="pnl-label">Pending</div>
-                            <div class="pnl-value" id="pnlPending">0</div>
-                        </div>
-                        <div class="pnl-card">
-                            <div class="pnl-label">Profit Factor</div>
-                            <div class="pnl-value" id="pnlFactor">0</div>
-                        </div>
-                    </div>
-                </div>
-                <h3 style="margin: 24px 0 16px;">Top Positions by P&L</h3>
-                <div id="pnlPositions" class="pnl-positions"></div>
-            </div>
-
-            <div id="marketsTab" class="tab-content">
-                <div id="topMarkets" class="top-markets"></div>
-            </div>
-
-            <div id="metricsTab" class="tab-content">
-                <div id="metricsGrid" class="metrics-grid"></div>
-            </div>
-        </div>
-
-        <div id="downloadSection" class="download-section hidden">
-            <button class="btn-secondary" onclick="downloadJSON()">Download JSON</button>
-            <button class="btn-secondary" onclick="downloadCSV()">Download CSV</button>
-            <button class="btn-secondary" onclick="downloadReport()">Download Analysis Report</button>
-        </div>
-
-        <div id="tableContainer" class="table-container hidden">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Side</th>
-                        <th>Market</th>
-                        <th>Outcome</th>
-                        <th>Price</th>
-                        <th>Size</th>
-                        <th>Value</th>
-                        <th>Tx</th>
-                    </tr>
-                </thead>
-                <tbody id="tradesBody"></tbody>
-            </table>
-        </div>
+      <div id="tableContainer" class="table-container hidden">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Side</th>
+              <th>Market</th>
+              <th>Outcome</th>
+              <th>Price</th>
+              <th>Size</th>
+              <th>Value</th>
+              <th>Tx</th>
+            </tr>
+          </thead>
+          <tbody id="tradesBody"></tbody>
+        </table>
+      </div>
     </div>
 
     <script>
-        let currentWallet = '';
-        let currentLimit = 1000;
-        let currentData = null;
-        let currentAnalysis = null;
+      let currentWallet = "";
+      let currentLimit = 1000;
+      let currentData = null;
+      let currentAnalysis = null;
 
-        // Theme management
-        function initTheme() {
-            const saved = localStorage.getItem('theme');
-            if (saved === 'dark') {
-                document.documentElement.classList.add('dark');
-                document.documentElement.classList.remove('light');
-                updateThemeUI(true);
-            } else if (saved === 'light') {
-                document.documentElement.classList.add('light');
-                document.documentElement.classList.remove('dark');
-                updateThemeUI(false);
-            } else {
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                updateThemeUI(prefersDark);
-            }
+      // Theme management
+      function initTheme() {
+        const saved = localStorage.getItem("theme");
+        if (saved === "dark") {
+          document.documentElement.classList.add("dark");
+          document.documentElement.classList.remove("light");
+          updateThemeUI(true);
+        } else if (saved === "light") {
+          document.documentElement.classList.add("light");
+          document.documentElement.classList.remove("dark");
+          updateThemeUI(false);
+        } else {
+          const prefersDark = window.matchMedia(
+            "(prefers-color-scheme: dark)",
+          ).matches;
+          updateThemeUI(prefersDark);
         }
+      }
 
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.contains('dark') ||
-                (!document.documentElement.classList.contains('light') &&
-                 window.matchMedia('(prefers-color-scheme: dark)').matches);
+      function toggleTheme() {
+        const isDark =
+          document.documentElement.classList.contains("dark") ||
+          (!document.documentElement.classList.contains("light") &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
 
-            if (isDark) {
-                document.documentElement.classList.remove('dark');
-                document.documentElement.classList.add('light');
-                localStorage.setItem('theme', 'light');
-                updateThemeUI(false);
-            } else {
-                document.documentElement.classList.remove('light');
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-                updateThemeUI(true);
-            }
+        if (isDark) {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.classList.add("light");
+          localStorage.setItem("theme", "light");
+          updateThemeUI(false);
+        } else {
+          document.documentElement.classList.remove("light");
+          document.documentElement.classList.add("dark");
+          localStorage.setItem("theme", "dark");
+          updateThemeUI(true);
         }
+      }
 
-        function updateThemeUI(isDark) {
-            document.getElementById('sunIcon').style.display = isDark ? 'block' : 'none';
-            document.getElementById('moonIcon').style.display = isDark ? 'none' : 'block';
-            document.getElementById('themeLabel').textContent = isDark ? 'Dark' : 'Light';
-        }
+      function updateThemeUI(isDark) {
+        document.getElementById("sunIcon").style.display = isDark
+          ? "block"
+          : "none";
+        document.getElementById("moonIcon").style.display = isDark
+          ? "none"
+          : "block";
+        document.getElementById("themeLabel").textContent = isDark
+          ? "Dark"
+          : "Light";
+      }
 
-        initTheme();
+      initTheme();
 
-        document.getElementById('walletInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') fetchTrades();
+      document
+        .getElementById("walletInput")
+        .addEventListener("keypress", (e) => {
+          if (e.key === "Enter") fetchTrades();
         });
 
-        async function fetchTrades() {
-            const wallet = document.getElementById('walletInput').value.trim();
-            if (!wallet) {
-                showError('Please enter a wallet address');
-                return;
-            }
-
-            const limitSelect = document.getElementById('tradeCount').value;
-            currentWallet = wallet;
-            currentLimit = limitSelect === 'full' ? 'full' : parseInt(limitSelect);
-
-            showLoading(true, `Fetching ${currentLimit === 'full' ? 'full history' : currentLimit.toLocaleString() + ' trades'}...`);
-            hideError();
-            hideAnalytics();
-
-            try {
-                const url = currentLimit === 'full'
-                    ? `/api/trades/${wallet}?mode=full`
-                    : `/api/trades/${wallet}?limit=${currentLimit}`;
-
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.error) {
-                    showError(data.error);
-                    showLoading(false);
-                    return;
-                }
-
-                currentData = data;
-                displayResults(data);
-            } catch (err) {
-                showError('Failed to fetch trades: ' + err.message);
-            }
-
-            showLoading(false);
+      async function fetchTrades() {
+        const wallet = document.getElementById("walletInput").value.trim();
+        if (!wallet) {
+          showError("Please enter a wallet address");
+          return;
         }
 
-        async function analyzeTrades() {
-            const wallet = document.getElementById('walletInput').value.trim();
-            if (!wallet) {
-                showError('Please enter a wallet address');
-                return;
-            }
+        const limitSelect = document.getElementById("tradeCount").value;
+        currentWallet = wallet;
+        currentLimit = limitSelect === "full" ? "full" : parseInt(limitSelect);
 
-            const limitSelect = document.getElementById('tradeCount').value;
-            currentWallet = wallet;
-            currentLimit = limitSelect === 'full' ? 'full' : parseInt(limitSelect);
+        showLoading(
+          true,
+          `Fetching ${currentLimit === "full" ? "full history" : currentLimit.toLocaleString() + " trades"}...`,
+        );
+        hideError();
+        hideAnalytics();
 
-            showLoading(true, `Analyzing ${currentLimit === 'full' ? 'full history' : currentLimit.toLocaleString() + ' trades'}...`);
-            hideError();
+        try {
+          const url =
+            currentLimit === "full"
+              ? `/api/trades/${wallet}?mode=full`
+              : `/api/trades/${wallet}?limit=${currentLimit}`;
 
-            try {
-                const url = currentLimit === 'full'
-                    ? `/api/analyze/${wallet}?mode=full`
-                    : `/api/analyze/${wallet}?limit=${currentLimit}`;
+          const response = await fetch(url);
+          const data = await response.json();
 
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.error) {
-                    showError(data.error);
-                    showLoading(false);
-                    return;
-                }
-
-                currentAnalysis = data;
-
-                // Also fetch the raw trades for display
-                const tradesUrl = currentLimit === 'full'
-                    ? `/api/trades/${wallet}?mode=full`
-                    : `/api/trades/${wallet}?limit=${currentLimit}`;
-                const tradesResponse = await fetch(tradesUrl);
-                currentData = await tradesResponse.json();
-
-                displayResults(currentData);
-                displayAnalytics(data.analysis);
-            } catch (err) {
-                showError('Failed to analyze: ' + err.message);
-            }
-
+          if (data.error) {
+            showError(data.error);
             showLoading(false);
+            return;
+          }
+
+          currentData = data;
+          displayResults(data);
+        } catch (err) {
+          showError("Failed to fetch trades: " + err.message);
         }
 
-        function displayResults(data) {
-            document.getElementById('displayUsername').textContent = data.username || 'Unknown';
-            document.getElementById('displayWallet').textContent = data.wallet;
+        showLoading(false);
+      }
 
-            const modeIndicator = document.getElementById('modeIndicator');
-            const tradeCount = data.trade_count || data.trades?.length || 0;
-            modeIndicator.textContent = tradeCount.toLocaleString() + ' TRADES';
-            modeIndicator.className = 'mode-indicator ' + (tradeCount > 10000 ? 'mode-full' : 'mode-recent');
+      async function analyzeTrades() {
+        const wallet = document.getElementById("walletInput").value.trim();
+        if (!wallet) {
+          showError("Please enter a wallet address");
+          return;
+        }
 
-            if (data.stats) {
-                document.getElementById('dateRange').textContent =
-                    `${data.stats.oldest_trade || '?'} → ${data.stats.newest_trade || '?'}`;
-            }
+        const limitSelect = document.getElementById("tradeCount").value;
+        currentWallet = wallet;
+        currentLimit = limitSelect === "full" ? "full" : parseInt(limitSelect);
 
-            document.getElementById('userInfo').classList.remove('hidden');
+        showLoading(
+          true,
+          `Analyzing ${currentLimit === "full" ? "full history" : currentLimit.toLocaleString() + " trades"}...`,
+        );
+        hideError();
 
-            const trades = data.trades || [];
-            let totalVolume = 0, buyCount = 0, sellCount = 0;
-            const markets = new Set();
+        try {
+          const url =
+            currentLimit === "full"
+              ? `/api/analyze/${wallet}?mode=full`
+              : `/api/analyze/${wallet}?limit=${currentLimit}`;
 
-            trades.forEach(t => {
-                totalVolume += t.usdcSize || 0;
-                if (t.side === 'BUY') buyCount++;
-                else if (t.side === 'SELL') sellCount++;
-                if (t.title) markets.add(t.title);
-            });
+          const response = await fetch(url);
+          const data = await response.json();
 
-            const avgSize = trades.length > 0 ? totalVolume / trades.length : 0;
+          if (data.error) {
+            showError(data.error);
+            showLoading(false);
+            return;
+          }
 
-            document.getElementById('totalTrades').textContent = trades.length.toLocaleString();
-            document.getElementById('totalVolume').textContent = '$' + totalVolume.toLocaleString(undefined, {maximumFractionDigits: 0});
-            document.getElementById('buyCount').textContent = buyCount.toLocaleString();
-            document.getElementById('sellCount').textContent = sellCount.toLocaleString();
-            document.getElementById('uniqueMarkets').textContent = markets.size.toLocaleString();
-            document.getElementById('avgTradeSize').textContent = '$' + avgSize.toLocaleString(undefined, {maximumFractionDigits: 0});
-            document.getElementById('stats').classList.remove('hidden');
-            document.getElementById('downloadSection').classList.remove('hidden');
+          currentAnalysis = data;
 
-            // Table
-            const tbody = document.getElementById('tradesBody');
-            tbody.innerHTML = '';
+          // Also fetch the raw trades for display
+          const tradesUrl =
+            currentLimit === "full"
+              ? `/api/trades/${wallet}?mode=full`
+              : `/api/trades/${wallet}?limit=${currentLimit}`;
+          const tradesResponse = await fetch(tradesUrl);
+          currentData = await tradesResponse.json();
 
-            const displayTrades = trades.slice(0, 500);
-            displayTrades.forEach(trade => {
-                const row = document.createElement('tr');
-                const ts = trade.timestamp;
-                const date = new Date(ts * 1000);
-                const timeStr = date.toLocaleString();
-                const sideClass = trade.side === 'BUY' ? 'side-buy' : 'side-sell';
-                const outcome = trade.outcome || '-';
-                const outcomeClass = ['Up', 'Yes'].includes(outcome) ? 'outcome-up' : 'outcome-down';
-                const txHash = trade.transactionHash || '';
-                const shortTx = txHash ? txHash.slice(0, 8) + '...' : '-';
-                const txLink = txHash ? `https://polygonscan.com/tx/${txHash}` : '#';
+          displayResults(currentData);
+          displayAnalytics(data.analysis);
+        } catch (err) {
+          showError("Failed to analyze: " + err.message);
+        }
 
-                row.innerHTML = `
+        showLoading(false);
+      }
+
+      function displayResults(data) {
+        document.getElementById("displayUsername").textContent =
+          data.username || "Unknown";
+        document.getElementById("displayWallet").textContent = data.wallet;
+
+        const modeIndicator = document.getElementById("modeIndicator");
+        const tradeCount = data.trade_count || data.trades?.length || 0;
+        modeIndicator.textContent = tradeCount.toLocaleString() + " TRADES";
+        modeIndicator.className =
+          "mode-indicator " +
+          (tradeCount > 10000 ? "mode-full" : "mode-recent");
+
+        if (data.stats) {
+          document.getElementById("dateRange").textContent =
+            `${data.stats.oldest_trade || "?"} → ${data.stats.newest_trade || "?"}`;
+        }
+
+        document.getElementById("userInfo").classList.remove("hidden");
+
+        const trades = data.trades || [];
+        let totalVolume = 0,
+          buyCount = 0,
+          sellCount = 0;
+        const markets = new Set();
+
+        trades.forEach((t) => {
+          totalVolume += t.usdcSize || 0;
+          if (t.side === "BUY") buyCount++;
+          else if (t.side === "SELL") sellCount++;
+          if (t.title) markets.add(t.title);
+        });
+
+        const avgSize = trades.length > 0 ? totalVolume / trades.length : 0;
+
+        document.getElementById("totalTrades").textContent =
+          trades.length.toLocaleString();
+        document.getElementById("totalVolume").textContent =
+          "$" +
+          totalVolume.toLocaleString(undefined, { maximumFractionDigits: 0 });
+        document.getElementById("buyCount").textContent =
+          buyCount.toLocaleString();
+        document.getElementById("sellCount").textContent =
+          sellCount.toLocaleString();
+        document.getElementById("uniqueMarkets").textContent =
+          markets.size.toLocaleString();
+        document.getElementById("avgTradeSize").textContent =
+          "$" + avgSize.toLocaleString(undefined, { maximumFractionDigits: 0 });
+        document.getElementById("stats").classList.remove("hidden");
+        document.getElementById("downloadSection").classList.remove("hidden");
+
+        // Table
+        const tbody = document.getElementById("tradesBody");
+        tbody.innerHTML = "";
+
+        const displayTrades = trades.slice(0, 500);
+        displayTrades.forEach((trade) => {
+          const row = document.createElement("tr");
+          const ts = trade.timestamp;
+          const date = new Date(ts * 1000);
+          const timeStr = date.toLocaleString();
+          const sideClass = trade.side === "BUY" ? "side-buy" : "side-sell";
+          const outcome = trade.outcome || "-";
+          const outcomeClass = ["Up", "Yes"].includes(outcome)
+            ? "outcome-up"
+            : "outcome-down";
+          const txHash = trade.transactionHash || "";
+          const shortTx = txHash ? txHash.slice(0, 8) + "..." : "-";
+          const txLink = txHash ? `https://polygonscan.com/tx/${txHash}` : "#";
+
+          row.innerHTML = `
                     <td>${timeStr}</td>
-                    <td class="${sideClass}">${trade.side || '-'}</td>
-                    <td class="market-name" title="${trade.title || ''}">${trade.title || '-'}</td>
+                    <td class="${sideClass}">${trade.side || "-"}</td>
+                    <td class="market-name" title="${trade.title || ""}">${trade.title || "-"}</td>
                     <td class="${outcomeClass}">${outcome}</td>
                     <td>$${(trade.price || 0).toFixed(2)}</td>
                     <td>${(trade.size || 0).toFixed(2)}</td>
                     <td>$${(trade.usdcSize || 0).toFixed(2)}</td>
                     <td class="tx-hash"><a href="${txLink}" target="_blank">${shortTx}</a></td>
                 `;
-                tbody.appendChild(row);
-            });
+          tbody.appendChild(row);
+        });
 
-            if (trades.length > 500) {
-                const note = document.createElement('tr');
-                note.innerHTML = `<td colspan="8" style="text-align:center;color:hsl(var(--muted-foreground));padding:20px;">Showing 500 of ${trades.length.toLocaleString()} trades. Download for full data.</td>`;
-                tbody.appendChild(note);
-            }
-
-            document.getElementById('tableContainer').classList.remove('hidden');
+        if (trades.length > 500) {
+          const note = document.createElement("tr");
+          note.innerHTML = `<td colspan="8" style="text-align:center;color:hsl(var(--muted-foreground));padding:20px;">Showing 500 of ${trades.length.toLocaleString()} trades. Download for full data.</td>`;
+          tbody.appendChild(note);
         }
 
-        function displayAnalytics(analysis) {
-            document.getElementById('analyticsSection').classList.remove('hidden');
+        document.getElementById("tableContainer").classList.remove("hidden");
+      }
 
-            // Trader type badge
-            const traderType = analysis.behavioral_patterns?.trader_classification?.primary_type || 'standard';
-            document.getElementById('traderType').textContent = traderType.replace(/_/g, ' ').toUpperCase() + ' TRADER';
+      function displayAnalytics(analysis) {
+        document.getElementById("analyticsSection").classList.remove("hidden");
 
-            // Insights
-            const insightsGrid = document.getElementById('insightsGrid');
-            insightsGrid.innerHTML = '';
-            const insights = analysis.insights || [];
-            insights.forEach(insight => {
-                const card = document.createElement('div');
-                card.className = `insight-card ${insight.importance}`;
-                card.innerHTML = `
+        // Trader type badge
+        const traderType =
+          analysis.behavioral_patterns?.trader_classification?.primary_type ||
+          "standard";
+        document.getElementById("traderType").textContent =
+          traderType.replace(/_/g, " ").toUpperCase() + " TRADER";
+
+        // Insights
+        const insightsGrid = document.getElementById("insightsGrid");
+        insightsGrid.innerHTML = "";
+        const insights = analysis.insights || [];
+        insights.forEach((insight) => {
+          const card = document.createElement("div");
+          card.className = `insight-card ${insight.importance}`;
+          card.innerHTML = `
                     <span class="insight-category">${insight.category}</span>
                     <div class="insight-title">${insight.title}</div>
                     <div class="insight-description">${insight.description}</div>
                 `;
-                insightsGrid.appendChild(card);
-            });
+          insightsGrid.appendChild(card);
+        });
 
-            if (insights.length === 0) {
-                insightsGrid.innerHTML = '<p style="color: hsl(var(--muted-foreground));">No significant patterns detected. Try analyzing more trades.</p>';
-            }
+        if (insights.length === 0) {
+          insightsGrid.innerHTML =
+            '<p style="color: hsl(var(--muted-foreground));">No significant patterns detected. Try analyzing more trades.</p>';
+        }
 
-            // Top markets
-            const topMarketsDiv = document.getElementById('topMarkets');
-            topMarketsDiv.innerHTML = '';
-            const topMarkets = analysis.market_analysis?.top_markets || [];
-            topMarkets.slice(0, 15).forEach((market, i) => {
-                const row = document.createElement('div');
-                row.className = 'market-row';
-                row.innerHTML = `
+        // Top markets
+        const topMarketsDiv = document.getElementById("topMarkets");
+        topMarketsDiv.innerHTML = "";
+        const topMarkets = analysis.market_analysis?.top_markets || [];
+        topMarkets.slice(0, 15).forEach((market, i) => {
+          const row = document.createElement("div");
+          row.className = "market-row";
+          row.innerHTML = `
                     <span class="market-rank">#${i + 1}</span>
                     <div class="market-info">
                         <div class="market-title">${market.name}</div>
                         <div class="market-stats">${market.trade_count} trades | ${market.buys} buys, ${market.sells} sells</div>
                     </div>
-                    <span class="market-volume">$${market.volume.toLocaleString(undefined, {maximumFractionDigits: 0})}</span>
+                    <span class="market-volume">$${market.volume.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                 `;
-                topMarketsDiv.appendChild(row);
-            });
+          topMarketsDiv.appendChild(row);
+        });
 
-            // Metrics
-            const metricsGrid = document.getElementById('metricsGrid');
-            metricsGrid.innerHTML = '';
+        // Metrics
+        const metricsGrid = document.getElementById("metricsGrid");
+        metricsGrid.innerHTML = "";
 
-            // Summary metrics
-            const summary = analysis.summary || {};
-            addMetricGroup(metricsGrid, 'Summary', [
-                ['Trades/Day', summary.trades_per_day?.toFixed(1) || '0'],
-                ['Days Active', summary.days_active || '0'],
-                ['Buy/Sell Ratio', summary.buy_sell_ratio?.toFixed(2) || '0'],
-                ['Largest Trade', '$' + (summary.largest_trade?.toLocaleString() || '0')],
-            ]);
+        // Summary metrics
+        const summary = analysis.summary || {};
+        addMetricGroup(metricsGrid, "Summary", [
+          ["Trades/Day", summary.trades_per_day?.toFixed(1) || "0"],
+          ["Days Active", summary.days_active || "0"],
+          ["Buy/Sell Ratio", summary.buy_sell_ratio?.toFixed(2) || "0"],
+          [
+            "Largest Trade",
+            "$" + (summary.largest_trade?.toLocaleString() || "0"),
+          ],
+        ]);
 
-            // Position sizing
-            const sizing = analysis.position_sizing || {};
-            addMetricGroup(metricsGrid, 'Position Sizing', [
-                ['Style', sizing.sizing_style?.replace(/_/g, ' ') || 'N/A'],
-                ['Median Size', '$' + (sizing.percentiles?.p50?.toFixed(0) || '0')],
-                ['95th Percentile', '$' + (sizing.percentiles?.p95?.toFixed(0) || '0')],
-                ['Variability', sizing.coefficient_of_variation?.toFixed(2) || '0'],
-            ]);
+        // Position sizing
+        const sizing = analysis.position_sizing || {};
+        addMetricGroup(metricsGrid, "Position Sizing", [
+          ["Style", sizing.sizing_style?.replace(/_/g, " ") || "N/A"],
+          ["Median Size", "$" + (sizing.percentiles?.p50?.toFixed(0) || "0")],
+          [
+            "95th Percentile",
+            "$" + (sizing.percentiles?.p95?.toFixed(0) || "0"),
+          ],
+          ["Variability", sizing.coefficient_of_variation?.toFixed(2) || "0"],
+        ]);
 
-            // Outcome analysis
-            const outcomes = analysis.outcome_analysis || {};
-            addMetricGroup(metricsGrid, 'Outcome Bias', [
-                ['Yes/Up %', outcomes.yes_percentage?.toFixed(1) + '%' || '0%'],
-                ['No/Down %', outcomes.no_percentage?.toFixed(1) + '%' || '0%'],
-                ['Preference', outcomes.preference || 'neutral'],
-            ]);
+        // Outcome analysis
+        const outcomes = analysis.outcome_analysis || {};
+        addMetricGroup(metricsGrid, "Outcome Bias", [
+          ["Yes/Up %", outcomes.yes_percentage?.toFixed(1) + "%" || "0%"],
+          ["No/Down %", outcomes.no_percentage?.toFixed(1) + "%" || "0%"],
+          ["Preference", outcomes.preference || "neutral"],
+        ]);
 
-            // Risk metrics
-            const risk = analysis.risk_metrics || {};
-            addMetricGroup(metricsGrid, 'Risk Metrics', [
-                ['Max Trade Risk', risk.max_single_trade_risk?.toFixed(1) + '%' || '0%'],
-                ['Concentration', risk.market_concentration_risk?.toFixed(1) + '%' || '0%'],
-                ['Risk Score', risk.risk_score?.toFixed(0) + '/100' || '0/100'],
-            ]);
+        // Risk metrics
+        const risk = analysis.risk_metrics || {};
+        addMetricGroup(metricsGrid, "Risk Metrics", [
+          [
+            "Max Trade Risk",
+            risk.max_single_trade_risk?.toFixed(1) + "%" || "0%",
+          ],
+          [
+            "Concentration",
+            risk.market_concentration_risk?.toFixed(1) + "%" || "0%",
+          ],
+          ["Risk Score", risk.risk_score?.toFixed(0) + "/100" || "0/100"],
+        ]);
 
-            // Timing
-            const timing = analysis.timing_patterns || {};
-            addMetricGroup(metricsGrid, 'Timing', [
-                ['Peak Day', timing.peak_day || 'N/A'],
-                ['Peak Hours', timing.peak_hours?.join(', ') || 'N/A'],
-                ['Primary Session', timing.primary_session?.replace(/_/g, ' ') || 'N/A'],
-            ]);
+        // Timing
+        const timing = analysis.timing_patterns || {};
+        addMetricGroup(metricsGrid, "Timing", [
+          ["Peak Day", timing.peak_day || "N/A"],
+          ["Peak Hours", timing.peak_hours?.join(", ") || "N/A"],
+          [
+            "Primary Session",
+            timing.primary_session?.replace(/_/g, " ") || "N/A",
+          ],
+        ]);
 
-            // Market analysis
-            const markets = analysis.market_analysis || {};
-            addMetricGroup(metricsGrid, 'Market Focus', [
-                ['Unique Markets', markets.unique_markets || '0'],
-                ['Top 5 Concentration', markets.concentration_top5?.toFixed(1) + '%' || '0%'],
-                ['Diversification', markets.diversification_score?.toFixed(0) + '/100' || '0/100'],
-            ]);
+        // Market analysis
+        const markets = analysis.market_analysis || {};
+        addMetricGroup(metricsGrid, "Market Focus", [
+          ["Unique Markets", markets.unique_markets || "0"],
+          [
+            "Top 5 Concentration",
+            markets.concentration_top5?.toFixed(1) + "%" || "0%",
+          ],
+          [
+            "Diversification",
+            markets.diversification_score?.toFixed(0) + "/100" || "0/100",
+          ],
+        ]);
 
-            // P&L metrics if available
-            const pnl = analysis.pnl || {};
-            if (pnl.summary) {
-                addMetricGroup(metricsGrid, 'Performance', [
-                    ['Win Rate', pnl.summary.win_rate?.toFixed(1) + '%' || '0%'],
-                    ['Net P&L', '$' + (pnl.summary.net_pnl?.toLocaleString() || '0')],
-                    ['Profit Factor', pnl.summary.profit_factor === Infinity ? 'N/A' : pnl.summary.profit_factor?.toFixed(2) || '0'],
-                    ['Wins/Losses', `${pnl.summary.wins || 0}/${pnl.summary.losses || 0}`],
-                ]);
+        // P&L metrics if available
+        const pnl = analysis.pnl || {};
+        if (pnl.summary) {
+          addMetricGroup(metricsGrid, "Performance", [
+            ["Win Rate", pnl.summary.win_rate?.toFixed(1) + "%" || "0%"],
+            ["Net P&L", "$" + (pnl.summary.net_pnl?.toLocaleString() || "0")],
+            [
+              "Profit Factor",
+              pnl.summary.profit_factor === Infinity
+                ? "N/A"
+                : pnl.summary.profit_factor?.toFixed(2) || "0",
+            ],
+            [
+              "Wins/Losses",
+              `${pnl.summary.wins || 0}/${pnl.summary.losses || 0}`,
+            ],
+          ]);
 
-                // Display P&L tab
-                displayPnL(pnl);
-            }
+          // Display P&L tab
+          displayPnL(pnl);
         }
+      }
 
-        function addMetricGroup(container, title, metrics) {
-            const group = document.createElement('div');
-            group.className = 'metric-group';
-            group.innerHTML = `<h3>${title}</h3>`;
-            metrics.forEach(([label, value]) => {
-                const item = document.createElement('div');
-                item.className = 'metric-item';
-                item.innerHTML = `<span class="metric-label">${label}</span><span class="metric-value">${value}</span>`;
-                group.appendChild(item);
-            });
-            container.appendChild(group);
-        }
+      function addMetricGroup(container, title, metrics) {
+        const group = document.createElement("div");
+        group.className = "metric-group";
+        group.innerHTML = `<h3>${title}</h3>`;
+        metrics.forEach(([label, value]) => {
+          const item = document.createElement("div");
+          item.className = "metric-item";
+          item.innerHTML = `<span class="metric-label">${label}</span><span class="metric-value">${value}</span>`;
+          group.appendChild(item);
+        });
+        container.appendChild(group);
+      }
 
-        function showTab(tabName) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
-            document.getElementById(tabName + 'Tab').classList.add('active');
-        }
+      function showTab(tabName) {
+        document
+          .querySelectorAll(".tab")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelector(`.tab[onclick="showTab('${tabName}')"]`)
+          .classList.add("active");
+        document.getElementById(tabName + "Tab").classList.add("active");
+      }
 
-        function hideAnalytics() {
-            document.getElementById('analyticsSection').classList.add('hidden');
-        }
+      function hideAnalytics() {
+        document.getElementById("analyticsSection").classList.add("hidden");
+      }
 
-        function downloadJSON() {
-            if (!currentWallet) return;
-            const mode = currentLimit === 'full' ? 'full' : 'recent';
-            const limit = currentLimit === 'full' ? '' : `&limit=${currentLimit}`;
-            window.location.href = `/api/download/${currentWallet}/json?mode=${mode}${limit}`;
-        }
+      function downloadJSON() {
+        if (!currentWallet) return;
+        const mode = currentLimit === "full" ? "full" : "recent";
+        const limit = currentLimit === "full" ? "" : `&limit=${currentLimit}`;
+        window.location.href = `/api/download/${currentWallet}/json?mode=${mode}${limit}`;
+      }
 
-        function downloadCSV() {
-            if (!currentWallet) return;
-            const mode = currentLimit === 'full' ? 'full' : 'recent';
-            const limit = currentLimit === 'full' ? '' : `&limit=${currentLimit}`;
-            window.location.href = `/api/download/${currentWallet}/csv?mode=${mode}${limit}`;
-        }
+      function downloadCSV() {
+        if (!currentWallet) return;
+        const mode = currentLimit === "full" ? "full" : "recent";
+        const limit = currentLimit === "full" ? "" : `&limit=${currentLimit}`;
+        window.location.href = `/api/download/${currentWallet}/csv?mode=${mode}${limit}`;
+      }
 
-        function downloadReport() {
-            if (!currentWallet) return;
-            const mode = currentLimit === 'full' ? 'full' : 'recent';
-            const limit = currentLimit === 'full' ? '' : `&limit=${currentLimit}`;
-            window.location.href = `/api/analyze/${currentWallet}/report?mode=${mode}${limit}`;
-        }
+      function downloadReport() {
+        if (!currentWallet) return;
+        const mode = currentLimit === "full" ? "full" : "recent";
+        const limit = currentLimit === "full" ? "" : `&limit=${currentLimit}`;
+        window.location.href = `/api/analyze/${currentWallet}/report?mode=${mode}${limit}`;
+      }
 
-        function showLoading(show, text = 'Fetching trades...') {
-            document.getElementById('loading').classList.toggle('hidden', !show);
-            document.getElementById('loadingText').textContent = text;
-            document.getElementById('fetchBtn').disabled = show;
-            document.getElementById('analyzeBtn').disabled = show;
-        }
+      function showLoading(show, text = "Fetching trades...") {
+        document.getElementById("loading").classList.toggle("hidden", !show);
+        document.getElementById("loadingText").textContent = text;
+        document.getElementById("fetchBtn").disabled = show;
+        document.getElementById("analyzeBtn").disabled = show;
+      }
 
-        function showError(msg) {
-            const el = document.getElementById('error');
-            el.textContent = msg;
-            el.classList.remove('hidden');
-        }
+      function showError(msg) {
+        const el = document.getElementById("error");
+        el.textContent = msg;
+        el.classList.remove("hidden");
+      }
 
-        function hideError() {
-            document.getElementById('error').classList.add('hidden');
-        }
+      function hideError() {
+        document.getElementById("error").classList.add("hidden");
+      }
 
-        // P&L Display
-        function displayPnL(pnl) {
-            if (!pnl || !pnl.summary) return;
+      // P&L Display
+      function displayPnL(pnl) {
+        if (!pnl || !pnl.summary) return;
 
-            const summary = pnl.summary;
-            document.getElementById('pnlWinRate').textContent = summary.win_rate?.toFixed(1) + '%' || '0%';
-            document.getElementById('pnlNet').textContent = '$' + (summary.net_pnl?.toLocaleString(undefined, {maximumFractionDigits: 2}) || '0');
-            document.getElementById('pnlNet').className = 'pnl-value ' + (summary.net_pnl >= 0 ? 'positive' : 'negative');
-            document.getElementById('pnlProfit').textContent = '$' + (summary.total_profit?.toLocaleString(undefined, {maximumFractionDigits: 2}) || '0');
-            document.getElementById('pnlLoss').textContent = '$' + (summary.total_loss?.toLocaleString(undefined, {maximumFractionDigits: 2}) || '0');
-            document.getElementById('pnlWins').textContent = summary.wins || '0';
-            document.getElementById('pnlLosses').textContent = summary.losses || '0';
-            document.getElementById('pnlPending').textContent = summary.pending || '0';
-            document.getElementById('pnlFactor').textContent = summary.profit_factor === Infinity ? 'N/A' : summary.profit_factor?.toFixed(2) || '0';
+        const summary = pnl.summary;
+        document.getElementById("pnlWinRate").textContent =
+          summary.win_rate?.toFixed(1) + "%" || "0%";
+        document.getElementById("pnlNet").textContent =
+          "$" +
+          (summary.net_pnl?.toLocaleString(undefined, {
+            maximumFractionDigits: 2,
+          }) || "0");
+        document.getElementById("pnlNet").className =
+          "pnl-value " + (summary.net_pnl >= 0 ? "positive" : "negative");
+        document.getElementById("pnlProfit").textContent =
+          "$" +
+          (summary.total_profit?.toLocaleString(undefined, {
+            maximumFractionDigits: 2,
+          }) || "0");
+        document.getElementById("pnlLoss").textContent =
+          "$" +
+          (summary.total_loss?.toLocaleString(undefined, {
+            maximumFractionDigits: 2,
+          }) || "0");
+        document.getElementById("pnlWins").textContent = summary.wins || "0";
+        document.getElementById("pnlLosses").textContent =
+          summary.losses || "0";
+        document.getElementById("pnlPending").textContent =
+          summary.pending || "0";
+        document.getElementById("pnlFactor").textContent =
+          summary.profit_factor === Infinity
+            ? "N/A"
+            : summary.profit_factor?.toFixed(2) || "0";
 
-            // Positions
-            const positionsDiv = document.getElementById('pnlPositions');
-            positionsDiv.innerHTML = '';
-            const positions = pnl.positions || [];
+        // Positions
+        const positionsDiv = document.getElementById("pnlPositions");
+        positionsDiv.innerHTML = "";
+        const positions = pnl.positions || [];
 
-            positions.slice(0, 20).forEach(pos => {
-                const div = document.createElement('div');
-                div.className = 'pnl-position ' + pos.status;
-                const pnlClass = pos.pnl >= 0 ? 'positive' : 'negative';
-                div.innerHTML = `
+        positions.slice(0, 20).forEach((pos) => {
+          const div = document.createElement("div");
+          div.className = "pnl-position " + pos.status;
+          const pnlClass = pos.pnl >= 0 ? "positive" : "negative";
+          div.innerHTML = `
                     <span class="pnl-market" title="${pos.market}">${pos.market}</span>
-                    <span class="pnl-outcome">${pos.outcome_bet} @ $${pos.avg_entry?.toFixed(2) || '0'}</span>
-                    <span class="pnl-amount ${pnlClass}">$${pos.pnl?.toLocaleString(undefined, {maximumFractionDigits: 2}) || '0'}</span>
+                    <span class="pnl-outcome">${pos.outcome_bet} @ $${pos.avg_entry?.toFixed(2) || "0"}</span>
+                    <span class="pnl-amount ${pnlClass}">$${pos.pnl?.toLocaleString(undefined, { maximumFractionDigits: 2 }) || "0"}</span>
                 `;
-                positionsDiv.appendChild(div);
-            });
+          positionsDiv.appendChild(div);
+        });
 
-            if (positions.length === 0) {
-                positionsDiv.innerHTML = '<p style="color: hsl(var(--muted-foreground));">No position data available.</p>';
-            }
+        if (positions.length === 0) {
+          positionsDiv.innerHTML =
+            '<p style="color: hsl(var(--muted-foreground));">No position data available.</p>';
+        }
+      }
+
+      // Comparison Mode
+      function toggleComparison() {
+        const el = document.getElementById("comparisonWallets");
+        el.classList.toggle("hidden");
+      }
+
+      async function runComparison() {
+        const wallet1 = document.getElementById("compareWallet1").value.trim();
+        const wallet2 = document.getElementById("compareWallet2").value.trim();
+        const wallet3 = document.getElementById("compareWallet3").value.trim();
+
+        const wallets = [wallet1, wallet2, wallet3].filter((w) => w);
+
+        if (wallets.length < 2) {
+          showError("Please enter at least 2 wallet addresses to compare");
+          return;
         }
 
-        // Comparison Mode
-        function toggleComparison() {
-            const el = document.getElementById('comparisonWallets');
-            el.classList.toggle('hidden');
-        }
+        showLoading(true, "Comparing wallets...");
+        hideError();
 
-        async function runComparison() {
-            const wallet1 = document.getElementById('compareWallet1').value.trim();
-            const wallet2 = document.getElementById('compareWallet2').value.trim();
-            const wallet3 = document.getElementById('compareWallet3').value.trim();
+        try {
+          const response = await fetch("/api/compare", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              wallets: wallets,
+              limit: 1000,
+              tier: "growth",
+            }),
+          });
 
-            const wallets = [wallet1, wallet2, wallet3].filter(w => w);
+          const data = await response.json();
 
-            if (wallets.length < 2) {
-                showError('Please enter at least 2 wallet addresses to compare');
-                return;
-            }
-
-            showLoading(true, 'Comparing wallets...');
-            hideError();
-
-            try {
-                const response = await fetch('/api/compare', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        wallets: wallets,
-                        limit: 1000,
-                        tier: 'growth'
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.error) {
-                    showError(data.error);
-                    showLoading(false);
-                    return;
-                }
-
-                displayComparison(data);
-            } catch (err) {
-                showError('Failed to compare: ' + err.message);
-            }
-
+          if (data.error) {
+            showError(data.error);
             showLoading(false);
+            return;
+          }
+
+          displayComparison(data);
+        } catch (err) {
+          showError("Failed to compare: " + err.message);
         }
 
-        function displayComparison(data) {
-            // Remove existing comparison results
-            const existing = document.getElementById('comparisonResults');
-            if (existing) existing.remove();
+        showLoading(false);
+      }
 
-            const comparison = data.comparison;
-            const wallets = comparison.wallets || [];
+      function displayComparison(data) {
+        // Remove existing comparison results
+        const existing = document.getElementById("comparisonResults");
+        if (existing) existing.remove();
 
-            const div = document.createElement('div');
-            div.id = 'comparisonResults';
-            div.className = 'comparison-results';
+        const comparison = data.comparison;
+        const wallets = comparison.wallets || [];
 
-            let html = '<h2>Wallet Comparison</h2>';
+        const div = document.createElement("div");
+        div.id = "comparisonResults";
+        div.className = "comparison-results";
 
-            // Insights
-            if (comparison.insights) {
-                html += '<div class="insights-grid">';
-                comparison.insights.forEach(insight => {
-                    html += `
+        let html = "<h2>Wallet Comparison</h2>";
+
+        // Insights
+        if (comparison.insights) {
+          html += '<div class="insights-grid">';
+          comparison.insights.forEach((insight) => {
+            html += `
                         <div class="insight-card medium">
                             <div class="insight-title">${insight.title}</div>
                             <div class="insight-description">${insight.description}</div>
                         </div>
                     `;
-                });
-                html += '</div>';
-            }
-
-            // Comparison table
-            html += '<table class="comparison-table"><thead><tr><th>Metric</th>';
-            wallets.forEach(w => {
-                html += `<th>${w.username || w.wallet}</th>`;
-            });
-            html += '</tr></thead><tbody>';
-
-            const metrics = [
-                { key: 'total_trades', label: 'Total Trades', format: v => v.toLocaleString() },
-                { key: 'total_volume', label: 'Volume', format: v => '$' + v.toLocaleString(undefined, {maximumFractionDigits: 0}) },
-                { key: 'avg_trade_size', label: 'Avg Trade', format: v => '$' + v.toFixed(0) },
-                { key: 'win_rate', label: 'Win Rate', format: v => v.toFixed(1) + '%' },
-                { key: 'net_pnl', label: 'Net P&L', format: v => '$' + v.toLocaleString(undefined, {maximumFractionDigits: 2}) },
-                { key: 'trader_type', label: 'Style', format: v => v.replace(/_/g, ' ') },
-            ];
-
-            metrics.forEach(metric => {
-                html += `<tr><td>${metric.label}</td>`;
-                const values = wallets.map(w => w[metric.key] || 0);
-                const maxVal = Math.max(...values.filter(v => typeof v === 'number'));
-
-                wallets.forEach(w => {
-                    const val = w[metric.key];
-                    const isWinner = typeof val === 'number' && val === maxVal && metric.key !== 'trader_type';
-                    html += `<td class="${isWinner ? 'comparison-winner' : ''}">${metric.format(val)}</td>`;
-                });
-                html += '</tr>';
-            });
-
-            html += '</tbody></table>';
-
-            div.innerHTML = html;
-            document.querySelector('.container').appendChild(div);
+          });
+          html += "</div>";
         }
 
-        // Pricing
-        function hidePricing() {
-            document.getElementById('pricingBanner').style.display = 'none';
-            localStorage.setItem('hidePricing', 'true');
-        }
+        // Comparison table
+        html += '<table class="comparison-table"><thead><tr><th>Metric</th>';
+        wallets.forEach((w) => {
+          html += `<th>${w.username || w.wallet}</th>`;
+        });
+        html += "</tr></thead><tbody>";
 
-        // Check if pricing should be hidden
-        if (localStorage.getItem('hidePricing') === 'true') {
-            document.getElementById('pricingBanner').style.display = 'none';
-        }
+        const metrics = [
+          {
+            key: "total_trades",
+            label: "Total Trades",
+            format: (v) => v.toLocaleString(),
+          },
+          {
+            key: "total_volume",
+            label: "Volume",
+            format: (v) =>
+              "$" + v.toLocaleString(undefined, { maximumFractionDigits: 0 }),
+          },
+          {
+            key: "avg_trade_size",
+            label: "Avg Trade",
+            format: (v) => "$" + v.toFixed(0),
+          },
+          {
+            key: "win_rate",
+            label: "Win Rate",
+            format: (v) => v.toFixed(1) + "%",
+          },
+          {
+            key: "net_pnl",
+            label: "Net P&L",
+            format: (v) =>
+              "$" + v.toLocaleString(undefined, { maximumFractionDigits: 2 }),
+          },
+          {
+            key: "trader_type",
+            label: "Style",
+            format: (v) => v.replace(/_/g, " "),
+          },
+        ];
 
-        // ========== AUTHENTICATION ==========
-        let currentUserData = null;
+        metrics.forEach((metric) => {
+          html += `<tr><td>${metric.label}</td>`;
+          const values = wallets.map((w) => w[metric.key] || 0);
+          const maxVal = Math.max(
+            ...values.filter((v) => typeof v === "number"),
+          );
 
-        // Check auth status on load
-        async function checkAuth() {
-            try {
-                const response = await fetch('/api/auth/me');
-                if (response.ok) {
-                    const data = await response.json();
-                    currentUserData = data.user;
-                    showLoggedInState(data);
-                } else {
-                    showLoggedOutState();
-                }
-            } catch (err) {
-                showLoggedOutState();
-            }
-        }
-
-        function showLoggedInState(data) {
-            document.getElementById('loggedOut').classList.add('hidden');
-            document.getElementById('loggedIn').classList.remove('hidden');
-            document.getElementById('userEmail').textContent = data.user.email;
-            document.getElementById('userTier').textContent = data.user.tier.toUpperCase();
-
-            // Update account menu
-            document.getElementById('accountEmail').textContent = data.user.email;
-            document.getElementById('accountTier').textContent = data.user.tier.charAt(0).toUpperCase() + data.user.tier.slice(1) + ' Tier';
-            document.getElementById('accountUsage').textContent = `${data.usage.trades_used} / ${data.usage.trades_limit} trades used`;
-        }
-
-        function showLoggedOutState() {
-            document.getElementById('loggedOut').classList.remove('hidden');
-            document.getElementById('loggedIn').classList.add('hidden');
-            currentUserData = null;
-        }
-
-        function showAuthModal(type) {
-            document.getElementById('authModal').classList.remove('hidden');
-            document.getElementById('loginForm').classList.toggle('hidden', type !== 'login');
-            document.getElementById('registerForm').classList.toggle('hidden', type !== 'register');
-            document.getElementById('loginError').classList.add('hidden');
-            document.getElementById('registerError').classList.add('hidden');
-        }
-
-        function hideAuthModal() {
-            document.getElementById('authModal').classList.add('hidden');
-        }
-
-        async function doLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    hideAuthModal();
-                    checkAuth();
-                } else {
-                    document.getElementById('loginError').textContent = data.error;
-                    document.getElementById('loginError').classList.remove('hidden');
-                }
-            } catch (err) {
-                document.getElementById('loginError').textContent = 'Login failed. Please try again.';
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        }
-
-        async function doRegister() {
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const username = document.getElementById('registerUsername').value;
-
-            try {
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, username })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    hideAuthModal();
-                    checkAuth();
-                } else {
-                    document.getElementById('registerError').textContent = data.error;
-                    document.getElementById('registerError').classList.remove('hidden');
-                }
-            } catch (err) {
-                document.getElementById('registerError').textContent = 'Registration failed. Please try again.';
-                document.getElementById('registerError').classList.remove('hidden');
-            }
-        }
-
-        async function doLogout() {
-            try {
-                await fetch('/api/auth/logout', { method: 'POST' });
-                showLoggedOutState();
-                hideAccountMenu();
-            } catch (err) {
-                console.error('Logout failed:', err);
-            }
-        }
-
-        function showAccountMenu() {
-            const menu = document.getElementById('accountMenu');
-            menu.classList.toggle('hidden');
-        }
-
-        function hideAccountMenu() {
-            document.getElementById('accountMenu').classList.add('hidden');
-        }
-
-        async function upgradePlan() {
-            hideAccountMenu();
-            // Show pricing or redirect to upgrade
-            document.getElementById('pricingBanner').style.display = 'block';
-            localStorage.removeItem('hidePricing');
-        }
-
-        async function manageSubscription() {
-            try {
-                const response = await fetch('/api/payments/create-portal-session', { method: 'POST' });
-                const data = await response.json();
-
-                if (data.portal_url) {
-                    window.location.href = data.portal_url;
-                } else if (data.error) {
-                    alert(data.error);
-                }
-            } catch (err) {
-                alert('Could not open subscription management');
-            }
-        }
-
-        // Stripe checkout
-        async function subscribe(tier) {
-            if (!currentUserData) {
-                showAuthModal('register');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/payments/create-checkout-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tier })
-                });
-
-                const data = await response.json();
-
-                if (data.checkout_url) {
-                    window.location.href = data.checkout_url;
-                } else if (data.error) {
-                    alert(data.error);
-                }
-            } catch (err) {
-                alert('Could not start checkout');
-            }
-        }
-
-        // Close account menu when clicking outside
-        document.addEventListener('click', (e) => {
-            const menu = document.getElementById('accountMenu');
-            const accountBtn = e.target.closest('button[onclick="showAccountMenu()"]');
-            if (!menu.contains(e.target) && !accountBtn) {
-                menu.classList.add('hidden');
-            }
+          wallets.forEach((w) => {
+            const val = w[metric.key];
+            const isWinner =
+              typeof val === "number" &&
+              val === maxVal &&
+              metric.key !== "trader_type";
+            html += `<td class="${isWinner ? "comparison-winner" : ""}">${metric.format(val)}</td>`;
+          });
+          html += "</tr>";
         });
 
-        // Check auth on page load
-        checkAuth();
+        html += "</tbody></table>";
 
-        // Check for payment success/cancel in URL
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('payment') === 'success') {
-            alert('Payment successful! Your account has been upgraded.');
-            window.history.replaceState({}, document.title, '/');
-            checkAuth();
-        } else if (urlParams.get('payment') === 'canceled') {
-            window.history.replaceState({}, document.title, '/');
+        div.innerHTML = html;
+        document.querySelector(".container").appendChild(div);
+      }
+
+      // Pricing
+      function hidePricing() {
+        document.getElementById("pricingBanner").style.display = "none";
+        localStorage.setItem("hidePricing", "true");
+      }
+
+      // Check if pricing should be hidden
+      if (localStorage.getItem("hidePricing") === "true") {
+        document.getElementById("pricingBanner").style.display = "none";
+      }
+
+      // ========== AUTHENTICATION ==========
+      let currentUserData = null;
+
+      // Check auth status on load
+      async function checkAuth() {
+        try {
+          const response = await fetch("/api/auth/me");
+          if (response.ok) {
+            const data = await response.json();
+            currentUserData = data.user;
+            showLoggedInState(data);
+          } else {
+            showLoggedOutState();
+          }
+        } catch (err) {
+          showLoggedOutState();
         }
+      }
+
+      function showLoggedInState(data) {
+        document.getElementById("loggedOut").classList.add("hidden");
+        document.getElementById("loggedIn").classList.remove("hidden");
+        document.getElementById("userEmail").textContent = data.user.email;
+        document.getElementById("userTier").textContent =
+          data.user.tier.toUpperCase();
+
+        // Update account menu
+        document.getElementById("accountEmail").textContent = data.user.email;
+        document.getElementById("accountTier").textContent =
+          data.user.tier.charAt(0).toUpperCase() +
+          data.user.tier.slice(1) +
+          " Tier";
+        document.getElementById("accountUsage").textContent =
+          `${data.usage.trades_used} / ${data.usage.trades_limit} trades used`;
+      }
+
+      function showLoggedOutState() {
+        document.getElementById("loggedOut").classList.remove("hidden");
+        document.getElementById("loggedIn").classList.add("hidden");
+        currentUserData = null;
+      }
+
+      function showAuthModal(type) {
+        document.getElementById("authModal").classList.remove("hidden");
+        document
+          .getElementById("loginForm")
+          .classList.toggle("hidden", type !== "login");
+        document
+          .getElementById("registerForm")
+          .classList.toggle("hidden", type !== "register");
+        document.getElementById("loginError").classList.add("hidden");
+        document.getElementById("registerError").classList.add("hidden");
+      }
+
+      function hideAuthModal() {
+        document.getElementById("authModal").classList.add("hidden");
+      }
+
+      async function doLogin() {
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+
+        try {
+          const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            hideAuthModal();
+            checkAuth();
+          } else {
+            document.getElementById("loginError").textContent = data.error;
+            document.getElementById("loginError").classList.remove("hidden");
+          }
+        } catch (err) {
+          document.getElementById("loginError").textContent =
+            "Login failed. Please try again.";
+          document.getElementById("loginError").classList.remove("hidden");
+        }
+      }
+
+      async function doRegister() {
+        const email = document.getElementById("registerEmail").value;
+        const password = document.getElementById("registerPassword").value;
+        const username = document.getElementById("registerUsername").value;
+
+        try {
+          const response = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, username }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            hideAuthModal();
+            checkAuth();
+          } else {
+            document.getElementById("registerError").textContent = data.error;
+            document.getElementById("registerError").classList.remove("hidden");
+          }
+        } catch (err) {
+          document.getElementById("registerError").textContent =
+            "Registration failed. Please try again.";
+          document.getElementById("registerError").classList.remove("hidden");
+        }
+      }
+
+      async function doLogout() {
+        try {
+          await fetch("/api/auth/logout", { method: "POST" });
+          showLoggedOutState();
+          hideAccountMenu();
+        } catch (err) {
+          console.error("Logout failed:", err);
+        }
+      }
+
+      function showAccountMenu() {
+        const menu = document.getElementById("accountMenu");
+        menu.classList.toggle("hidden");
+      }
+
+      function hideAccountMenu() {
+        document.getElementById("accountMenu").classList.add("hidden");
+      }
+
+      async function upgradePlan() {
+        hideAccountMenu();
+        // Show pricing or redirect to upgrade
+        document.getElementById("pricingBanner").style.display = "block";
+        localStorage.removeItem("hidePricing");
+      }
+
+      async function manageSubscription() {
+        try {
+          const response = await fetch("/api/payments/create-portal-session", {
+            method: "POST",
+          });
+          const data = await response.json();
+
+          if (data.portal_url) {
+            window.location.href = data.portal_url;
+          } else if (data.error) {
+            alert(data.error);
+          }
+        } catch (err) {
+          alert("Could not open subscription management");
+        }
+      }
+
+      // Stripe checkout
+      async function subscribe(tier) {
+        if (!currentUserData) {
+          showAuthModal("register");
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            "/api/payments/create-checkout-session",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tier }),
+            },
+          );
+
+          const data = await response.json();
+
+          if (data.checkout_url) {
+            window.location.href = data.checkout_url;
+          } else if (data.error) {
+            alert(data.error);
+          }
+        } catch (err) {
+          alert("Could not start checkout");
+        }
+      }
+
+      // Close account menu when clicking outside
+      document.addEventListener("click", (e) => {
+        const menu = document.getElementById("accountMenu");
+        const accountBtn = e.target.closest(
+          'button[onclick="showAccountMenu()"]',
+        );
+        if (!menu.contains(e.target) && !accountBtn) {
+          menu.classList.add("hidden");
+        }
+      });
+
+      // Check auth on page load
+      checkAuth();
+
+      // Check for payment success/cancel in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("payment") === "success") {
+        alert("Payment successful! Your account has been upgraded.");
+        window.history.replaceState({}, document.title, "/");
+        checkAuth();
+      } else if (urlParams.get("payment") === "canceled") {
+        window.history.replaceState({}, document.title, "/");
+      }
     </script>
-</body>
+  </body>
 </html>
