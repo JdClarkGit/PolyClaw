@@ -374,6 +374,250 @@ def compare_wallets(wallet_analyses: List[Dict]) -> Dict:
     return comparison
 
 
+# =============================================================================
+# PAIR TRADE DETECTION
+# =============================================================================
+
+def detect_pair_trades(trades: List[Dict], time_window_seconds: int = 900) -> Dict:
+    """
+    Detect pair trades - when a trader buys both sides of the same market
+    (Yes/No, Up/Down) within a time window.
+
+    This indicates hedging, arbitrage, or market-making behavior.
+    """
+    # Sort trades by timestamp
+    sorted_trades = sorted(trades, key=lambda x: x.get('timestamp', 0))
+
+    # Group trades by market (title/slug)
+    market_trades = defaultdict(list)
+    for t in sorted_trades:
+        market_key = t.get('title', '') or t.get('slug', '')
+        if market_key:
+            market_trades[market_key].append(t)
+
+    pair_trades = []
+    hedged_markets = set()
+    total_hedge_volume = 0
+
+    for market, market_trade_list in market_trades.items():
+        # Look for trades on opposite outcomes within time window
+        for i, trade1 in enumerate(market_trade_list):
+            outcome1 = trade1.get('outcome', '')
+            ts1 = trade1.get('timestamp', 0)
+
+            for trade2 in market_trade_list[i+1:]:
+                outcome2 = trade2.get('outcome', '')
+                ts2 = trade2.get('timestamp', 0)
+
+                # Check if opposite outcomes
+                is_opposite = (
+                    (outcome1 in ['Yes', 'Up'] and outcome2 in ['No', 'Down']) or
+                    (outcome1 in ['No', 'Down'] and outcome2 in ['Yes', 'Up'])
+                )
+
+                # Check if within time window
+                time_diff = abs(ts2 - ts1)
+
+                if is_opposite and time_diff <= time_window_seconds:
+                    pair_trade = {
+                        "market": market[:60],
+                        "trade1": {
+                            "outcome": outcome1,
+                            "price": trade1.get('price', 0),
+                            "shares": trade1.get('size', 0),
+                            "usdc": trade1.get('usdcSize', 0),
+                            "timestamp": ts1,
+                            "time": datetime.fromtimestamp(ts1).strftime('%Y-%m-%d %H:%M:%S') if ts1 else '',
+                        },
+                        "trade2": {
+                            "outcome": outcome2,
+                            "price": trade2.get('price', 0),
+                            "shares": trade2.get('size', 0),
+                            "usdc": trade2.get('usdcSize', 0),
+                            "timestamp": ts2,
+                            "time": datetime.fromtimestamp(ts2).strftime('%Y-%m-%d %H:%M:%S') if ts2 else '',
+                        },
+                        "time_between_seconds": int(time_diff),
+                        "combined_cost": round((trade1.get('usdcSize', 0) or 0) + (trade2.get('usdcSize', 0) or 0), 2),
+                        "combined_shares": round((trade1.get('size', 0) or 0) + (trade2.get('size', 0) or 0), 2),
+                        "spread": round(abs((trade1.get('price', 0) or 0) + (trade2.get('price', 0) or 0) - 1), 4),
+                    }
+
+                    # Calculate potential profit if prices sum to < 1
+                    price_sum = (trade1.get('price', 0) or 0) + (trade2.get('price', 0) or 0)
+                    if price_sum < 1:
+                        # Arbitrage opportunity - guaranteed profit
+                        min_shares = min(trade1.get('size', 0) or 0, trade2.get('size', 0) or 0)
+                        pair_trade["arb_profit"] = round((1 - price_sum) * min_shares, 2)
+                        pair_trade["is_arbitrage"] = True
+                    else:
+                        pair_trade["arb_profit"] = 0
+                        pair_trade["is_arbitrage"] = False
+
+                    pair_trades.append(pair_trade)
+                    hedged_markets.add(market)
+                    total_hedge_volume += pair_trade["combined_cost"]
+
+    # Sort by combined cost (largest hedges first)
+    pair_trades.sort(key=lambda x: x["combined_cost"], reverse=True)
+
+    # Calculate statistics
+    arb_trades = [p for p in pair_trades if p.get("is_arbitrage")]
+    quick_pairs = [p for p in pair_trades if p["time_between_seconds"] < 60]
+
+    return {
+        "summary": {
+            "total_pair_trades": len(pair_trades),
+            "hedged_markets": len(hedged_markets),
+            "total_hedge_volume": round(total_hedge_volume, 2),
+            "arbitrage_trades": len(arb_trades),
+            "total_arb_profit": round(sum(p.get("arb_profit", 0) for p in arb_trades), 2),
+            "quick_pairs_under_60s": len(quick_pairs),
+            "avg_time_between": round(sum(p["time_between_seconds"] for p in pair_trades) / len(pair_trades), 1) if pair_trades else 0,
+        },
+        "pair_trades": pair_trades[:100],  # Top 100 pair trades
+        "hedged_markets": list(hedged_markets)[:20],
+    }
+
+
+# =============================================================================
+# TRADING FREQUENCY ANALYSIS
+# =============================================================================
+
+def analyze_trading_frequency(trades: List[Dict]) -> Dict:
+    """
+    Analyze trading frequency - trades per second, minute, hour.
+    Detect burst trading patterns.
+    """
+    if not trades:
+        return {}
+
+    sorted_trades = sorted(trades, key=lambda x: x.get('timestamp', 0))
+    timestamps = [t.get('timestamp', 0) for t in sorted_trades if t.get('timestamp')]
+
+    if len(timestamps) < 2:
+        return {"error": "Not enough trades for frequency analysis"}
+
+    # Calculate time gaps between consecutive trades
+    gaps = []
+    for i in range(1, len(timestamps)):
+        gap = timestamps[i] - timestamps[i-1]
+        if gap >= 0:  # Sanity check
+            gaps.append(gap)
+
+    # Frequency buckets
+    trades_per_second = defaultdict(int)
+    trades_per_minute = defaultdict(int)
+    trades_per_hour = defaultdict(int)
+
+    for ts in timestamps:
+        second_key = int(ts)
+        minute_key = int(ts // 60)
+        hour_key = int(ts // 3600)
+
+        trades_per_second[second_key] += 1
+        trades_per_minute[minute_key] += 1
+        trades_per_hour[hour_key] += 1
+
+    # Find peak activity
+    max_per_second = max(trades_per_second.values()) if trades_per_second else 0
+    max_per_minute = max(trades_per_minute.values()) if trades_per_minute else 0
+    max_per_hour = max(trades_per_hour.values()) if trades_per_hour else 0
+
+    # Calculate averages
+    total_seconds = (max(timestamps) - min(timestamps)) if timestamps else 1
+    total_minutes = total_seconds / 60
+    total_hours = total_seconds / 3600
+
+    avg_per_second = len(trades) / max(total_seconds, 1)
+    avg_per_minute = len(trades) / max(total_minutes, 1)
+    avg_per_hour = len(trades) / max(total_hours, 1)
+
+    # Detect burst patterns (multiple trades within 5 seconds)
+    bursts = []
+    current_burst = []
+    burst_threshold = 5  # seconds
+
+    for i, ts in enumerate(timestamps):
+        if not current_burst:
+            current_burst = [sorted_trades[i]]
+        else:
+            last_ts = current_burst[-1].get('timestamp', 0)
+            if ts - last_ts <= burst_threshold:
+                current_burst.append(sorted_trades[i])
+            else:
+                if len(current_burst) >= 3:  # At least 3 trades = burst
+                    burst_start = current_burst[0].get('timestamp', 0)
+                    burst_end = current_burst[-1].get('timestamp', 0)
+                    bursts.append({
+                        "trade_count": len(current_burst),
+                        "duration_seconds": round(burst_end - burst_start, 1),
+                        "start_time": datetime.fromtimestamp(burst_start).strftime('%Y-%m-%d %H:%M:%S') if burst_start else '',
+                        "trades_per_second": round(len(current_burst) / max(burst_end - burst_start, 0.1), 2),
+                        "total_volume": round(sum(t.get('usdcSize', 0) or 0 for t in current_burst), 2),
+                        "markets": list(set(t.get('title', '')[:40] for t in current_burst)),
+                    })
+                current_burst = [sorted_trades[i]]
+
+    # Check final burst
+    if len(current_burst) >= 3:
+        burst_start = current_burst[0].get('timestamp', 0)
+        burst_end = current_burst[-1].get('timestamp', 0)
+        bursts.append({
+            "trade_count": len(current_burst),
+            "duration_seconds": round(burst_end - burst_start, 1),
+            "start_time": datetime.fromtimestamp(burst_start).strftime('%Y-%m-%d %H:%M:%S') if burst_start else '',
+            "trades_per_second": round(len(current_burst) / max(burst_end - burst_start, 0.1), 2),
+            "total_volume": round(sum(t.get('usdcSize', 0) or 0 for t in current_burst), 2),
+            "markets": list(set(t.get('title', '')[:40] for t in current_burst)),
+        })
+
+    # Sort bursts by trade count
+    bursts.sort(key=lambda x: x["trade_count"], reverse=True)
+
+    # Gap analysis
+    if gaps:
+        avg_gap = sum(gaps) / len(gaps)
+        min_gap = min(gaps)
+        max_gap = max(gaps)
+
+        # Count rapid trades (< 1 second apart)
+        sub_second_trades = sum(1 for g in gaps if g < 1)
+        sub_minute_trades = sum(1 for g in gaps if g < 60)
+    else:
+        avg_gap = min_gap = max_gap = 0
+        sub_second_trades = sub_minute_trades = 0
+
+    return {
+        "summary": {
+            "total_trades": len(trades),
+            "time_span_hours": round(total_hours, 1),
+            "avg_trades_per_second": round(avg_per_second, 3),
+            "avg_trades_per_minute": round(avg_per_minute, 2),
+            "avg_trades_per_hour": round(avg_per_hour, 1),
+            "max_trades_per_second": max_per_second,
+            "max_trades_per_minute": max_per_minute,
+            "max_trades_per_hour": max_per_hour,
+        },
+        "gaps": {
+            "avg_seconds_between_trades": round(avg_gap, 2),
+            "min_gap_seconds": round(min_gap, 3),
+            "max_gap_seconds": round(max_gap, 1),
+            "sub_second_trades": sub_second_trades,
+            "sub_second_percentage": round(sub_second_trades / max(len(gaps), 1) * 100, 1),
+            "sub_minute_trades": sub_minute_trades,
+            "sub_minute_percentage": round(sub_minute_trades / max(len(gaps), 1) * 100, 1),
+        },
+        "bursts": {
+            "total_bursts": len(bursts),
+            "largest_burst": bursts[0] if bursts else None,
+            "top_bursts": bursts[:10],
+        },
+        "is_high_frequency": max_per_second >= 3 or avg_per_minute > 10,
+        "is_bot_like": sub_second_trades > len(gaps) * 0.1 if gaps else False,
+    }
+
+
 def analyze_trades(trades: List[Dict], include_pnl: bool = True) -> Dict[str, Any]:
     """
     Comprehensive trade analysis with pattern detection.
@@ -390,6 +634,8 @@ def analyze_trades(trades: List[Dict], include_pnl: bool = True) -> Dict[str, An
         "outcome_analysis": analyze_outcomes(trades),
         "behavioral_patterns": detect_behavioral_patterns(trades),
         "risk_metrics": calculate_risk_metrics(trades),
+        "pair_trades": detect_pair_trades(trades),
+        "frequency": analyze_trading_frequency(trades),
         "insights": [],  # Natural language insights
     }
 
@@ -872,6 +1118,85 @@ def generate_insights(analysis: Dict, trades: List[Dict]) -> List[Dict]:
             "title": "Elevated Risk Profile",
             "description": "High concentration in single markets/trades. Consider this when replicating strategy.",
             "importance": "high"
+        })
+
+    # Pair trade insights
+    pair_trades = analysis.get("pair_trades", {})
+    pair_summary = pair_trades.get("summary", {})
+    if pair_summary.get("total_pair_trades", 0) > 0:
+        total_pairs = pair_summary.get("total_pair_trades", 0)
+        hedge_volume = pair_summary.get("total_hedge_volume", 0)
+        arb_count = pair_summary.get("arbitrage_trades", 0)
+        arb_profit = pair_summary.get("total_arb_profit", 0)
+        quick_pairs = pair_summary.get("quick_pairs_under_60s", 0)
+
+        if arb_count > 0:
+            insights.append({
+                "category": "pair_trades",
+                "title": "Arbitrage Activity Detected",
+                "description": f"{arb_count} arbitrage opportunities captured totaling ${arb_profit:,.2f} profit. Buying both sides when prices sum to < $1.",
+                "importance": "high"
+            })
+
+        if total_pairs > 10:
+            insights.append({
+                "category": "pair_trades",
+                "title": "Frequent Hedging Behavior",
+                "description": f"{total_pairs} pair trades detected across {pair_summary.get('hedged_markets', 0)} markets. Total hedged volume: ${hedge_volume:,.2f}.",
+                "importance": "high"
+            })
+        elif total_pairs > 0:
+            insights.append({
+                "category": "pair_trades",
+                "title": "Hedging Activity",
+                "description": f"{total_pairs} pair trade(s) detected - buying both sides of same market to hedge risk.",
+                "importance": "medium"
+            })
+
+        if quick_pairs > 5:
+            insights.append({
+                "category": "pair_trades",
+                "title": "Rapid Pair Execution",
+                "description": f"{quick_pairs} pair trades executed within 60 seconds. Indicates systematic hedging strategy.",
+                "importance": "medium"
+            })
+
+    # Frequency insights
+    frequency = analysis.get("frequency", {})
+    freq_summary = frequency.get("summary", {})
+    bursts = frequency.get("bursts", {})
+    gaps = frequency.get("gaps", {})
+
+    if frequency.get("is_bot_like"):
+        insights.append({
+            "category": "frequency",
+            "title": "Bot-Like Trading Pattern",
+            "description": f"{gaps.get('sub_second_percentage', 0):.1f}% of trades executed within 1 second of each other. Likely automated trading.",
+            "importance": "high"
+        })
+    elif frequency.get("is_high_frequency"):
+        insights.append({
+            "category": "frequency",
+            "title": "High-Frequency Trading",
+            "description": f"Peak of {freq_summary.get('max_trades_per_second', 0)} trades/second, {freq_summary.get('max_trades_per_minute', 0)} trades/minute detected.",
+            "importance": "high"
+        })
+
+    if bursts.get("total_bursts", 0) > 10:
+        largest_burst = bursts.get("largest_burst", {})
+        insights.append({
+            "category": "frequency",
+            "title": "Burst Trading Pattern",
+            "description": f"{bursts.get('total_bursts', 0)} trading bursts detected. Largest burst: {largest_burst.get('trade_count', 0)} trades in {largest_burst.get('duration_seconds', 0):.1f}s.",
+            "importance": "medium"
+        })
+
+    if gaps.get("avg_seconds_between_trades", 0) < 30:
+        insights.append({
+            "category": "frequency",
+            "title": "Rapid-Fire Trading",
+            "description": f"Average gap between trades: {gaps.get('avg_seconds_between_trades', 0):.1f} seconds. Very active trader.",
+            "importance": "medium"
         })
 
     # P&L insights
