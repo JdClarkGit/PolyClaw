@@ -962,6 +962,225 @@
         .account-actions button {
             text-align: left;
         }
+
+        /* Pair Trade Styles */
+        .pair-trade-card {
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .pair-trade-card.arbitrage {
+            border-left: 3px solid hsl(142 50% 45%);
+            background: hsl(142 50% 45% / 0.05);
+        }
+
+        .pair-trade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .pair-trade-market {
+            font-weight: 600;
+            font-size: 0.95rem;
+            flex: 1;
+            margin-right: 16px;
+        }
+
+        .pair-trade-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .pair-trade-badge.arb {
+            background: hsl(142 50% 45%);
+            color: hsl(var(--primary-foreground));
+        }
+
+        .pair-trade-badge.hedge {
+            background: hsl(var(--muted));
+            color: hsl(var(--muted-foreground));
+        }
+
+        .pair-trade-sides {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .pair-trade-side {
+            background: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 12px;
+        }
+
+        .pair-trade-side.yes { border-left: 3px solid hsl(142 50% 45%); }
+        .pair-trade-side.no { border-left: 3px solid hsl(0 62% 50%); }
+
+        .pair-trade-outcome {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .pair-trade-detail {
+            font-size: 0.8rem;
+            color: hsl(var(--muted-foreground));
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .pair-trade-detail span:last-child {
+            font-family: 'JetBrains Mono', monospace;
+            color: hsl(var(--foreground));
+        }
+
+        .pair-trade-connector {
+            text-align: center;
+            color: hsl(var(--muted-foreground));
+            font-size: 0.75rem;
+        }
+
+        .pair-trade-connector .time {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        .pair-trade-summary {
+            display: flex;
+            gap: 24px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid hsl(var(--border));
+            font-size: 0.85rem;
+        }
+
+        .pair-trade-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pair-trade-stat-label {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .pair-trade-stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .pair-trade-stat-value.profit {
+            color: hsl(142 50% 45%);
+        }
+
+        /* Burst Card Styles */
+        .burst-card {
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .burst-card.large {
+            border-left: 3px solid hsl(0 62% 50%);
+        }
+
+        .burst-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .burst-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .burst-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            background: hsl(var(--destructive));
+            color: hsl(var(--destructive-foreground));
+        }
+
+        .burst-stats {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .burst-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .burst-stat-label {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .burst-stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .burst-markets {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid hsl(var(--border));
+            font-size: 0.8rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .burst-markets span {
+            display: inline-block;
+            background: hsl(var(--muted));
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 2px 4px 2px 0;
+            font-size: 0.75rem;
+        }
+
+        .frequency-flag {
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            font-weight: 500;
+        }
+
+        .frequency-flag.bot {
+            background: hsl(0 62% 50% / 0.1);
+            border: 1px solid hsl(0 62% 50%);
+            color: hsl(0 62% 50%);
+        }
+
+        .frequency-flag.hft {
+            background: hsl(45 80% 50% / 0.1);
+            border: 1px solid hsl(45 80% 50%);
+            color: hsl(45 80% 50%);
+        }
+
+        .frequency-flag.normal {
+            background: hsl(142 50% 45% / 0.1);
+            border: 1px solid hsl(142 50% 45%);
+            color: hsl(142 50% 45%);
+        }
     </style>
 </head>
 <body>
@@ -1099,6 +1318,8 @@
 
             <div class="tabs">
                 <button class="tab active" onclick="showTab('insights')">Key Insights</button>
+                <button class="tab" onclick="showTab('pairTrades')">Pair Trades</button>
+                <button class="tab" onclick="showTab('frequency')">Frequency</button>
                 <button class="tab" onclick="showTab('pnl')">Win/Loss</button>
                 <button class="tab" onclick="showTab('markets')">Top Markets</button>
                 <button class="tab" onclick="showTab('metrics')">All Metrics</button>
@@ -1106,6 +1327,73 @@
 
             <div id="insightsTab" class="tab-content active">
                 <div id="insightsGrid" class="insights-grid"></div>
+            </div>
+
+            <div id="pairTradesTab" class="tab-content">
+                <div class="pnl-cards" id="pairTradeSummary">
+                    <div class="pnl-card">
+                        <div class="pnl-label">Total Pair Trades</div>
+                        <div class="pnl-value" id="totalPairTrades">0</div>
+                    </div>
+                    <div class="pnl-card">
+                        <div class="pnl-label">Hedged Markets</div>
+                        <div class="pnl-value" id="hedgedMarkets">0</div>
+                    </div>
+                    <div class="pnl-card">
+                        <div class="pnl-label">Hedge Volume</div>
+                        <div class="pnl-value" id="hedgeVolume">$0</div>
+                    </div>
+                    <div class="pnl-card win">
+                        <div class="pnl-label">Arbitrage Trades</div>
+                        <div class="pnl-value" id="arbTrades">0</div>
+                    </div>
+                    <div class="pnl-card win">
+                        <div class="pnl-label">Arb Profit</div>
+                        <div class="pnl-value" id="arbProfit">$0</div>
+                    </div>
+                    <div class="pnl-card">
+                        <div class="pnl-label">Quick Pairs (&lt;60s)</div>
+                        <div class="pnl-value" id="quickPairs">0</div>
+                    </div>
+                    <div class="pnl-card">
+                        <div class="pnl-label">Avg Time Between</div>
+                        <div class="pnl-value" id="avgTimeBetween">0s</div>
+                    </div>
+                </div>
+                <h3 style="margin: 24px 0 16px;">Detected Pair Trades (Both Sides of Same Market)</h3>
+                <div id="pairTradesList" class="pnl-positions"></div>
+            </div>
+
+            <div id="frequencyTab" class="tab-content">
+                <div class="pnl-cards" id="frequencySummary">
+                    <div class="pnl-card">
+                        <div class="pnl-label">Avg Trades/Min</div>
+                        <div class="pnl-value" id="avgPerMinute">0</div>
+                    </div>
+                    <div class="pnl-card">
+                        <div class="pnl-label">Max/Second</div>
+                        <div class="pnl-value" id="maxPerSecond">0</div>
+                    </div>
+                    <div class="pnl-card">
+                        <div class="pnl-label">Max/Minute</div>
+                        <div class="pnl-value" id="maxPerMinute">0</div>
+                    </div>
+                    <div class="pnl-card">
+                        <div class="pnl-label">Sub-Second Trades</div>
+                        <div class="pnl-value" id="subSecondTrades">0%</div>
+                    </div>
+                    <div class="pnl-card">
+                        <div class="pnl-label">Avg Gap</div>
+                        <div class="pnl-value" id="avgGap">0s</div>
+                    </div>
+                    <div class="pnl-card">
+                        <div class="pnl-label">Total Bursts</div>
+                        <div class="pnl-value" id="totalBursts">0</div>
+                    </div>
+                </div>
+                <div id="frequencyFlags" class="insights-grid" style="margin-bottom: 20px;"></div>
+                <h3 style="margin: 24px 0 16px;">Trading Bursts (3+ trades within 5 seconds)</h3>
+                <div id="burstsList" class="pnl-positions"></div>
             </div>
 
             <div id="pnlTab" class="tab-content">
@@ -1508,6 +1796,209 @@
                 // Display P&L tab
                 displayPnL(pnl);
             }
+
+            // Display pair trades
+            const pairTrades = analysis.pair_trades || {};
+            displayPairTrades(pairTrades);
+
+            // Display frequency analysis
+            const frequency = analysis.frequency || {};
+            displayFrequency(frequency);
+
+            // Add pair trades and frequency to metrics
+            if (pairTrades.summary) {
+                addMetricGroup(metricsGrid, 'Pair Trades', [
+                    ['Total Pairs', pairTrades.summary.total_pair_trades || '0'],
+                    ['Hedged Markets', pairTrades.summary.hedged_markets || '0'],
+                    ['Arb Trades', pairTrades.summary.arbitrage_trades || '0'],
+                    ['Arb Profit', '$' + (pairTrades.summary.total_arb_profit?.toFixed(2) || '0')],
+                ]);
+            }
+
+            if (frequency.summary) {
+                addMetricGroup(metricsGrid, 'Frequency', [
+                    ['Avg/Minute', frequency.summary.avg_trades_per_minute?.toFixed(2) || '0'],
+                    ['Max/Second', frequency.summary.max_trades_per_second || '0'],
+                    ['Sub-Second %', frequency.gaps?.sub_second_percentage?.toFixed(1) + '%' || '0%'],
+                    ['Bot-Like', frequency.is_bot_like ? 'Yes' : 'No'],
+                ]);
+            }
+        }
+
+        function displayPairTrades(pairTrades) {
+            const summary = pairTrades.summary || {};
+
+            // Update summary cards
+            document.getElementById('totalPairTrades').textContent = summary.total_pair_trades || '0';
+            document.getElementById('hedgedMarkets').textContent = summary.hedged_markets || '0';
+            document.getElementById('hedgeVolume').textContent = '$' + (summary.total_hedge_volume?.toLocaleString(undefined, {maximumFractionDigits: 0}) || '0');
+            document.getElementById('arbTrades').textContent = summary.arbitrage_trades || '0';
+            document.getElementById('arbProfit').textContent = '$' + (summary.total_arb_profit?.toFixed(2) || '0');
+            document.getElementById('quickPairs').textContent = summary.quick_pairs_under_60s || '0';
+            document.getElementById('avgTimeBetween').textContent = (summary.avg_time_between?.toFixed(0) || '0') + 's';
+
+            // Display pair trades list
+            const listDiv = document.getElementById('pairTradesList');
+            listDiv.innerHTML = '';
+
+            const trades = pairTrades.pair_trades || [];
+
+            if (trades.length === 0) {
+                listDiv.innerHTML = '<p style="color: hsl(var(--muted-foreground)); padding: 20px;">No pair trades detected. Pair trades occur when buying both sides of the same market (Yes/No or Up/Down) within 15 minutes.</p>';
+                return;
+            }
+
+            trades.slice(0, 30).forEach(pair => {
+                const card = document.createElement('div');
+                card.className = 'pair-trade-card' + (pair.is_arbitrage ? ' arbitrage' : '');
+
+                const trade1Class = ['Yes', 'Up'].includes(pair.trade1.outcome) ? 'yes' : 'no';
+                const trade2Class = ['Yes', 'Up'].includes(pair.trade2.outcome) ? 'yes' : 'no';
+
+                card.innerHTML = `
+                    <div class="pair-trade-header">
+                        <div class="pair-trade-market">${pair.market}</div>
+                        <span class="pair-trade-badge ${pair.is_arbitrage ? 'arb' : 'hedge'}">
+                            ${pair.is_arbitrage ? 'ARBITRAGE' : 'HEDGE'}
+                        </span>
+                    </div>
+                    <div class="pair-trade-sides">
+                        <div class="pair-trade-side ${trade1Class}">
+                            <div class="pair-trade-outcome">${pair.trade1.outcome}</div>
+                            <div class="pair-trade-detail"><span>Price:</span><span>$${pair.trade1.price?.toFixed(2) || '0'}</span></div>
+                            <div class="pair-trade-detail"><span>Shares:</span><span>${pair.trade1.shares?.toFixed(2) || '0'}</span></div>
+                            <div class="pair-trade-detail"><span>Cost:</span><span>$${pair.trade1.usdc?.toFixed(2) || '0'}</span></div>
+                            <div class="pair-trade-detail"><span>Time:</span><span>${pair.trade1.time || '-'}</span></div>
+                        </div>
+                        <div class="pair-trade-connector">
+                            <div>+</div>
+                            <div class="time">${pair.time_between_seconds}s</div>
+                            <div>apart</div>
+                        </div>
+                        <div class="pair-trade-side ${trade2Class}">
+                            <div class="pair-trade-outcome">${pair.trade2.outcome}</div>
+                            <div class="pair-trade-detail"><span>Price:</span><span>$${pair.trade2.price?.toFixed(2) || '0'}</span></div>
+                            <div class="pair-trade-detail"><span>Shares:</span><span>${pair.trade2.shares?.toFixed(2) || '0'}</span></div>
+                            <div class="pair-trade-detail"><span>Cost:</span><span>$${pair.trade2.usdc?.toFixed(2) || '0'}</span></div>
+                            <div class="pair-trade-detail"><span>Time:</span><span>${pair.trade2.time || '-'}</span></div>
+                        </div>
+                    </div>
+                    <div class="pair-trade-summary">
+                        <div class="pair-trade-stat">
+                            <span class="pair-trade-stat-label">Combined Cost</span>
+                            <span class="pair-trade-stat-value">$${pair.combined_cost?.toFixed(2) || '0'}</span>
+                        </div>
+                        <div class="pair-trade-stat">
+                            <span class="pair-trade-stat-label">Combined Shares</span>
+                            <span class="pair-trade-stat-value">${pair.combined_shares?.toFixed(2) || '0'}</span>
+                        </div>
+                        <div class="pair-trade-stat">
+                            <span class="pair-trade-stat-label">Price Spread</span>
+                            <span class="pair-trade-stat-value">${pair.spread?.toFixed(4) || '0'}</span>
+                        </div>
+                        ${pair.is_arbitrage ? `
+                        <div class="pair-trade-stat">
+                            <span class="pair-trade-stat-label">Arb Profit</span>
+                            <span class="pair-trade-stat-value profit">$${pair.arb_profit?.toFixed(2) || '0'}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                listDiv.appendChild(card);
+            });
+
+            if (trades.length > 30) {
+                const note = document.createElement('p');
+                note.style.cssText = 'color: hsl(var(--muted-foreground)); text-align: center; padding: 16px;';
+                note.textContent = `Showing 30 of ${trades.length} pair trades.`;
+                listDiv.appendChild(note);
+            }
+        }
+
+        function displayFrequency(frequency) {
+            const summary = frequency.summary || {};
+            const gaps = frequency.gaps || {};
+            const bursts = frequency.bursts || {};
+
+            // Update summary cards
+            document.getElementById('avgPerMinute').textContent = summary.avg_trades_per_minute?.toFixed(2) || '0';
+            document.getElementById('maxPerSecond').textContent = summary.max_trades_per_second || '0';
+            document.getElementById('maxPerMinute').textContent = summary.max_trades_per_minute || '0';
+            document.getElementById('subSecondTrades').textContent = gaps.sub_second_percentage?.toFixed(1) + '%' || '0%';
+            document.getElementById('avgGap').textContent = gaps.avg_seconds_between_trades?.toFixed(1) + 's' || '0s';
+            document.getElementById('totalBursts').textContent = bursts.total_bursts || '0';
+
+            // Display frequency flags
+            const flagsDiv = document.getElementById('frequencyFlags');
+            flagsDiv.innerHTML = '';
+
+            if (frequency.is_bot_like) {
+                const flag = document.createElement('div');
+                flag.className = 'frequency-flag bot';
+                flag.innerHTML = `<strong>Bot-Like Activity Detected</strong><br>${gaps.sub_second_percentage?.toFixed(1)}% of trades executed within 1 second of each other`;
+                flagsDiv.appendChild(flag);
+            } else if (frequency.is_high_frequency) {
+                const flag = document.createElement('div');
+                flag.className = 'frequency-flag hft';
+                flag.innerHTML = `<strong>High-Frequency Trading</strong><br>Peak of ${summary.max_trades_per_second} trades/second detected`;
+                flagsDiv.appendChild(flag);
+            } else {
+                const flag = document.createElement('div');
+                flag.className = 'frequency-flag normal';
+                flag.innerHTML = `<strong>Normal Trading Frequency</strong><br>Average ${summary.avg_trades_per_minute?.toFixed(2)} trades per minute`;
+                flagsDiv.appendChild(flag);
+            }
+
+            // Display bursts list
+            const burstsDiv = document.getElementById('burstsList');
+            burstsDiv.innerHTML = '';
+
+            const burstList = bursts.top_bursts || [];
+
+            if (burstList.length === 0) {
+                burstsDiv.innerHTML = '<p style="color: hsl(var(--muted-foreground)); padding: 20px;">No trading bursts detected. Bursts occur when 3+ trades happen within 5 seconds.</p>';
+                return;
+            }
+
+            burstList.forEach((burst, i) => {
+                const card = document.createElement('div');
+                card.className = 'burst-card' + (burst.trade_count >= 10 ? ' large' : '');
+                card.innerHTML = `
+                    <div class="burst-header">
+                        <div class="burst-title">Burst #${i + 1}</div>
+                        ${burst.trade_count >= 10 ? '<span class="burst-badge">LARGE BURST</span>' : ''}
+                    </div>
+                    <div class="burst-stats">
+                        <div class="burst-stat">
+                            <span class="burst-stat-label">Trades</span>
+                            <span class="burst-stat-value">${burst.trade_count}</span>
+                        </div>
+                        <div class="burst-stat">
+                            <span class="burst-stat-label">Duration</span>
+                            <span class="burst-stat-value">${burst.duration_seconds?.toFixed(1)}s</span>
+                        </div>
+                        <div class="burst-stat">
+                            <span class="burst-stat-label">Trades/Sec</span>
+                            <span class="burst-stat-value">${burst.trades_per_second?.toFixed(2)}</span>
+                        </div>
+                        <div class="burst-stat">
+                            <span class="burst-stat-label">Volume</span>
+                            <span class="burst-stat-value">$${burst.total_volume?.toLocaleString(undefined, {maximumFractionDigits: 0}) || '0'}</span>
+                        </div>
+                        <div class="burst-stat">
+                            <span class="burst-stat-label">Start Time</span>
+                            <span class="burst-stat-value">${burst.start_time || '-'}</span>
+                        </div>
+                    </div>
+                    ${burst.markets && burst.markets.length > 0 ? `
+                    <div class="burst-markets">
+                        Markets: ${burst.markets.slice(0, 3).map(m => `<span>${m}</span>`).join('')}
+                        ${burst.markets.length > 3 ? `<span>+${burst.markets.length - 3} more</span>` : ''}
+                    </div>
+                    ` : ''}
+                `;
+                burstsDiv.appendChild(card);
+            });
         }
 
         function addMetricGroup(container, title, metrics) {
