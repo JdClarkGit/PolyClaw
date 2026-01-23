@@ -859,11 +859,20 @@
             position: absolute;
             top: 12px;
             right: 12px;
-            background: none;
-            border: none;
-            font-size: 24px;
+            background: hsl(var(--secondary));
+            border: 1px solid hsl(var(--border));
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 20px;
             cursor: pointer;
-            color: hsl(var(--muted-foreground));
+            color: hsl(var(--foreground));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover {
+            background: hsl(var(--muted));
         }
 
         .auth-form h2 {
@@ -963,18 +972,6 @@
                 <p class="subtitle">Trade analytics and pattern detection for Polymarket</p>
             </div>
             <div class="header-right">
-                <!-- Auth UI -->
-                <div id="authSection">
-                    <div id="loggedOut" class="auth-buttons">
-                        <button class="btn-small" onclick="showAuthModal('login')">Login</button>
-                        <button class="btn-primary btn-small" onclick="showAuthModal('register')">Sign Up</button>
-                    </div>
-                    <div id="loggedIn" class="user-menu hidden">
-                        <span id="userEmail" class="user-email"></span>
-                        <span id="userTier" class="tier-badge-small">FREE</span>
-                        <button class="btn-small" onclick="showAccountMenu()">Account</button>
-                    </div>
-                </div>
                 <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
                 <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -987,46 +984,7 @@
             </div>
         </div>
 
-        <!-- Auth Modal -->
-        <div id="authModal" class="modal hidden">
-            <div class="modal-content">
-                <button class="modal-close" onclick="hideAuthModal()">&times;</button>
-
-                <div id="loginForm" class="auth-form">
-                    <h2>Login</h2>
-                    <input type="email" id="loginEmail" placeholder="Email" class="auth-input">
-                    <input type="password" id="loginPassword" placeholder="Password" class="auth-input">
-                    <button class="btn-primary auth-submit" onclick="doLogin()">Login</button>
-                    <p class="auth-switch">Don't have an account? <a href="#" onclick="showAuthModal('register')">Sign up</a></p>
-                    <div id="loginError" class="auth-error hidden"></div>
-                </div>
-
-                <div id="registerForm" class="auth-form hidden">
-                    <h2>Create Account</h2>
-                    <input type="email" id="registerEmail" placeholder="Email" class="auth-input">
-                    <input type="password" id="registerPassword" placeholder="Password (min 8 chars)" class="auth-input">
-                    <input type="text" id="registerUsername" placeholder="Username (optional)" class="auth-input">
-                    <button class="btn-primary auth-submit" onclick="doRegister()">Sign Up</button>
-                    <p class="auth-switch">Already have an account? <a href="#" onclick="showAuthModal('login')">Login</a></p>
-                    <div id="registerError" class="auth-error hidden"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Account Menu -->
-        <div id="accountMenu" class="account-dropdown hidden">
-            <div class="account-info">
-                <div id="accountEmail" class="account-email"></div>
-                <div id="accountTier" class="account-tier">Free Tier</div>
-                <div id="accountUsage" class="account-usage">0 / 100 trades used</div>
-            </div>
-            <div class="account-actions">
-                <button class="btn-small" onclick="upgradePlan()">Upgrade Plan</button>
-                <button class="btn-small" onclick="manageSubscription()">Manage Subscription</button>
-                <button class="btn-small" onclick="doLogout()">Logout</button>
-            </div>
-        </div>
-
+        
         <div class="input-section">
             <div class="input-row">
                 <input type="text" id="walletInput" placeholder="Enter wallet address (0x...)">
@@ -1062,8 +1020,8 @@
             </div>
         </div>
 
-        <!-- Pricing Banner -->
-        <div class="pricing-banner" id="pricingBanner">
+        <!-- Pricing Banner (hidden for now) -->
+        <div class="pricing-banner hidden" id="pricingBanner">
             <div class="pricing-tiers">
                 <div class="tier-card free">
                     <div class="tier-name">Free</div>
@@ -1773,196 +1731,6 @@
             document.getElementById('pricingBanner').style.display = 'none';
         }
 
-        // ========== AUTHENTICATION ==========
-        let currentUserData = null;
-
-        // Check auth status on load
-        async function checkAuth() {
-            try {
-                const response = await fetch('/api/auth/me');
-                if (response.ok) {
-                    const data = await response.json();
-                    currentUserData = data.user;
-                    showLoggedInState(data);
-                } else {
-                    showLoggedOutState();
-                }
-            } catch (err) {
-                showLoggedOutState();
-            }
-        }
-
-        function showLoggedInState(data) {
-            document.getElementById('loggedOut').classList.add('hidden');
-            document.getElementById('loggedIn').classList.remove('hidden');
-            document.getElementById('userEmail').textContent = data.user.email;
-            document.getElementById('userTier').textContent = data.user.tier.toUpperCase();
-
-            // Update account menu
-            document.getElementById('accountEmail').textContent = data.user.email;
-            document.getElementById('accountTier').textContent = data.user.tier.charAt(0).toUpperCase() + data.user.tier.slice(1) + ' Tier';
-            document.getElementById('accountUsage').textContent = `${data.usage.trades_used} / ${data.usage.trades_limit} trades used`;
-        }
-
-        function showLoggedOutState() {
-            document.getElementById('loggedOut').classList.remove('hidden');
-            document.getElementById('loggedIn').classList.add('hidden');
-            currentUserData = null;
-        }
-
-        function showAuthModal(type) {
-            document.getElementById('authModal').classList.remove('hidden');
-            document.getElementById('loginForm').classList.toggle('hidden', type !== 'login');
-            document.getElementById('registerForm').classList.toggle('hidden', type !== 'register');
-            document.getElementById('loginError').classList.add('hidden');
-            document.getElementById('registerError').classList.add('hidden');
-        }
-
-        function hideAuthModal() {
-            document.getElementById('authModal').classList.add('hidden');
-        }
-
-        async function doLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    hideAuthModal();
-                    checkAuth();
-                } else {
-                    document.getElementById('loginError').textContent = data.error;
-                    document.getElementById('loginError').classList.remove('hidden');
-                }
-            } catch (err) {
-                document.getElementById('loginError').textContent = 'Login failed. Please try again.';
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        }
-
-        async function doRegister() {
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const username = document.getElementById('registerUsername').value;
-
-            try {
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, username })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    hideAuthModal();
-                    checkAuth();
-                } else {
-                    document.getElementById('registerError').textContent = data.error;
-                    document.getElementById('registerError').classList.remove('hidden');
-                }
-            } catch (err) {
-                document.getElementById('registerError').textContent = 'Registration failed. Please try again.';
-                document.getElementById('registerError').classList.remove('hidden');
-            }
-        }
-
-        async function doLogout() {
-            try {
-                await fetch('/api/auth/logout', { method: 'POST' });
-                showLoggedOutState();
-                hideAccountMenu();
-            } catch (err) {
-                console.error('Logout failed:', err);
-            }
-        }
-
-        function showAccountMenu() {
-            const menu = document.getElementById('accountMenu');
-            menu.classList.toggle('hidden');
-        }
-
-        function hideAccountMenu() {
-            document.getElementById('accountMenu').classList.add('hidden');
-        }
-
-        async function upgradePlan() {
-            hideAccountMenu();
-            // Show pricing or redirect to upgrade
-            document.getElementById('pricingBanner').style.display = 'block';
-            localStorage.removeItem('hidePricing');
-        }
-
-        async function manageSubscription() {
-            try {
-                const response = await fetch('/api/payments/create-portal-session', { method: 'POST' });
-                const data = await response.json();
-
-                if (data.portal_url) {
-                    window.location.href = data.portal_url;
-                } else if (data.error) {
-                    alert(data.error);
-                }
-            } catch (err) {
-                alert('Could not open subscription management');
-            }
-        }
-
-        // Stripe checkout
-        async function subscribe(tier) {
-            if (!currentUserData) {
-                showAuthModal('register');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/payments/create-checkout-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tier })
-                });
-
-                const data = await response.json();
-
-                if (data.checkout_url) {
-                    window.location.href = data.checkout_url;
-                } else if (data.error) {
-                    alert(data.error);
-                }
-            } catch (err) {
-                alert('Could not start checkout');
-            }
-        }
-
-        // Close account menu when clicking outside
-        document.addEventListener('click', (e) => {
-            const menu = document.getElementById('accountMenu');
-            const accountBtn = e.target.closest('button[onclick="showAccountMenu()"]');
-            if (!menu.contains(e.target) && !accountBtn) {
-                menu.classList.add('hidden');
-            }
-        });
-
-        // Check auth on page load
-        checkAuth();
-
-        // Check for payment success/cancel in URL
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('payment') === 'success') {
-            alert('Payment successful! Your account has been upgraded.');
-            window.history.replaceState({}, document.title, '/');
-            checkAuth();
-        } else if (urlParams.get('payment') === 'canceled') {
-            window.history.replaceState({}, document.title, '/');
-        }
-    </script>
+        </script>
 </body>
 </html>
