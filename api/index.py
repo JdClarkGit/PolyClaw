@@ -240,6 +240,53 @@ def get_trades(wallet):
     return jsonify(result)
 
 
+@app.route('/api/download/<wallet>/<format>')
+def download_trades(wallet, format):
+    """Download trades as JSON or CSV."""
+    mode = request.args.get('mode', 'recent')
+    limit = request.args.get('limit', 100, type=int)
+
+    if mode == 'full':
+        result = fetch_all_trades(wallet)
+    else:
+        result = fetch_recent_trades(wallet, limit)
+
+    short_wallet = wallet[:10]
+    username = result.get('username') or short_wallet
+    suffix = '-full' if mode == 'full' else ''
+
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    if format == 'json':
+        filename = f"{OUTPUT_DIR}/{username}{suffix}-trades.json"
+        with open(filename, 'w') as f:
+            json.dump(result, f, indent=2)
+        return send_file(filename, as_attachment=True, download_name=f"{username}{suffix}-trades.json")
+
+    elif format == 'csv':
+        output = io.StringIO()
+        if result['trades']:
+            fieldnames = ['timestamp', 'datetime', 'type', 'side', 'price', 'size',
+                         'usdcSize', 'title', 'outcome', 'transactionHash']
+            writer = csv.DictWriter(output, fieldnames=fieldnames, extrasaction='ignore')
+            writer.writeheader()
+
+            for trade in result['trades']:
+                ts = trade.get('timestamp', 0)
+                trade['datetime'] = datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') if ts else ''
+                writer.writerow(trade)
+
+        output.seek(0)
+        return send_file(
+            io.BytesIO(output.getvalue().encode()),
+            mimetype='text/csv',
+            as_attachment=True,
+            download_name=f"{username}{suffix}-trades.csv"
+        )
+
+    return jsonify({"error": "Invalid format. Use 'json' or 'csv'"}), 400
+
+
 @app.route('/api/analyze/<wallet>')
 def analyze_wallet(wallet):
     """Analyze trades and return pattern insights."""
