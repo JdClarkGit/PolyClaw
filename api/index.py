@@ -23,22 +23,23 @@ app = Flask(__name__, static_folder='../')
 
 # Configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///polyedge.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:////tmp/polyedge.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize database
-from models import db, init_db, User
-init_db(app)
+# Initialize database and auth (optional - may fail on serverless without proper DB)
+DB_AVAILABLE = False
+try:
+    from models import db, init_db, User
+    init_db(app)
+    from auth import init_auth, login_required, current_user
+    init_auth(app)
+    from payments import init_payments
+    init_payments(app)
+    DB_AVAILABLE = True
+except Exception as e:
+    print(f"DB/Auth initialization skipped (serverless mode): {e}")
 
-# Initialize auth
-from auth import init_auth, login_required, current_user
-init_auth(app)
-
-# Initialize payments
-from payments import init_payments
-init_payments(app)
-
-# Import analytics
+# Import analytics (always available)
 from analytics import (
     analyze_trades, generate_report, compare_wallets,
     PRICING_TIERS, get_tier_info, check_feature_access, calculate_overage
