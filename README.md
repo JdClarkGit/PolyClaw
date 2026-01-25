@@ -48,16 +48,19 @@ python async_scraper.py --wallets wallets.csv
 #### Standard Mode
 
 **Interactive Mode:**
+
 ```bash
 python scrape_trades.py
 ```
 
 **Command Line Mode:**
+
 ```bash
 python scrape_trades.py --user 0xYOUR_WALLET_ADDRESS --limit 200
 ```
 
 **With Market Search:**
+
 ```bash
 python scrape_trades.py --query "Bitcoin Up or Down" --select all --user 0x... --limit 200
 ```
@@ -65,6 +68,7 @@ python scrape_trades.py --query "Bitcoin Up or Down" --select all --user 0x... -
 ### 3. View Dashboard
 
 Start a local server:
+
 ```bash
 python3 -m http.server
 ```
@@ -77,23 +81,23 @@ Load the CSV file from `activity-exports/all-trades.csv`
 
 ### Async Scraper (async_scraper.py) - RECOMMENDED
 
-| Option | Short | Description |
-|--------|-------|-------------|
-| `wallet` | | Wallet address as first argument |
-| `--wallet` | `-w` | Wallet address to scrape (0x...) |
-| `--wallets` | `-W` | CSV file with wallet addresses for batch mode |
-| `--turbo` | | Enable turbo mode (faster, more aggressive) |
-| `--output` | `-o` | Output filename prefix (default: turbo) |
+| Option      | Short | Description                                   |
+| ----------- | ----- | --------------------------------------------- |
+| `wallet`    |       | Wallet address as first argument              |
+| `--wallet`  | `-w`  | Wallet address to scrape (0x...)              |
+| `--wallets` | `-W`  | CSV file with wallet addresses for batch mode |
+| `--turbo`   |       | Enable turbo mode (faster, more aggressive)   |
+| `--output`  | `-o`  | Output filename prefix (default: turbo)       |
 
 ### Standard Scraper (scrape_trades.py)
 
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--user` | `-u` | Wallet address to scrape (0x...) |
-| `--query` | `-q` | Market search query |
-| `--select` | `-s` | Market selection (number or 'all') |
-| `--limit` | `-l` | Max records per request (default: 200) |
-| `--output` | `-o` | Output filename prefix (default: all-trades) |
+| Option     | Short | Description                                  |
+| ---------- | ----- | -------------------------------------------- |
+| `--user`   | `-u`  | Wallet address to scrape (0x...)             |
+| `--query`  | `-q`  | Market search query                          |
+| `--select` | `-s`  | Market selection (number or 'all')           |
+| `--limit`  | `-l`  | Max records per request (default: 200)       |
+| `--output` | `-o`  | Output filename prefix (default: all-trades) |
 
 ## Output Files
 
@@ -120,6 +124,7 @@ activity-exports/
 Upload the exported files to ChatGPT/Claude for strategy analysis:
 
 **Sample Prompts:**
+
 - "Analyze this trading history. What is the win rate?"
 - "What was the most profitable trade?"
 - "Did they sell too early on any positions?"
@@ -127,15 +132,16 @@ Upload the exported files to ChatGPT/Claude for strategy analysis:
 
 ## API Endpoints Used
 
-| API | Base URL | Purpose |
-|-----|----------|---------|
-| Gamma API | `gamma-api.polymarket.com` | Market metadata & search |
-| Data API | `data-api.polymarket.com` | User activity & positions |
-| CLOB API | `clob.polymarket.com` | Order book & trades |
+| API       | Base URL                   | Purpose                   |
+| --------- | -------------------------- | ------------------------- |
+| Gamma API | `gamma-api.polymarket.com` | Market metadata & search  |
+| Data API  | `data-api.polymarket.com`  | User activity & positions |
+| CLOB API  | `clob.polymarket.com`      | Order book & trades       |
 
 ## Rate Limiting
 
 The scraper includes built-in rate limiting (1-2 req/sec) to avoid getting blocked. For heavy usage, consider:
+
 - Adding delays between requests
 - Using proxy rotation
 - Caching results locally
@@ -158,25 +164,28 @@ PolyTrade/
 
 ## Speed Comparison
 
-| Method | Single Wallet | 10 Wallets |
-|--------|--------------|------------|
-| `scrape_trades.py` | ~60s | ~10 min |
-| `async_scraper.py` | ~6-10s | ~30-60s |
+| Method             | Single Wallet | 10 Wallets |
+| ------------------ | ------------- | ---------- |
+| `scrape_trades.py` | ~60s          | ~10 min    |
+| `async_scraper.py` | ~6-10s        | ~30-60s    |
 
 The async scraper uses concurrent requests, semaphore-controlled rate limiting, and connection pooling for maximum speed.
 
 ## Troubleshooting
 
 **No data returned?**
+
 - Verify the wallet address is correct (0x format, 42 chars)
 - Some wallets may use proxy addresses
 - Try with a known active trader address
 
 **Rate limited?**
+
 - Wait a few minutes and retry
 - Reduce the `--limit` parameter
 
 **Dashboard not loading CSV?**
+
 - Make sure you're running via `http.server`, not opening the file directly
 - Check browser console for errors
 
