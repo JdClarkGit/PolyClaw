@@ -49,7 +49,7 @@ from analytics import (
 DATA_API = "https://data-api.polymarket.com"
 OUTPUT_DIR = "/tmp/activity-exports"  # Vercel uses /tmp for writable storage
 BATCH_SIZE = 1000
-TRADE_PRESETS = [100, 1000, 5000, 10000, 50000]
+TRADE_PRESETS = [100, 1000, 5000, 10000, 50000, 100000]
 
 
 def fetch_all_trades(wallet: str, callback=None) -> Dict:
@@ -234,6 +234,9 @@ def get_trades(wallet):
 
     if mode == 'full':
         result = fetch_all_trades(wallet)
+    elif limit > 1000:
+        # Use paginated fetch for larger limits (5k, 10k, 50k, 100k)
+        result = fetch_trades_with_limit(wallet, limit)
     else:
         result = fetch_recent_trades(wallet, limit)
 
@@ -242,12 +245,15 @@ def get_trades(wallet):
 
 @app.route('/api/download/<wallet>/<format>')
 def download_trades(wallet, format):
-    """Download trades as JSON or CSV."""
+    """Download trades as JSON, CSV, or TXT."""
     mode = request.args.get('mode', 'recent')
     limit = request.args.get('limit', 100, type=int)
 
     if mode == 'full':
         result = fetch_all_trades(wallet)
+    elif limit > 1000:
+        # Use paginated fetch for larger limits
+        result = fetch_trades_with_limit(wallet, limit)
     else:
         result = fetch_recent_trades(wallet, limit)
 
@@ -284,7 +290,53 @@ def download_trades(wallet, format):
             download_name=f"{username}{suffix}-trades.csv"
         )
 
-    return jsonify({"error": "Invalid format. Use 'json' or 'csv'"}), 400
+    elif format == 'txt':
+        # Generate formatted text file
+        lines = []
+        lines.append("=" * 60)
+        lines.append("POLYMARKET TRADE HISTORY")
+        lines.append("=" * 60)
+        lines.append("")
+        lines.append(f"Wallet: {wallet}")
+        lines.append(f"Username: {username}")
+        lines.append(f"Total Trades: {len(result.get('trades', []))}")
+        lines.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        lines.append("")
+        lines.append("-" * 60)
+        lines.append("")
+
+        for i, trade in enumerate(result.get('trades', []), 1):
+            ts = trade.get('timestamp', 0)
+            dt = datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') if ts else 'N/A'
+            side = trade.get('side', 'N/A')
+            price = trade.get('price', 0)
+            size = trade.get('size', 0)
+            usdc = trade.get('usdcSize', 0)
+            title = trade.get('title', 'N/A')
+            outcome = trade.get('outcome', 'N/A')
+            tx_hash = trade.get('transactionHash', 'N/A')
+
+            lines.append(f"Trade #{i}")
+            lines.append(f"  Time:     {dt}")
+            lines.append(f"  Side:     {side}")
+            lines.append(f"  Market:   {title}")
+            lines.append(f"  Outcome:  {outcome}")
+            lines.append(f"  Price:    {price:.4f}" if isinstance(price, (int, float)) else f"  Price:    {price}")
+            lines.append(f"  Size:     {size:.2f}" if isinstance(size, (int, float)) else f"  Size:     {size}")
+            lines.append(f"  Value:    ${usdc:.2f}" if isinstance(usdc, (int, float)) else f"  Value:    ${usdc}")
+            lines.append(f"  Tx:       {tx_hash[:20]}..." if tx_hash and len(str(tx_hash)) > 20 else f"  Tx:       {tx_hash}")
+            lines.append("")
+
+        txt_content = "\n".join(lines)
+
+        return send_file(
+            io.BytesIO(txt_content.encode()),
+            mimetype='text/plain',
+            as_attachment=True,
+            download_name=f"{username}{suffix}-trades.txt"
+        )
+
+    return jsonify({"error": "Invalid format. Use 'json', 'csv', or 'txt'"}), 400
 
 
 @app.route('/api/analyze/<wallet>')
