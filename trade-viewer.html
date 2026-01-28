@@ -122,9 +122,12 @@
       .input-section {
         background: hsl(var(--card));
         border: 1px solid hsl(var(--border));
-        border-radius: var(--radius);
-        padding: 24px;
+        border-radius: 12px;
+        padding: 28px;
         margin-bottom: 24px;
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
       }
 
       .input-row {
@@ -134,7 +137,83 @@
         align-items: center;
       }
 
-      input[type="text"] {
+      .date-filter-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 16px;
+        background: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        border-radius: 10px;
+      }
+
+      .date-filter-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: hsl(var(--muted-foreground));
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-right: 4px;
+      }
+
+      .date-filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .date-label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .quick-filters {
+        display: flex;
+        gap: 8px;
+        margin-left: auto;
+      }
+
+      .btn-quick-filter {
+        padding: 8px 14px;
+        font-size: 12px;
+        font-weight: 500;
+        background: hsl(220 10% 18%);
+        color: hsl(0 0% 98%);
+        border: 1px solid hsl(220 10% 28%);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .btn-quick-filter:hover {
+        background: hsl(220 10% 24%);
+        border-color: hsl(220 10% 35%);
+      }
+      .btn-quick-filter.active {
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        border-color: hsl(var(--primary));
+      }
+
+      .btn-clear-dates {
+        padding: 8px 14px;
+        font-size: 12px;
+        font-weight: 500;
+        background: transparent;
+        color: hsl(var(--muted-foreground));
+        border: 1px solid hsl(var(--border));
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .btn-clear-dates:hover {
+        background: hsl(var(--muted));
+        color: hsl(var(--foreground));
+      }
+
+      input[type="text"],
+      input[type="date"] {
         flex: 1;
         min-width: 280px;
         padding: 12px 16px;
@@ -142,18 +221,22 @@
         font-family: "JetBrains Mono", monospace;
         background: hsl(var(--input));
         border: 1px solid hsl(var(--border));
-        border-radius: var(--radius);
+        border-radius: 8px;
         color: hsl(var(--foreground));
         outline: none;
-        transition:
-          border-color 0.2s,
-          box-shadow 0.2s;
+        transition: all 0.2s ease;
       }
-      input[type="text"]:focus {
+      input[type="date"] {
+        min-width: 140px;
+        flex: 0 0 auto;
+      }
+      input[type="text"]:focus,
+      input[type="date"]:focus {
         border-color: hsl(var(--ring));
-        box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+        box-shadow: 0 0 0 3px hsl(var(--ring) / 0.15);
       }
-      input[type="text"]::placeholder {
+      input[type="text"]::placeholder,
+      input[type="date"]::placeholder {
         color: hsl(var(--muted-foreground));
       }
 
@@ -161,12 +244,31 @@
         padding: 12px 16px;
         font-size: 14px;
         font-family: "Inter", sans-serif;
-        background: hsl(var(--input));
-        border: 1px solid hsl(var(--border));
+        background: hsl(220 10% 18%);
+        border: 1px solid hsl(220 10% 25%);
         border-radius: var(--radius);
-        color: hsl(var(--foreground));
+        color: hsl(0 0% 98%);
         outline: none;
         cursor: pointer;
+        transition: all 0.2s ease;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 36px;
+      }
+      select:hover {
+        background: hsl(220 10% 22%);
+        border-color: hsl(220 10% 30%);
+      }
+      select:focus {
+        border-color: hsl(var(--ring));
+        box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+      }
+      select option {
+        background: hsl(220 10% 18%);
+        color: hsl(0 0% 98%);
       }
 
       button {
@@ -175,19 +277,22 @@
         font-family: "Inter", sans-serif;
         font-weight: 500;
         border: none;
-        border-radius: var(--radius);
+        border-radius: 8px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
       }
 
       .btn-primary,
       .btn-analyze {
         background: hsl(142 45% 38%);
         color: hsl(40 30% 96%);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
       .btn-primary:hover,
       .btn-analyze:hover {
         background: hsl(142 45% 32%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
 
       .btn-secondary {
@@ -221,9 +326,16 @@
       .stat-card {
         background: hsl(var(--card));
         border: 1px solid hsl(var(--border));
-        border-radius: var(--radius);
-        padding: 16px;
+        border-radius: 12px;
+        padding: 20px;
         text-align: center;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
       .stat-value {
@@ -257,10 +369,11 @@
       .table-container {
         background: hsl(var(--card));
         border: 1px solid hsl(var(--border));
-        border-radius: var(--radius);
+        border-radius: 12px;
         overflow: hidden;
         max-height: 500px;
         overflow-y: auto;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       }
 
       table {
@@ -364,13 +477,14 @@
       .user-info {
         background: hsl(var(--card));
         border: 1px solid hsl(var(--border));
-        border-radius: var(--radius);
-        padding: 16px 20px;
+        border-radius: 12px;
+        padding: 18px 24px;
         margin-bottom: 24px;
         display: flex;
         align-items: center;
         gap: 16px;
         flex-wrap: wrap;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
       }
 
       .user-info .username {
@@ -456,9 +570,10 @@
       .analytics-section {
         background: hsl(var(--card));
         border: 1px solid hsl(var(--border));
-        border-radius: var(--radius);
-        padding: 24px;
+        border-radius: 12px;
+        padding: 28px;
         margin-bottom: 24px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       }
 
       .insights-grid {
@@ -471,8 +586,15 @@
       .insight-card {
         background: hsl(var(--background));
         border: 1px solid hsl(var(--border));
-        border-radius: var(--radius);
-        padding: 16px;
+        border-radius: 10px;
+        padding: 18px;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .insight-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       }
 
       .insight-card.high {
@@ -571,6 +693,7 @@
       .tab.active {
         background: hsl(var(--primary));
         color: hsl(var(--primary-foreground));
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .tab-content {
@@ -589,11 +712,18 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 10px 12px;
+        padding: 12px 14px;
         background: hsl(var(--background));
         border: 1px solid hsl(var(--border));
-        border-radius: var(--radius);
+        border-radius: 10px;
         font-size: 0.85rem;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+      .market-row:hover {
+        transform: translateX(4px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
       }
 
       .market-rank {
@@ -755,6 +885,11 @@
         border: 1px solid hsl(var(--border));
         border-radius: var(--radius);
         cursor: pointer;
+        color: hsl(var(--foreground));
+        transition: all 0.2s ease;
+      }
+      .btn-small:hover {
+        background: hsl(var(--muted));
       }
 
       .comparison-wallets {
@@ -1344,10 +1479,50 @@
             Analyze Patterns
           </button>
         </div>
-        <p class="hint-text">
-          Select trade count for analysis depth. More trades = richer patterns
-          but longer fetch time.
-        </p>
+        <div class="date-filter-row" style="margin-top: 16px">
+          <span class="date-filter-label">Date Range</span>
+          <div class="date-filter-group">
+            <label for="startDate" class="date-label">From</label>
+            <input type="date" id="startDate" />
+          </div>
+          <div class="date-filter-group">
+            <label for="endDate" class="date-label">To</label>
+            <input type="date" id="endDate" />
+          </div>
+          <div class="quick-filters">
+            <button
+              class="btn-quick-filter"
+              onclick="setTodayFilter()"
+              id="todayBtn"
+            >
+              Today
+            </button>
+            <button
+              class="btn-quick-filter"
+              onclick="setYesterdayFilter()"
+              id="yesterdayBtn"
+            >
+              Yesterday
+            </button>
+            <button
+              class="btn-quick-filter"
+              onclick="setWeekFilter()"
+              id="weekBtn"
+            >
+              Last 7 Days
+            </button>
+            <button
+              class="btn-quick-filter"
+              onclick="setMonthFilter()"
+              id="monthBtn"
+            >
+              Last 30 Days
+            </button>
+            <button class="btn-clear-dates" onclick="clearDateFilters()">
+              Clear
+            </button>
+          </div>
+        </div>
 
         <!-- Comparison Mode -->
         <div class="comparison-section" id="comparisonSection">
@@ -1704,6 +1879,78 @@
           if (e.key === "Enter") fetchTrades();
         });
 
+      function formatDate(date) {
+        return date.toISOString().split("T")[0];
+      }
+
+      function clearQuickFilterActive() {
+        document
+          .querySelectorAll(".btn-quick-filter")
+          .forEach((btn) => btn.classList.remove("active"));
+      }
+
+      function setFullHistoryMode() {
+        // Automatically switch to "Full History" when using date filters
+        document.getElementById("tradeCount").value = "full";
+      }
+
+      function setTodayFilter() {
+        clearQuickFilterActive();
+        document.getElementById("todayBtn").classList.add("active");
+        const today = formatDate(new Date());
+        document.getElementById("startDate").value = today;
+        document.getElementById("endDate").value = today;
+        setFullHistoryMode();
+      }
+
+      function setYesterdayFilter() {
+        clearQuickFilterActive();
+        document.getElementById("yesterdayBtn").classList.add("active");
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const formatted = formatDate(yesterday);
+        document.getElementById("startDate").value = formatted;
+        document.getElementById("endDate").value = formatted;
+        setFullHistoryMode();
+      }
+
+      function setWeekFilter() {
+        clearQuickFilterActive();
+        document.getElementById("weekBtn").classList.add("active");
+        const today = new Date();
+        const weekAgo = new Date();
+        weekAgo.setDate(today.getDate() - 7);
+        document.getElementById("startDate").value = formatDate(weekAgo);
+        document.getElementById("endDate").value = formatDate(today);
+        setFullHistoryMode();
+      }
+
+      function setMonthFilter() {
+        clearQuickFilterActive();
+        document.getElementById("monthBtn").classList.add("active");
+        const today = new Date();
+        const monthAgo = new Date();
+        monthAgo.setDate(today.getDate() - 30);
+        document.getElementById("startDate").value = formatDate(monthAgo);
+        document.getElementById("endDate").value = formatDate(today);
+        setFullHistoryMode();
+      }
+
+      function clearDateFilters() {
+        clearQuickFilterActive();
+        document.getElementById("startDate").value = "";
+        document.getElementById("endDate").value = "";
+      }
+
+      function getDateParams() {
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        let params = "";
+        if (startDate) params += `&startDate=${startDate}`;
+        if (endDate) params += `&endDate=${endDate}`;
+        return params;
+      }
+
       async function fetchTrades() {
         const wallet = document.getElementById("walletInput").value.trim();
         if (!wallet) {
@@ -1714,6 +1961,7 @@
         const limitSelect = document.getElementById("tradeCount").value;
         currentWallet = wallet;
         currentLimit = limitSelect === "full" ? "full" : parseInt(limitSelect);
+        const dateParams = getDateParams();
 
         showLoading(
           true,
@@ -1725,8 +1973,8 @@
         try {
           const url =
             currentLimit === "full"
-              ? `/api/trades/${wallet}?mode=full`
-              : `/api/trades/${wallet}?limit=${currentLimit}`;
+              ? `/api/trades/${wallet}?mode=full${dateParams}`
+              : `/api/trades/${wallet}?limit=${currentLimit}${dateParams}`;
 
           const response = await fetch(url);
           const data = await response.json();
@@ -1756,6 +2004,7 @@
         const limitSelect = document.getElementById("tradeCount").value;
         currentWallet = wallet;
         currentLimit = limitSelect === "full" ? "full" : parseInt(limitSelect);
+        const dateParams = getDateParams();
 
         showLoading(
           true,
@@ -1766,8 +2015,8 @@
         try {
           const url =
             currentLimit === "full"
-              ? `/api/analyze/${wallet}?mode=full`
-              : `/api/analyze/${wallet}?limit=${currentLimit}`;
+              ? `/api/analyze/${wallet}?mode=full${dateParams}`
+              : `/api/analyze/${wallet}?limit=${currentLimit}${dateParams}`;
 
           const response = await fetch(url);
           const data = await response.json();
@@ -1783,8 +2032,8 @@
           // Also fetch the raw trades for display
           const tradesUrl =
             currentLimit === "full"
-              ? `/api/trades/${wallet}?mode=full`
-              : `/api/trades/${wallet}?limit=${currentLimit}`;
+              ? `/api/trades/${wallet}?mode=full${dateParams}`
+              : `/api/trades/${wallet}?limit=${currentLimit}${dateParams}`;
           const tradesResponse = await fetch(tradesUrl);
           currentData = await tradesResponse.json();
 

@@ -47,6 +47,50 @@ OUTPUT_DIR = "activity-exports"
 BATCH_SIZE = 1000
 
 
+def filter_trades_by_date(result: Dict, start_date: str = None, end_date: str = None) -> Dict:
+    """Filter trades by date range. Dates should be in YYYY-MM-DD format."""
+    if not result.get('trades'):
+        return result
+    
+    filtered_trades = []
+    start_ts = None
+    end_ts = None
+    
+    if start_date:
+        try:
+            start_ts = datetime.strptime(start_date, '%Y-%m-%d').replace(tzinfo=timezone.utc).timestamp()
+        except ValueError:
+            pass
+    
+    if end_date:
+        try:
+            # End of day for end_date
+            end_ts = datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, tzinfo=timezone.utc).timestamp()
+        except ValueError:
+            pass
+    
+    for trade in result['trades']:
+        ts = trade.get('timestamp', 0)
+        if start_ts and ts < start_ts:
+            continue
+        if end_ts and ts > end_ts:
+            continue
+        filtered_trades.append(trade)
+    
+    # Update result with filtered trades
+    result['trades'] = filtered_trades
+    result['trade_count'] = len(filtered_trades)
+    
+    # Update stats if present
+    if filtered_trades and result.get('stats'):
+        oldest = min(t.get('timestamp', 0) for t in filtered_trades)
+        newest = max(t.get('timestamp', 0) for t in filtered_trades)
+        result['stats']['oldest_trade'] = datetime.fromtimestamp(oldest).strftime('%Y-%m-%d') if oldest else None
+        result['stats']['newest_trade'] = datetime.fromtimestamp(newest).strftime('%Y-%m-%d') if newest else None
+    
+    return result
+
+
 def fetch_all_trades(wallet: str, callback=None) -> Dict:
     """Fetch ALL trades using backward timestamp pagination."""
 
@@ -178,6 +222,8 @@ def get_trades(wallet):
     """Fetch trades - use mode=full for all history."""
     mode = request.args.get('mode', 'recent')
     limit = request.args.get('limit', 100, type=int)
+    start_date = request.args.get('startDate')
+    end_date = request.args.get('endDate')
 
     if mode == 'full':
         result = fetch_all_trades(wallet)
@@ -186,6 +232,10 @@ def get_trades(wallet):
         result = fetch_trades_with_limit(wallet, limit)
     else:
         result = fetch_recent_trades(wallet, limit)
+
+    # Apply date filtering if provided
+    if start_date or end_date:
+        result = filter_trades_by_date(result, start_date, end_date)
 
     # Save to file
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -322,6 +372,8 @@ def analyze_wallet(wallet):
     """Analyze trades and return pattern insights."""
     limit = request.args.get('limit', 1000, type=int)
     mode = request.args.get('mode', 'recent')
+    start_date = request.args.get('startDate')
+    end_date = request.args.get('endDate')
 
     # Fetch trades
     if mode == 'full':
@@ -329,6 +381,10 @@ def analyze_wallet(wallet):
     else:
         # Use limit for scalable fetching
         result = fetch_trades_with_limit(wallet, limit)
+
+    # Apply date filtering if provided
+    if start_date or end_date:
+        result = filter_trades_by_date(result, start_date, end_date)
 
     trades = result.get('trades', [])
     if not trades:
