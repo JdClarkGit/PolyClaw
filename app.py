@@ -22,6 +22,7 @@ from analytics import (
     analyze_trades, generate_report, compare_wallets,
     PRICING_TIERS, get_tier_info, check_feature_access, calculate_overage
 )
+from ai_analysis import run_ai_analysis, get_available_providers
 
 app = Flask(__name__, static_folder='.')
 
@@ -108,12 +109,21 @@ def fetch_all_trades(wallet: str, callback=None) -> Dict:
         if end_ts:
             params["end"] = end_ts
 
-        try:
-            response = requests.get(f"{DATA_API}/activity", params=params, timeout=30)
-            response.raise_for_status()
-            trades = response.json()
-        except Exception as e:
-            break
+        # Retry logic with exponential backoff
+        trades = None
+        max_retries = 3
+        for retry in range(max_retries):
+            try:
+                response = requests.get(f"{DATA_API}/activity", params=params, timeout=30)
+                response.raise_for_status()
+                trades = response.json()
+                break
+            except Exception as e:
+                if retry < max_retries - 1:
+                    time.sleep(2 ** retry)  # Exponential backoff: 1s, 2s, 4s
+                    continue
+                else:
+                    break
 
         if not trades or not isinstance(trades, list):
             break
@@ -207,6 +217,111 @@ def fetch_recent_trades(wallet: str, limit: int = 100) -> Dict:
         return {"wallet": wallet, "error": str(e), "trades": [], "trade_count": 0}
 
 
+def fetch_trades_stream(wallet: str, target_limit: int = None):
+    """Generator function for SSE streaming progress during trade fetching."""
+    all_trades = []
+    seen_keys: Set[tuple] = set()
+    end_ts = None
+    username = None
+    batch_num = 0
+    start_time = time.time()
+
+    while True:
+        batch_num += 1
+
+        # Build request
+        params = {"user": wallet, "limit": BATCH_SIZE}
+        if end_ts:
+            params["end"] = end_ts
+
+        # Send progress update
+        elapsed = time.time() - start_time
+        estimated_batches = max(batch_num, 10)  # Minimum estimate
+        estimated_remaining = max(0, (elapsed / batch_num) * (estimated_batches - batch_num))
+        
+        progress_data = {
+            "type": "progress",
+            "batch": batch_num,
+            "total_trades": len(all_trades),
+            "elapsed_seconds": round(elapsed, 1),
+            "estimated_remaining": round(estimated_remaining, 1)
+        }
+        yield f"data: {json.dumps(progress_data)}\n\n"
+
+        # Retry logic with exponential backoff
+        trades = None
+        max_retries = 3
+        for retry in range(max_retries):
+            try:
+                response = requests.get(f"{DATA_API}/activity", params=params, timeout=30)
+                response.raise_for_status()
+                trades = response.json()
+                break
+            except Exception as e:
+                if retry < max_retries - 1:
+                    time.sleep(2 ** retry)
+                    continue
+                else:
+                    break
+
+        if not trades or not isinstance(trades, list):
+            break
+
+        # Get username
+        if not username and trades[0].get('name'):
+            username = trades[0].get('name')
+
+        # Deduplicate and add
+        new_count = 0
+        oldest_ts = float('inf')
+
+        for t in trades:
+            key = (t.get('transactionHash'), t.get('timestamp'), t.get('asset'))
+            if key not in seen_keys:
+                seen_keys.add(key)
+                all_trades.append(t)
+                new_count += 1
+
+            ts = t.get('timestamp', 0)
+            if ts and ts < oldest_ts:
+                oldest_ts = ts
+
+        # Check termination conditions
+        if len(trades) < BATCH_SIZE or new_count == 0:
+            break
+
+        # Check if we've hit target limit
+        if target_limit and len(all_trades) >= target_limit:
+            all_trades = all_trades[:target_limit]
+            break
+
+        # Set next end timestamp
+        if oldest_ts != float('inf'):
+            end_ts = oldest_ts
+        else:
+            break
+
+        time.sleep(0.2)
+
+        # Safety limit
+        if batch_num > 5000:
+            break
+
+    # Sort by timestamp descending
+    all_trades.sort(key=lambda t: t.get('timestamp', 0), reverse=True)
+
+    # Send completion event
+    complete_data = {
+        "type": "complete",
+        "wallet": wallet,
+        "username": username,
+        "trade_count": len(all_trades),
+        "total_batches": batch_num,
+        "elapsed_seconds": round(time.time() - start_time, 1)
+    }
+    yield f"data: {json.dumps(complete_data)}\n\n"
+
+
 @app.route('/')
 def index():
     return send_from_directory('.', 'trade-viewer.html')
@@ -246,6 +361,28 @@ def get_trades(wallet):
         json.dump(result, f, indent=2)
 
     return jsonify(result)
+
+
+@app.route('/api/trades/<wallet>/stream')
+def stream_trades(wallet):
+    """
+    Stream trade fetching progress via Server-Sent Events (SSE).
+    Use this for large fetches to show real-time progress.
+    """
+    limit = request.args.get('limit', type=int)
+    
+    def generate():
+        yield from fetch_trades_stream(wallet, limit)
+    
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no'
+        }
+    )
 
 
 @app.route('/api/download/<wallet>/<format>')
@@ -430,6 +567,74 @@ def get_analysis_report(wallet):
         mimetype='text/markdown',
         headers={'Content-Disposition': f'attachment; filename={username}-analysis.md'}
     )
+
+
+# =============================================================================
+# AI ANALYSIS ENDPOINTS
+# =============================================================================
+
+@app.route('/api/ai-analyze/<wallet>', methods=['POST'])
+def ai_analyze_wallet(wallet):
+    """
+    AI-powered trade analysis using OpenAI or Anthropic.
+    
+    Request body:
+    {
+        "provider": "openai" | "anthropic",
+        "prompt_type": "strategy" | "risk" | "performance" | "custom",
+        "custom_prompt": "optional custom question",
+        "limit": 1000
+    }
+    """
+    data = request.get_json() or {}
+    provider = data.get('provider', 'openai')
+    prompt_type = data.get('prompt_type', 'strategy')
+    custom_prompt = data.get('custom_prompt')
+    limit = data.get('limit', 1000)
+    
+    # Validate provider
+    if provider not in ['openai', 'anthropic']:
+        return jsonify({"error": "Invalid provider. Use 'openai' or 'anthropic'"}), 400
+    
+    # Validate prompt type
+    valid_types = ['strategy', 'risk', 'performance', 'custom']
+    if prompt_type not in valid_types:
+        return jsonify({"error": f"Invalid prompt_type. Use one of: {valid_types}"}), 400
+    
+    # Fetch trades
+    result = fetch_trades_with_limit(wallet, limit)
+    trades = result.get('trades', [])
+    
+    if not trades:
+        return jsonify({"error": "No trades found for this wallet"}), 404
+    
+    # Run pattern analysis first (for context)
+    analysis = analyze_trades(trades)
+    
+    # Run AI analysis
+    ai_result = run_ai_analysis(
+        trades=trades,
+        analysis=analysis,
+        provider=provider,
+        prompt_type=prompt_type,
+        custom_prompt=custom_prompt
+    )
+    
+    if ai_result.get('error'):
+        return jsonify(ai_result), 500
+    
+    # Add wallet info
+    ai_result['wallet'] = wallet
+    ai_result['username'] = result.get('username')
+    
+    return jsonify(ai_result)
+
+
+@app.route('/api/ai-providers')
+def get_ai_providers():
+    """Check which AI providers are available and configured."""
+    providers = get_available_providers()
+    return jsonify(providers)
 
 
 def fetch_trades_with_limit(wallet: str, limit: int) -> Dict:

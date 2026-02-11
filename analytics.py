@@ -294,17 +294,39 @@ def compare_wallets(wallet_analyses: List[Dict]) -> Dict:
         "wallet_count": len(wallet_analyses),
         "wallets": [],
         "rankings": {},
-        "insights": []
+        "insights": [],
+        "timeline_overlap": {},
+        "common_markets": []
     }
+
+    # Collect all markets traded by each wallet
+    wallet_markets = {}
 
     # Extract key metrics for each wallet
     for wa in wallet_analyses:
         summary = wa.get("analysis", {}).get("summary", {})
         pnl = wa.get("pnl", {}).get("summary", {})
         behavior = wa.get("analysis", {}).get("behavioral_patterns", {})
+        risk = wa.get("analysis", {}).get("risk_metrics", {})
+        
+        # Calculate Sharpe-like ratio (return / volatility proxy)
+        net_pnl = pnl.get("net_pnl", 0)
+        total_volume = summary.get("total_volume_usd", 1)
+        win_rate = pnl.get("win_rate", 50)
+        
+        # Simple Sharpe approximation: (return rate * consistency factor)
+        return_rate = net_pnl / total_volume if total_volume > 0 else 0
+        consistency = (win_rate - 50) / 50  # Normalized to -1 to 1
+        sharpe_like = round(return_rate * (1 + consistency) * 100, 2)
+        
+        # Max drawdown estimate (from risk metrics or calculate)
+        max_drawdown = risk.get("estimated_max_drawdown", 0)
+        if not max_drawdown and pnl.get("total_loss", 0) > 0:
+            max_drawdown = round(abs(pnl.get("total_loss", 0)) / total_volume * 100, 1)
 
         wallet_data = {
             "wallet": wa.get("wallet", "")[:10] + "...",
+            "full_wallet": wa.get("wallet", ""),
             "username": wa.get("username", "Unknown"),
             "total_trades": summary.get("total_trades", 0),
             "total_volume": summary.get("total_volume_usd", 0),
@@ -314,8 +336,18 @@ def compare_wallets(wallet_analyses: List[Dict]) -> Dict:
             "net_pnl": pnl.get("net_pnl", 0),
             "profit_factor": pnl.get("profit_factor", 0),
             "trader_type": behavior.get("trader_classification", {}).get("primary_type", "unknown"),
+            "sharpe_like": sharpe_like,
+            "max_drawdown": max_drawdown,
+            "risk_score": risk.get("risk_score", 50),
+            "unique_markets": summary.get("unique_markets", 0),
+            "oldest_trade": summary.get("oldest_trade"),
+            "newest_trade": summary.get("newest_trade"),
         }
         comparison["wallets"].append(wallet_data)
+        
+        # Collect markets for overlap analysis
+        markets = wa.get("analysis", {}).get("top_markets", {}).get("by_trades", [])
+        wallet_markets[wallet_data["username"]] = set(m.get("market", "") for m in markets if m.get("market"))
 
     # Generate rankings for each metric
     metrics_to_rank = [
@@ -324,13 +356,16 @@ def compare_wallets(wallet_analyses: List[Dict]) -> Dict:
         ("win_rate", "Best Win Rate", True),
         ("net_pnl", "Most Profitable", True),
         ("profit_factor", "Best Risk/Reward", True),
+        ("sharpe_like", "Best Risk-Adj Return", True),
+        ("max_drawdown", "Lowest Drawdown", False),
         ("avg_trade_size", "Largest Avg Trade", True),
+        ("risk_score", "Lowest Risk", False),
     ]
 
     for metric, label, higher_better in metrics_to_rank:
         sorted_wallets = sorted(
             comparison["wallets"],
-            key=lambda x: x.get(metric, 0),
+            key=lambda x: x.get(metric, 0) or 0,
             reverse=higher_better
         )
         comparison["rankings"][metric] = {
@@ -339,26 +374,62 @@ def compare_wallets(wallet_analyses: List[Dict]) -> Dict:
             "values": [w.get(metric, 0) for w in sorted_wallets]
         }
 
+    # Calculate timeline overlap
+    for i, w1 in enumerate(comparison["wallets"]):
+        for w2 in comparison["wallets"][i+1:]:
+            if w1.get("oldest_trade") and w2.get("oldest_trade"):
+                # Simple overlap check based on date ranges
+                overlap_key = f"{w1['username']} vs {w2['username']}"
+                comparison["timeline_overlap"][overlap_key] = {
+                    "wallet1_range": f"{w1.get('oldest_trade', 'N/A')} to {w1.get('newest_trade', 'N/A')}",
+                    "wallet2_range": f"{w2.get('oldest_trade', 'N/A')} to {w2.get('newest_trade', 'N/A')}",
+                }
+
+    # Find common markets
+    if len(wallet_markets) >= 2:
+        all_markets = list(wallet_markets.values())
+        common = all_markets[0]
+        for markets in all_markets[1:]:
+            common = common.intersection(markets)
+        comparison["common_markets"] = list(common)[:10]  # Top 10
+
     # Generate comparison insights
     best_volume = max(comparison["wallets"], key=lambda x: x["total_volume"])
     best_winrate = max(comparison["wallets"], key=lambda x: x["win_rate"])
     best_pnl = max(comparison["wallets"], key=lambda x: x["net_pnl"])
+    best_sharpe = max(comparison["wallets"], key=lambda x: x["sharpe_like"])
+    lowest_risk = min(comparison["wallets"], key=lambda x: x.get("risk_score", 100))
 
     comparison["insights"] = [
         {
             "title": "Volume Leader",
             "description": f"{best_volume['username']} has the highest trading volume at ${best_volume['total_volume']:,.0f}",
-            "winner": best_volume["username"]
+            "winner": best_volume["username"],
+            "icon": "📊"
         },
         {
             "title": "Best Win Rate",
             "description": f"{best_winrate['username']} has the highest win rate at {best_winrate['win_rate']:.1f}%",
-            "winner": best_winrate["username"]
+            "winner": best_winrate["username"],
+            "icon": "🎯"
         },
         {
             "title": "Most Profitable",
             "description": f"{best_pnl['username']} has the highest net P&L at ${best_pnl['net_pnl']:,.2f}",
-            "winner": best_pnl["username"]
+            "winner": best_pnl["username"],
+            "icon": "💰"
+        },
+        {
+            "title": "Best Risk-Adjusted",
+            "description": f"{best_sharpe['username']} has the best risk-adjusted returns (Sharpe-like: {best_sharpe['sharpe_like']:.2f})",
+            "winner": best_sharpe["username"],
+            "icon": "⚡"
+        },
+        {
+            "title": "Lowest Risk",
+            "description": f"{lowest_risk['username']} has the lowest risk score at {lowest_risk.get('risk_score', 0):.0f}/100",
+            "winner": lowest_risk["username"],
+            "icon": "🛡️"
         }
     ]
 
@@ -368,7 +439,17 @@ def compare_wallets(wallet_analyses: List[Dict]) -> Dict:
         comparison["insights"].append({
             "title": "Strategy Diversity",
             "description": f"Wallets use different strategies: {', '.join(set(trader_types))}",
-            "winner": None
+            "winner": None,
+            "icon": "🔀"
+        })
+
+    # Common markets insight
+    if comparison["common_markets"]:
+        comparison["insights"].append({
+            "title": "Market Overlap",
+            "description": f"All wallets trade in {len(comparison['common_markets'])} common markets",
+            "winner": None,
+            "icon": "🔗"
         })
 
     return comparison

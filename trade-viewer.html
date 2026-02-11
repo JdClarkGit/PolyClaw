@@ -86,8 +86,43 @@
         color: hsl(var(--foreground));
         min-height: 100vh;
         padding: 24px;
-        line-height: 1.5;
+        line-height: 1.7;
       }
+
+      /* Global transitions */
+      * {
+        transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      /* Animation keyframes */
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+
+      @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.4s ease-out forwards;
+      }
+
+      .stagger-1 { animation-delay: 0.05s; }
+      .stagger-2 { animation-delay: 0.1s; }
+      .stagger-3 { animation-delay: 0.15s; }
+      .stagger-4 { animation-delay: 0.2s; }
+      .stagger-5 { animation-delay: 0.25s; }
 
       .container {
         max-width: 1400px;
@@ -96,13 +131,15 @@
 
       h1 {
         font-family: "JetBrains Mono", monospace;
-        font-size: 1.75rem;
-        font-weight: 600;
+        font-size: 2rem;
+        font-weight: 700;
         margin-bottom: 6px;
         color: hsl(var(--foreground));
+        letter-spacing: -0.02em;
       }
       h1 span {
         color: hsl(var(--primary));
+        text-shadow: 0 0 20px hsl(var(--primary) / 0.4), 0 0 40px hsl(var(--primary) / 0.2);
       }
 
       h2 {
@@ -295,6 +332,17 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
 
+      .btn-ai {
+        background: linear-gradient(135deg, hsl(280 60% 50%), hsl(200 70% 50%));
+        color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .btn-ai:hover {
+        background: linear-gradient(135deg, hsl(280 60% 45%), hsl(200 70% 45%));
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+      }
+
       .btn-secondary {
         background: hsl(var(--secondary));
         color: hsl(var(--secondary-foreground));
@@ -324,18 +372,33 @@
       }
 
       .stat-card {
-        background: hsl(var(--card));
+        background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--background)));
         border: 1px solid hsl(var(--border));
-        border-radius: 12px;
-        padding: 20px;
+        border-radius: 16px;
+        padding: 24px 20px;
         text-align: center;
-        transition:
-          transform 0.2s ease,
-          box-shadow 0.2s ease;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.3), transparent);
+        opacity: 0;
+        transition: opacity 0.25s ease;
       }
       .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        border-color: hsl(var(--primary) / 0.3);
+      }
+      .stat-card:hover::before {
+        opacity: 1;
       }
 
       .stat-value {
@@ -369,11 +432,25 @@
       .table-container {
         background: hsl(var(--card));
         border: 1px solid hsl(var(--border));
-        border-radius: 12px;
+        border-radius: 16px;
         overflow: hidden;
         max-height: 500px;
         overflow-y: auto;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        position: relative;
+      }
+      .table-container::-webkit-scrollbar {
+        width: 8px;
+      }
+      .table-container::-webkit-scrollbar-track {
+        background: hsl(var(--background));
+      }
+      .table-container::-webkit-scrollbar-thumb {
+        background: hsl(var(--border));
+        border-radius: 4px;
+      }
+      .table-container::-webkit-scrollbar-thumb:hover {
+        background: hsl(var(--muted-foreground) / 0.5);
       }
 
       table {
@@ -384,26 +461,35 @@
 
       th,
       td {
-        padding: 10px 14px;
+        padding: 12px 16px;
         text-align: left;
-        border-bottom: 1px solid hsl(var(--border));
+        border-bottom: 1px solid hsl(var(--border) / 0.7);
       }
 
       th {
-        background: hsl(var(--muted));
+        background: hsl(var(--muted) / 0.95);
+        backdrop-filter: blur(8px);
         font-family: "JetBrains Mono", monospace;
-        font-weight: 500;
+        font-weight: 600;
         color: hsl(var(--muted-foreground));
         font-size: 0.7rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.06em;
         position: sticky;
         top: 0;
         z-index: 10;
       }
 
-      tr:hover {
-        background: hsl(var(--muted) / 0.5);
+      tbody tr {
+        transition: background-color 0.15s ease;
+      }
+
+      tbody tr:nth-child(even) {
+        background: hsl(var(--muted) / 0.15);
+      }
+
+      tbody tr:hover {
+        background: hsl(var(--primary) / 0.08);
       }
 
       .side-buy {
@@ -474,6 +560,225 @@
         margin-bottom: 24px;
       }
 
+      /* Toast Notifications */
+      .toast-container {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        pointer-events: none;
+      }
+
+      .toast {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: 12px;
+        padding: 16px 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 300px;
+        max-width: 450px;
+        pointer-events: auto;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(100px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .toast.success {
+        border-left: 4px solid hsl(var(--primary));
+      }
+
+      .toast.error {
+        border-left: 4px solid hsl(var(--destructive));
+        background: hsl(var(--destructive) / 0.05);
+      }
+
+      .toast.info {
+        border-left: 4px solid hsl(200 70% 50%);
+      }
+
+      .toast-icon {
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
+
+      .toast-message {
+        flex: 1;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .toast-close {
+        background: none;
+        border: none;
+        color: hsl(var(--muted-foreground));
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+      }
+
+      .toast-close:hover {
+        background: hsl(var(--muted));
+        color: hsl(var(--foreground));
+      }
+
+      /* Skeleton Loader */
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          hsl(var(--muted)) 25%,
+          hsl(var(--muted-foreground) / 0.1) 50%,
+          hsl(var(--muted)) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 6px;
+      }
+
+      .skeleton-text {
+        height: 16px;
+        margin-bottom: 8px;
+      }
+
+      .skeleton-text.short {
+        width: 60%;
+      }
+
+      .skeleton-text.medium {
+        width: 80%;
+      }
+
+      .skeleton-row {
+        display: flex;
+        gap: 16px;
+        padding: 12px 16px;
+        border-bottom: 1px solid hsl(var(--border) / 0.5);
+      }
+
+      .skeleton-cell {
+        height: 20px;
+        border-radius: 4px;
+      }
+
+      /* Progress Bar */
+      .progress-container {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        animation: fadeIn 0.3s ease-out;
+      }
+
+      .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .progress-title {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      .progress-stats {
+        display: flex;
+        gap: 24px;
+        font-size: 0.85rem;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .progress-stats span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .progress-stats .value {
+        font-family: "JetBrains Mono", monospace;
+        color: hsl(var(--foreground));
+        font-weight: 500;
+      }
+
+      .progress-bar-track {
+        width: 100%;
+        height: 8px;
+        background: hsl(var(--muted));
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 12px;
+      }
+
+      .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, hsl(var(--primary)), hsl(142 60% 55%));
+        border-radius: 4px;
+        transition: width 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .progress-bar-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.3) 50%,
+          transparent 100%
+        );
+        animation: shimmer 1.5s infinite;
+      }
+
+      .progress-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .progress-batch {
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .progress-cancel {
+        background: hsl(var(--destructive) / 0.1);
+        border: 1px solid hsl(var(--destructive) / 0.3);
+        color: hsl(var(--destructive));
+        padding: 6px 16px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .progress-cancel:hover {
+        background: hsl(var(--destructive) / 0.2);
+        border-color: hsl(var(--destructive));
+      }
+
       .user-info {
         background: hsl(var(--card));
         border: 1px solid hsl(var(--border));
@@ -507,7 +812,7 @@
       }
 
       .hidden {
-        display: none;
+        display: none !important;
       }
 
       .mode-indicator {
@@ -605,6 +910,18 @@
       }
       .insight-card.low {
         border-left: 3px solid hsl(var(--primary));
+      }
+
+      .winner-badge {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 4px 10px;
+        background: hsl(var(--primary) / 0.15);
+        border: 1px solid hsl(var(--primary) / 0.3);
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: hsl(var(--primary));
       }
 
       .insight-title {
@@ -863,33 +1180,47 @@
       /* Comparison Mode */
       .comparison-section {
         margin-top: 16px;
-        padding-top: 16px;
-        border-top: 1px solid hsl(var(--border));
+        padding: 20px;
+        border: 1px solid hsl(var(--border));
+        border-radius: 12px;
+        background: linear-gradient(145deg, hsl(var(--background)), hsl(var(--card)));
       }
 
       .comparison-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 4px;
       }
 
       .comparison-header span {
-        font-weight: 500;
-        color: hsl(var(--muted-foreground));
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+        color: hsl(var(--foreground));
+        font-size: 0.95rem;
       }
 
       .btn-small {
-        padding: 6px 12px;
+        padding: 8px 14px;
         font-size: 12px;
         background: hsl(var(--secondary));
         border: 1px solid hsl(var(--border));
-        border-radius: var(--radius);
+        border-radius: 8px;
         cursor: pointer;
         color: hsl(var(--foreground));
         transition: all 0.2s ease;
+        font-weight: 500;
       }
       .btn-small:hover {
-        background: hsl(var(--muted));
+        background: hsl(var(--primary) / 0.1);
+        border-color: hsl(var(--primary) / 0.3);
+        transform: translateY(-1px);
+      }
+
+      .comparison-hint {
+        font-size: 0.8rem;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 12px;
       }
 
       .comparison-wallets {
@@ -906,7 +1237,7 @@
       .compare-input {
         flex: 1;
         min-width: 200px;
-        padding: 10px 12px;
+        padding: 12px 14px;
         font-size: 13px;
         font-family: "JetBrains Mono", monospace;
         background: hsl(var(--input));
@@ -951,15 +1282,33 @@
       /* Pricing Banner */
       .pricing-banner {
         background: linear-gradient(
-          135deg,
+          145deg,
           hsl(var(--card)),
-          hsl(var(--secondary))
+          hsl(var(--secondary) / 0.7)
         );
         border: 1px solid hsl(var(--border));
-        border-radius: var(--radius);
-        padding: 20px;
+        border-radius: 16px;
+        padding: 16px 24px;
         margin-bottom: 24px;
         text-align: center;
+        position: relative;
+      }
+      .pricing-banner .dismiss-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: hsl(var(--muted));
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .pricing-banner .dismiss-btn:hover {
+        background: hsl(var(--muted-foreground) / 0.2);
+        color: hsl(var(--foreground));
       }
 
       .pricing-tiers {
@@ -1405,6 +1754,267 @@
         border: 1px solid hsl(142 50% 45%);
         color: hsl(142 50% 45%);
       }
+
+      /* AI Analysis Modal Styles */
+      .ai-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        backdrop-filter: blur(4px);
+      }
+
+      .ai-modal-content {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: 16px;
+        padding: 32px;
+        width: 100%;
+        max-width: 700px;
+        max-height: 85vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      .ai-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid hsl(var(--border));
+      }
+
+      .ai-modal-title {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.25rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .ai-modal-title .ai-icon {
+        background: linear-gradient(135deg, hsl(280 60% 50%), hsl(200 70% 50%));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .ai-modal-close {
+        background: hsl(var(--secondary));
+        border: 1px solid hsl(var(--border));
+        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+        cursor: pointer;
+        color: hsl(var(--foreground));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+      .ai-modal-close:hover {
+        background: hsl(var(--muted));
+        transform: scale(1.05);
+      }
+
+      .ai-form-group {
+        margin-bottom: 20px;
+      }
+
+      .ai-form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .ai-provider-toggle {
+        display: flex;
+        gap: 8px;
+      }
+
+      .ai-provider-btn {
+        flex: 1;
+        padding: 14px 20px;
+        border: 2px solid hsl(var(--border));
+        border-radius: 10px;
+        background: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .ai-provider-btn:hover {
+        border-color: hsl(var(--muted-foreground));
+      }
+      .ai-provider-btn.active {
+        border-color: hsl(280 60% 50%);
+        background: hsl(280 60% 50% / 0.1);
+        color: hsl(280 60% 60%);
+      }
+      .ai-provider-btn.active.anthropic {
+        border-color: hsl(25 90% 55%);
+        background: hsl(25 90% 55% / 0.1);
+        color: hsl(25 90% 60%);
+      }
+
+      .ai-prompt-select {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 14px;
+        background: hsl(var(--input));
+        border: 1px solid hsl(var(--border));
+        border-radius: 10px;
+        color: hsl(var(--foreground));
+        cursor: pointer;
+      }
+
+      .ai-custom-prompt {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 14px;
+        background: hsl(var(--input));
+        border: 1px solid hsl(var(--border));
+        border-radius: 10px;
+        color: hsl(var(--foreground));
+        min-height: 100px;
+        resize: vertical;
+        font-family: inherit;
+      }
+      .ai-custom-prompt::placeholder {
+        color: hsl(var(--muted-foreground));
+      }
+
+      .ai-submit-btn {
+        width: 100%;
+        padding: 16px 24px;
+        font-size: 1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, hsl(280 60% 50%), hsl(200 70% 50%));
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .ai-submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+      }
+      .ai-submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .ai-result {
+        margin-top: 24px;
+        padding: 24px;
+        background: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        border-radius: 12px;
+      }
+
+      .ai-result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid hsl(var(--border));
+      }
+
+      .ai-result-meta {
+        font-size: 0.8rem;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .ai-result-content {
+        font-size: 0.95rem;
+        line-height: 1.7;
+      }
+
+      .ai-result-content h1,
+      .ai-result-content h2,
+      .ai-result-content h3 {
+        font-family: "JetBrains Mono", monospace;
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+      }
+
+      .ai-result-content h1 { font-size: 1.3rem; }
+      .ai-result-content h2 { font-size: 1.1rem; color: hsl(var(--primary)); }
+      .ai-result-content h3 { font-size: 1rem; }
+
+      .ai-result-content ul,
+      .ai-result-content ol {
+        margin: 1em 0;
+        padding-left: 1.5em;
+      }
+
+      .ai-result-content li {
+        margin-bottom: 0.5em;
+      }
+
+      .ai-result-content strong {
+        color: hsl(var(--primary));
+      }
+
+      .ai-result-content code {
+        background: hsl(var(--muted));
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.9em;
+      }
+
+      .ai-loading {
+        text-align: center;
+        padding: 40px;
+      }
+
+      .ai-loading .spinner {
+        width: 48px;
+        height: 48px;
+        border: 3px solid hsl(var(--border));
+        border-top-color: hsl(280 60% 50%);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+      }
+
+      .ai-loading-text {
+        color: hsl(var(--muted-foreground));
+        font-size: 0.9rem;
+      }
+
+      .ai-error {
+        background: hsl(var(--destructive) / 0.1);
+        border: 1px solid hsl(var(--destructive));
+        color: hsl(var(--destructive));
+        padding: 16px;
+        border-radius: 10px;
+        margin-top: 16px;
+      }
     </style>
   </head>
   <body>
@@ -1478,6 +2088,9 @@
           <button class="btn-analyze" id="analyzeBtn" onclick="analyzeTrades()">
             Analyze Patterns
           </button>
+          <button class="btn-ai" id="aiBtn" onclick="showAIModal()">
+            🤖 AI Analysis
+          </button>
         </div>
         <div class="date-filter-row" style="margin-top: 16px">
           <span class="date-filter-label">Date Range</span>
@@ -1527,12 +2140,13 @@
         <!-- Comparison Mode -->
         <div class="comparison-section" id="comparisonSection">
           <div class="comparison-header">
-            <span>Compare Wallets</span>
+            <span>⚖️ Compare Wallets</span>
             <button class="btn-small" onclick="toggleComparison()">
               + Add Wallet
             </button>
           </div>
           <div id="comparisonWallets" class="comparison-wallets hidden">
+            <p class="comparison-hint">Enter 2-3 wallet addresses to compare their trading performance</p>
             <div class="comparison-inputs">
               <input
                 type="text"
@@ -1552,6 +2166,17 @@
                 placeholder="Wallet 3 (optional)"
                 class="compare-input"
               />
+            </div>
+            <div style="margin-bottom: 12px;">
+              <label style="font-size: 0.8rem; color: hsl(var(--muted-foreground)); margin-bottom: 6px; display: block;">
+                Or paste multiple addresses (comma or newline separated):
+              </label>
+              <textarea 
+                id="quickCompareInput" 
+                class="compare-input" 
+                placeholder="0x123..., 0x456..., 0x789..."
+                style="min-height: 60px; resize: vertical; width: 100%;"
+              ></textarea>
             </div>
             <button class="btn-analyze" onclick="runComparison()">
               Compare Wallets
@@ -1593,6 +2218,27 @@
       <div id="loading" class="loading hidden">
         <div class="spinner"></div>
         <p id="loadingText">Fetching trades...</p>
+      </div>
+
+      <!-- Progress Bar for Large Fetches -->
+      <div id="progressContainer" class="progress-container hidden">
+        <div class="progress-header">
+          <span class="progress-title">📊 Fetching Trades...</span>
+          <div class="progress-stats">
+            <span>Trades: <span class="value" id="progressTrades">0</span></span>
+            <span>Batches: <span class="value" id="progressBatches">0</span></span>
+            <span>Elapsed: <span class="value" id="progressElapsed">0s</span></span>
+          </div>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div class="progress-info">
+          <span class="progress-batch" id="progressText">Starting...</span>
+          <button class="progress-cancel" id="cancelFetchBtn" onclick="cancelFetch()">
+            Cancel
+          </button>
+        </div>
       </div>
 
       <div id="userInfo" class="user-info hidden">
@@ -1815,6 +2461,79 @@
       </div>
     </div>
 
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- AI Analysis Modal -->
+    <div id="aiModal" class="ai-modal hidden">
+      <div class="ai-modal-content">
+        <div class="ai-modal-header">
+          <div class="ai-modal-title">
+            <span class="ai-icon">🤖</span> AI Trade Analysis
+          </div>
+          <button class="ai-modal-close" onclick="hideAIModal()">×</button>
+        </div>
+
+        <div class="ai-form-group">
+          <label class="ai-form-label">AI Provider</label>
+          <div class="ai-provider-toggle">
+            <button 
+              class="ai-provider-btn active" 
+              id="providerOpenAI"
+              onclick="selectProvider('openai')"
+            >
+              <span>⚡</span> OpenAI GPT-4
+            </button>
+            <button 
+              class="ai-provider-btn anthropic" 
+              id="providerAnthropic"
+              onclick="selectProvider('anthropic')"
+            >
+              <span>🧠</span> Claude (Anthropic)
+            </button>
+          </div>
+        </div>
+
+        <div class="ai-form-group">
+          <label class="ai-form-label">Analysis Type</label>
+          <select class="ai-prompt-select" id="aiPromptType" onchange="toggleCustomPrompt()">
+            <option value="strategy">📊 Strategy Analysis - Trading style, patterns, market focus</option>
+            <option value="performance">📈 Performance Analysis - P&L breakdown, win rate, consistency</option>
+            <option value="risk">⚠️ Risk Assessment - Risk score, concentration, recommendations</option>
+            <option value="custom">✏️ Custom Question - Ask anything about this trader</option>
+          </select>
+        </div>
+
+        <div class="ai-form-group hidden" id="customPromptGroup">
+          <label class="ai-form-label">Your Question</label>
+          <textarea 
+            class="ai-custom-prompt" 
+            id="aiCustomPrompt"
+            placeholder="Ask anything about this trader's behavior, performance, or strategy..."
+          ></textarea>
+        </div>
+
+        <button class="ai-submit-btn" id="aiSubmitBtn" onclick="runAIAnalysis()">
+          ✨ Generate AI Analysis
+        </button>
+
+        <div id="aiLoading" class="ai-loading hidden">
+          <div class="spinner"></div>
+          <div class="ai-loading-text">Analyzing trades with AI... This may take 10-30 seconds.</div>
+        </div>
+
+        <div id="aiError" class="ai-error hidden"></div>
+
+        <div id="aiResult" class="ai-result hidden">
+          <div class="ai-result-header">
+            <strong>AI Analysis</strong>
+            <span class="ai-result-meta" id="aiResultMeta"></span>
+          </div>
+          <div class="ai-result-content" id="aiResultContent"></div>
+        </div>
+      </div>
+    </div>
+
     <script>
       let currentWallet = "";
       let currentLimit = 1000;
@@ -1872,6 +2591,258 @@
       }
 
       initTheme();
+
+      // ==============================================
+      // TOAST NOTIFICATIONS
+      // ==============================================
+      
+      function showToast(message, type = 'info', duration = 5000) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icons = {
+          success: '✓',
+          error: '✕',
+          info: 'ℹ'
+        };
+        
+        toast.innerHTML = `
+          <span class="toast-icon">${icons[type] || icons.info}</span>
+          <span class="toast-message">${message}</span>
+          <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Auto-remove after duration
+        setTimeout(() => {
+          if (toast.parentElement) {
+            toast.style.animation = 'slideIn 0.3s ease-out reverse';
+            setTimeout(() => toast.remove(), 300);
+          }
+        }, duration);
+      }
+
+      // ==============================================
+      // AI ANALYSIS FUNCTIONS
+      // ==============================================
+      
+      let selectedAIProvider = 'openai';
+
+      function showAIModal() {
+        if (!currentWallet) {
+          showToast('Please fetch trades first before running AI analysis', 'error');
+          return;
+        }
+        document.getElementById('aiModal').classList.remove('hidden');
+        document.getElementById('aiResult').classList.add('hidden');
+        document.getElementById('aiError').classList.add('hidden');
+        document.getElementById('aiLoading').classList.add('hidden');
+      }
+
+      function hideAIModal() {
+        document.getElementById('aiModal').classList.add('hidden');
+      }
+
+      function selectProvider(provider) {
+        selectedAIProvider = provider;
+        
+        // Update button states
+        document.getElementById('providerOpenAI').classList.toggle('active', provider === 'openai');
+        document.getElementById('providerAnthropic').classList.toggle('active', provider === 'anthropic');
+        
+        // Update anthropic class for different color
+        if (provider === 'anthropic') {
+          document.getElementById('providerAnthropic').classList.add('anthropic');
+        }
+      }
+
+      function toggleCustomPrompt() {
+        const promptType = document.getElementById('aiPromptType').value;
+        const customGroup = document.getElementById('customPromptGroup');
+        if (promptType === 'custom') {
+          customGroup.classList.remove('hidden');
+        } else {
+          customGroup.classList.add('hidden');
+        }
+      }
+
+      async function runAIAnalysis() {
+        const promptType = document.getElementById('aiPromptType').value;
+        const customPrompt = document.getElementById('aiCustomPrompt').value;
+        
+        // Show loading
+        document.getElementById('aiSubmitBtn').disabled = true;
+        document.getElementById('aiLoading').classList.remove('hidden');
+        document.getElementById('aiResult').classList.add('hidden');
+        document.getElementById('aiError').classList.add('hidden');
+        
+        try {
+          const response = await fetch(`/api/ai-analyze/${currentWallet}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              provider: selectedAIProvider,
+              prompt_type: promptType,
+              custom_prompt: promptType === 'custom' ? customPrompt : null,
+              limit: currentLimit
+            })
+          });
+          
+          const data = await response.json();
+          
+          if (data.error) {
+            throw new Error(data.error);
+          }
+          
+          // Show result
+          document.getElementById('aiLoading').classList.add('hidden');
+          document.getElementById('aiResult').classList.remove('hidden');
+          
+          // Set metadata
+          const meta = document.getElementById('aiResultMeta');
+          meta.textContent = `${data.provider === 'openai' ? 'GPT-4' : 'Claude'} • ${data.trade_count} trades analyzed • ${data.usage?.total_tokens || 0} tokens`;
+          
+          // Render markdown content
+          const content = document.getElementById('aiResultContent');
+          content.innerHTML = renderMarkdown(data.analysis);
+          
+        } catch (error) {
+          document.getElementById('aiLoading').classList.add('hidden');
+          document.getElementById('aiError').classList.remove('hidden');
+          document.getElementById('aiError').textContent = `Error: ${error.message}`;
+        } finally {
+          document.getElementById('aiSubmitBtn').disabled = false;
+        }
+      }
+
+      // Simple markdown renderer
+      function renderMarkdown(text) {
+        if (!text) return '';
+        
+        return text
+          // Headers
+          .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+          .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+          .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+          // Bold
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          // Italic
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          // Code
+          .replace(/`(.*?)`/g, '<code>$1</code>')
+          // Line breaks
+          .replace(/\n\n/g, '</p><p>')
+          .replace(/\n/g, '<br>')
+          // Wrap in paragraph
+          .replace(/^(.*)$/, '<p>$1</p>')
+          // Lists (basic)
+          .replace(/<p>- (.*?)<br>/g, '<li>$1</li>')
+          .replace(/<p>(\d+)\. (.*?)<br>/g, '<li>$2</li>');
+      }
+
+      // Close modal on backdrop click
+      document.getElementById('aiModal')?.addEventListener('click', (e) => {
+        if (e.target.classList.contains('ai-modal')) {
+          hideAIModal();
+        }
+      });
+
+      // ==============================================
+      // SSE PROGRESS TRACKING FOR LARGE FETCHES
+      // ==============================================
+      
+      let currentEventSource = null;
+      let fetchAborted = false;
+
+      function showProgress() {
+        document.getElementById('progressContainer').classList.remove('hidden');
+        document.getElementById('loading').classList.add('hidden');
+      }
+
+      function hideProgress() {
+        document.getElementById('progressContainer').classList.add('hidden');
+      }
+
+      function updateProgress(data) {
+        const trades = data.total_trades || 0;
+        const batch = data.batch || 0;
+        const elapsed = data.elapsed_seconds || 0;
+        const remaining = data.estimated_remaining || 0;
+        
+        document.getElementById('progressTrades').textContent = trades.toLocaleString();
+        document.getElementById('progressBatches').textContent = batch;
+        document.getElementById('progressElapsed').textContent = `${Math.round(elapsed)}s`;
+        
+        // Estimate progress (assume ~100 batches for full fetch, adjust based on actual)
+        const estimatedTotal = Math.max(batch + Math.ceil(remaining / (elapsed / batch || 1)), batch);
+        const progress = Math.min(95, (batch / estimatedTotal) * 100);
+        document.getElementById('progressFill').style.width = `${progress}%`;
+        
+        const remainingText = remaining > 0 ? ` (~${Math.round(remaining)}s remaining)` : '';
+        document.getElementById('progressText').textContent = 
+          `Batch ${batch}: ${trades.toLocaleString()} trades loaded${remainingText}`;
+      }
+
+      function cancelFetch() {
+        fetchAborted = true;
+        if (currentEventSource) {
+          currentEventSource.close();
+          currentEventSource = null;
+        }
+        hideProgress();
+        showToast('Fetch cancelled', 'info');
+      }
+
+      async function fetchTradesWithProgress(wallet, limit) {
+        fetchAborted = false;
+        showProgress();
+        
+        return new Promise((resolve, reject) => {
+          const url = limit 
+            ? `/api/trades/${wallet}/stream?limit=${limit}`
+            : `/api/trades/${wallet}/stream`;
+          
+          currentEventSource = new EventSource(url);
+          
+          currentEventSource.onmessage = (event) => {
+            if (fetchAborted) {
+              currentEventSource.close();
+              reject(new Error('Fetch cancelled'));
+              return;
+            }
+            
+            const data = JSON.parse(event.data);
+            
+            if (data.type === 'progress') {
+              updateProgress(data);
+            } else if (data.type === 'complete') {
+              document.getElementById('progressFill').style.width = '100%';
+              document.getElementById('progressText').textContent = 
+                `Complete! ${data.trade_count.toLocaleString()} trades in ${data.elapsed_seconds}s`;
+              
+              currentEventSource.close();
+              currentEventSource = null;
+              
+              // Fetch the actual data now
+              setTimeout(() => {
+                hideProgress();
+                resolve(data);
+              }, 500);
+            }
+          };
+          
+          currentEventSource.onerror = (error) => {
+            currentEventSource.close();
+            currentEventSource = null;
+            hideProgress();
+            reject(new Error('Connection error'));
+          };
+        });
+      }
 
       document
         .getElementById("walletInput")
@@ -1963,10 +2934,20 @@
         currentLimit = limitSelect === "full" ? "full" : parseInt(limitSelect);
         const dateParams = getDateParams();
 
-        showLoading(
-          true,
-          `Fetching ${currentLimit === "full" ? "full history" : currentLimit.toLocaleString() + " trades"}...`,
-        );
+        // Show progress bar for large fetches (5K+)
+        const isLargeFetch = currentLimit === "full" || (typeof currentLimit === 'number' && currentLimit >= 5000);
+        
+        if (isLargeFetch) {
+          showProgress();
+          document.getElementById('progressText').textContent = 'Connecting to server...';
+          document.getElementById('progressFill').style.width = '5%';
+        } else {
+          showLoading(
+            true,
+            `Fetching ${currentLimit === "full" ? "full history" : currentLimit.toLocaleString() + " trades"}...`,
+          );
+        }
+        
         hideError();
         hideAnalytics();
 
@@ -1976,22 +2957,63 @@
               ? `/api/trades/${wallet}?mode=full${dateParams}`
               : `/api/trades/${wallet}?limit=${currentLimit}${dateParams}`;
 
-          const response = await fetch(url);
-          const data = await response.json();
+          if (isLargeFetch) {
+            // Animate progress bar during fetch
+            let progressInterval = setInterval(() => {
+              const fill = document.getElementById('progressFill');
+              const currentWidth = parseFloat(fill.style.width) || 5;
+              if (currentWidth < 85) {
+                fill.style.width = `${currentWidth + Math.random() * 5}%`;
+              }
+            }, 1000);
+            
+            const response = await fetch(url);
+            clearInterval(progressInterval);
+            
+            document.getElementById('progressFill').style.width = '95%';
+            document.getElementById('progressText').textContent = 'Processing data...';
+            
+            const data = await response.json();
+            
+            if (data.error) {
+              showError(data.error);
+              hideProgress();
+              showToast(data.error, 'error');
+              return;
+            }
 
-          if (data.error) {
-            showError(data.error);
+            document.getElementById('progressFill').style.width = '100%';
+            document.getElementById('progressText').textContent = 
+              `Complete! ${data.trades?.length?.toLocaleString() || 0} trades loaded`;
+            
+            // Brief delay to show completion
+            await new Promise(r => setTimeout(r, 500));
+            hideProgress();
+            
+            currentData = data;
+            displayResults(data);
+            showToast(`Successfully loaded ${data.trades?.length?.toLocaleString() || 0} trades`, 'success');
+          } else {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.error) {
+              showError(data.error);
+              showLoading(false);
+              return;
+            }
+
+            currentData = data;
+            displayResults(data);
+            showToast(`Successfully loaded ${data.trades?.length?.toLocaleString() || 0} trades`, 'success');
             showLoading(false);
-            return;
           }
-
-          currentData = data;
-          displayResults(data);
         } catch (err) {
           showError("Failed to fetch trades: " + err.message);
+          showToast('Failed to fetch trades', 'error');
+          hideProgress();
+          showLoading(false);
         }
-
-        showLoading(false);
       }
 
       async function analyzeTrades() {
@@ -2670,18 +3692,38 @@
       }
 
       async function runComparison() {
+        // Get wallets from individual inputs
         const wallet1 = document.getElementById("compareWallet1").value.trim();
         const wallet2 = document.getElementById("compareWallet2").value.trim();
         const wallet3 = document.getElementById("compareWallet3").value.trim();
+        
+        // Get wallets from quick compare textarea
+        const quickInput = document.getElementById("quickCompareInput").value.trim();
+        let quickWallets = [];
+        if (quickInput) {
+          // Split by comma, newline, or space and filter valid addresses
+          quickWallets = quickInput
+            .split(/[,\n\s]+/)
+            .map(w => w.trim())
+            .filter(w => w.startsWith('0x') && w.length >= 10);
+        }
 
-        const wallets = [wallet1, wallet2, wallet3].filter((w) => w);
+        // Combine all wallets and dedupe
+        const allWallets = [...new Set([wallet1, wallet2, wallet3, ...quickWallets].filter(w => w))];
 
-        if (wallets.length < 2) {
+        if (allWallets.length < 2) {
           showError("Please enter at least 2 wallet addresses to compare");
+          showToast("Need at least 2 wallets to compare", "error");
           return;
         }
 
-        showLoading(true, "Comparing wallets...");
+        if (allWallets.length > 5) {
+          showError("Maximum 5 wallets can be compared at once");
+          showToast("Maximum 5 wallets allowed", "error");
+          return;
+        }
+
+        showLoading(true, `Comparing ${allWallets.length} wallets...`);
         hideError();
 
         try {
@@ -2689,7 +3731,7 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              wallets: wallets,
+              wallets: allWallets,
               limit: 1000,
               tier: "growth",
             }),
@@ -2700,12 +3742,15 @@
           if (data.error) {
             showError(data.error);
             showLoading(false);
+            showToast(data.error, "error");
             return;
           }
 
           displayComparison(data);
+          showToast(`Successfully compared ${allWallets.length} wallets`, "success");
         } catch (err) {
           showError("Failed to compare: " + err.message);
+          showToast("Comparison failed", "error");
         }
 
         showLoading(false);
@@ -2721,26 +3766,43 @@
 
         const div = document.createElement("div");
         div.id = "comparisonResults";
-        div.className = "comparison-results";
+        div.className = "comparison-results fade-in";
 
-        let html = "<h2>Wallet Comparison</h2>";
+        let html = "<h2>⚖️ Wallet Comparison</h2>";
 
-        // Insights
-        if (comparison.insights) {
-          html += '<div class="insights-grid">';
-          comparison.insights.forEach((insight) => {
+        // Insights with icons
+        if (comparison.insights && comparison.insights.length > 0) {
+          html += '<div class="insights-grid" style="margin-bottom: 24px;">';
+          comparison.insights.forEach((insight, idx) => {
+            const icon = insight.icon || '📊';
+            const winnerBadge = insight.winner ? `<span class="winner-badge">🏆 ${insight.winner}</span>` : '';
             html += `
-                        <div class="insight-card medium">
-                            <div class="insight-title">${insight.title}</div>
-                            <div class="insight-description">${insight.description}</div>
-                        </div>
-                    `;
+              <div class="insight-card medium stagger-${idx + 1}" style="animation: fadeIn 0.4s ease-out forwards; animation-delay: ${idx * 0.05}s; opacity: 0;">
+                <div class="insight-title">${icon} ${insight.title}</div>
+                <div class="insight-description">${insight.description}</div>
+                ${winnerBadge}
+              </div>
+            `;
           });
           html += "</div>";
         }
 
+        // Common markets
+        if (comparison.common_markets && comparison.common_markets.length > 0) {
+          html += `
+            <div class="common-markets-section" style="margin-bottom: 24px; padding: 16px; background: hsl(var(--muted) / 0.3); border-radius: 12px;">
+              <h3 style="font-size: 0.9rem; margin-bottom: 8px;">🔗 Common Markets (${comparison.common_markets.length})</h3>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                ${comparison.common_markets.slice(0, 5).map(m => 
+                  `<span style="background: hsl(var(--primary) / 0.1); border: 1px solid hsl(var(--primary) / 0.2); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem;">${m.substring(0, 40)}...</span>`
+                ).join('')}
+              </div>
+            </div>
+          `;
+        }
+
         // Comparison table
-        html += '<table class="comparison-table"><thead><tr><th>Metric</th>';
+        html += '<div style="overflow-x: auto;"><table class="comparison-table"><thead><tr><th>Metric</th>';
         wallets.forEach((w) => {
           html += `<th>${w.username || w.wallet}</th>`;
         });
@@ -2751,49 +3813,78 @@
             key: "total_trades",
             label: "Total Trades",
             format: (v) => v.toLocaleString(),
+            higherBetter: true
           },
           {
             key: "total_volume",
             label: "Volume",
             format: (v) =>
               "$" + v.toLocaleString(undefined, { maximumFractionDigits: 0 }),
+            higherBetter: true
           },
           {
             key: "avg_trade_size",
             label: "Avg Trade",
-            format: (v) => "$" + v.toFixed(0),
+            format: (v) => "$" + (v || 0).toFixed(0),
+            higherBetter: true
           },
           {
             key: "win_rate",
             label: "Win Rate",
-            format: (v) => v.toFixed(1) + "%",
+            format: (v) => (v || 0).toFixed(1) + "%",
+            higherBetter: true
           },
           {
             key: "net_pnl",
             label: "Net P&L",
             format: (v) =>
-              "$" + v.toLocaleString(undefined, { maximumFractionDigits: 2 }),
+              "$" + (v || 0).toLocaleString(undefined, { maximumFractionDigits: 2 }),
+            higherBetter: true
+          },
+          {
+            key: "sharpe_like",
+            label: "Risk-Adj Return",
+            format: (v) => (v || 0).toFixed(2),
+            higherBetter: true
+          },
+          {
+            key: "max_drawdown",
+            label: "Max Drawdown",
+            format: (v) => (v || 0).toFixed(1) + "%",
+            higherBetter: false
+          },
+          {
+            key: "risk_score",
+            label: "Risk Score",
+            format: (v) => (v || 0).toFixed(0) + "/100",
+            higherBetter: false
           },
           {
             key: "trader_type",
-            label: "Style",
-            format: (v) => v.replace(/_/g, " "),
+            label: "Trading Style",
+            format: (v) => (v || "unknown").replace(/_/g, " "),
+            higherBetter: null
           },
         ];
 
         metrics.forEach((metric) => {
-          html += `<tr><td>${metric.label}</td>`;
-          const values = wallets.map((w) => w[metric.key] || 0);
-          const maxVal = Math.max(
-            ...values.filter((v) => typeof v === "number"),
-          );
+          html += `<tr><td><strong>${metric.label}</strong></td>`;
+          const values = wallets.map((w) => w[metric.key]);
+          const numericValues = values.filter((v) => typeof v === "number");
+          
+          let bestVal;
+          if (metric.higherBetter === true) {
+            bestVal = Math.max(...numericValues);
+          } else if (metric.higherBetter === false) {
+            bestVal = Math.min(...numericValues);
+          }
 
           wallets.forEach((w) => {
             const val = w[metric.key];
             const isWinner =
+              metric.higherBetter !== null &&
               typeof val === "number" &&
-              val === maxVal &&
-              metric.key !== "trader_type";
+              val === bestVal;
             html += `<td class="${isWinner ? "comparison-winner" : ""}">${metric.format(val)}</td>`;
           });
           html += "</tr>";
