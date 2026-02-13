@@ -2434,6 +2434,9 @@
         <button class="btn-secondary" onclick="downloadCSV()">
           Download CSV
         </button>
+        <button class="btn-secondary" onclick="downloadExcel()">
+          Download Excel
+        </button>
         <button class="btn-secondary" onclick="downloadTXT()">
           Download TXT
         </button>
@@ -3595,6 +3598,13 @@
         const mode = currentLimit === "full" ? "full" : "recent";
         const limit = currentLimit === "full" ? "" : `&limit=${currentLimit}`;
         window.location.href = `/api/download/${currentWallet}/csv?mode=${mode}${limit}`;
+      }
+
+      function downloadExcel() {
+        if (!currentWallet) return;
+        const mode = currentLimit === "full" ? "full" : "recent";
+        const limit = currentLimit === "full" ? "" : `&limit=${currentLimit}`;
+        window.location.href = `/api/download/${currentWallet}/xlsx?mode=${mode}${limit}`;
       }
 
       function downloadTXT() {

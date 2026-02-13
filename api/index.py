@@ -336,7 +336,83 @@ def download_trades(wallet, format):
             download_name=f"{username}{suffix}-trades.txt"
         )
 
-    return jsonify({"error": "Invalid format. Use 'json', 'csv', or 'txt'"}), 400
+    elif format == 'xlsx':
+        # Generate Excel file using openpyxl
+        try:
+            from openpyxl import Workbook
+            from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+            from openpyxl.utils import get_column_letter
+        except ImportError:
+            return jsonify({"error": "Excel export not available. Install openpyxl."}), 500
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Trades"
+
+        # Define styles
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="2E7D32", end_color="2E7D32", fill_type="solid")
+        header_alignment = Alignment(horizontal="center", vertical="center")
+        thin_border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+
+        # Headers
+        headers = ['#', 'Date/Time', 'Side', 'Market', 'Outcome', 'Price', 'Size', 'Value (USDC)', 'Transaction Hash']
+        for col, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+            cell.border = thin_border
+
+        # Data rows
+        for row_num, trade in enumerate(result.get('trades', []), 2):
+            ts = trade.get('timestamp', 0)
+            dt = datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') if ts else 'N/A'
+            
+            row_data = [
+                row_num - 1,
+                dt,
+                trade.get('side', 'N/A'),
+                trade.get('title', 'N/A'),
+                trade.get('outcome', 'N/A'),
+                trade.get('price', 0),
+                trade.get('size', 0),
+                trade.get('usdcSize', 0),
+                trade.get('transactionHash', 'N/A')
+            ]
+            
+            for col, value in enumerate(row_data, 1):
+                cell = ws.cell(row=row_num, column=col, value=value)
+                cell.border = thin_border
+                if col in [6, 7, 8]:  # Price, Size, Value columns
+                    cell.number_format = '#,##0.0000' if col == 6 else '#,##0.00'
+
+        # Adjust column widths
+        column_widths = [6, 20, 8, 50, 15, 12, 12, 15, 45]
+        for col, width in enumerate(column_widths, 1):
+            ws.column_dimensions[get_column_letter(col)].width = width
+
+        # Freeze header row
+        ws.freeze_panes = 'A2'
+
+        # Save to BytesIO
+        excel_output = io.BytesIO()
+        wb.save(excel_output)
+        excel_output.seek(0)
+
+        return send_file(
+            excel_output,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=f"{username}{suffix}-trades.xlsx"
+        )
+
+    return jsonify({"error": "Invalid format. Use 'json', 'csv', 'txt', or 'xlsx'"}), 400
 
 
 @app.route('/api/analyze/<wallet>')
