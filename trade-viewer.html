@@ -174,6 +174,80 @@
         align-items: center;
       }
 
+      .trade-count-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        border-radius: 8px;
+        padding: 4px 8px 4px 4px;
+      }
+
+      .trade-count-input {
+        width: 100px;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-family: "JetBrains Mono", monospace;
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: 6px;
+        color: hsl(var(--foreground));
+        text-align: center;
+        transition: all 0.2s ease;
+      }
+
+      .trade-count-input:focus {
+        outline: none;
+        border-color: hsl(var(--primary));
+        box-shadow: 0 0 0 3px hsla(var(--primary), 0.1);
+      }
+
+      .trade-count-input:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: hsl(var(--muted));
+      }
+
+      /* Hide number input spinners */
+      .trade-count-input::-webkit-outer-spin-button,
+      .trade-count-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      .trade-count-input[type=number] {
+        -moz-appearance: textfield;
+      }
+
+      .full-history-toggle {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        user-select: none;
+        padding: 6px 10px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+
+      .full-history-toggle:hover {
+        background: hsla(var(--primary), 0.1);
+      }
+
+      .full-history-toggle input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: hsl(var(--primary));
+      }
+
+      .toggle-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: hsl(var(--foreground));
+        white-space: nowrap;
+      }
+
       .date-filter-row {
         display: flex;
         gap: 12px;
@@ -2073,15 +2147,21 @@
             id="walletInput"
             placeholder="Enter wallet address (0x...)"
           />
-          <select id="tradeCount">
-            <option value="100">100 trades</option>
-            <option value="1000" selected>1,000 trades</option>
-            <option value="5000">5,000 trades</option>
-            <option value="10000">10,000 trades</option>
-            <option value="50000">50,000 trades</option>
-            <option value="100000">100,000 trades</option>
-            <option value="full">Full History</option>
-          </select>
+          <div class="trade-count-wrapper">
+            <input 
+              type="number" 
+              id="tradeCount" 
+              value="1000" 
+              min="10" 
+              step="10" 
+              placeholder="# trades"
+              class="trade-count-input"
+            />
+            <label class="full-history-toggle">
+              <input type="checkbox" id="fullHistoryToggle" onchange="toggleFullHistory()" />
+              <span class="toggle-label">Full History</span>
+            </label>
+          </div>
           <button class="btn-primary" id="fetchBtn" onclick="fetchTrades()">
             Fetch Trades
           </button>
@@ -2865,7 +2945,25 @@
 
       function setFullHistoryMode() {
         // Automatically switch to "Full History" when using date filters
-        document.getElementById("tradeCount").value = "full";
+        document.getElementById("fullHistoryToggle").checked = true;
+        document.getElementById("tradeCount").disabled = true;
+      }
+
+      function toggleFullHistory() {
+        const checkbox = document.getElementById("fullHistoryToggle");
+        const input = document.getElementById("tradeCount");
+        input.disabled = checkbox.checked;
+        if (!checkbox.checked && !input.value) {
+          input.value = 1000; // Default value when unchecking
+        }
+      }
+
+      function getTradeLimit() {
+        const fullHistory = document.getElementById("fullHistoryToggle").checked;
+        if (fullHistory) return "full";
+        const value = parseInt(document.getElementById("tradeCount").value) || 1000;
+        // Round to nearest 10
+        return Math.max(10, Math.round(value / 10) * 10);
       }
 
       function setTodayFilter() {
@@ -2932,9 +3030,8 @@
           return;
         }
 
-        const limitSelect = document.getElementById("tradeCount").value;
         currentWallet = wallet;
-        currentLimit = limitSelect === "full" ? "full" : parseInt(limitSelect);
+        currentLimit = getTradeLimit();
         const dateParams = getDateParams();
 
         // Show progress bar for large fetches (5K+)
@@ -3026,9 +3123,8 @@
           return;
         }
 
-        const limitSelect = document.getElementById("tradeCount").value;
         currentWallet = wallet;
-        currentLimit = limitSelect === "full" ? "full" : parseInt(limitSelect);
+        currentLimit = getTradeLimit();
         const dateParams = getDateParams();
 
         showLoading(
