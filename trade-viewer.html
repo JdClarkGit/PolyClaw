@@ -924,6 +924,33 @@
         flex: 1;
       }
 
+      .btn-terminal {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: hsl(142 50% 45%);
+        background: hsl(142 50% 45% / 0.1);
+        border: 1px solid hsl(142 50% 45% / 0.3);
+        border-radius: var(--radius);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        letter-spacing: 0.03em;
+      }
+      .btn-terminal:hover {
+        background: hsl(142 50% 45% / 0.2);
+        border-color: hsl(142 50% 45% / 0.5);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px hsl(142 50% 45% / 0.15);
+      }
+      .btn-terminal svg {
+        width: 14px;
+        height: 14px;
+      }
+
       .theme-toggle {
         background: hsl(var(--secondary));
         border: 1px solid hsl(var(--border));
@@ -2101,6 +2128,13 @@
           </p>
         </div>
         <div class="header-right">
+          <a href="/terminal" class="btn-terminal" title="Terminal Mode">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="4 17 10 11 4 5"></polyline>
+              <line x1="12" y1="19" x2="20" y2="19"></line>
+            </svg>
+            Terminal
+          </a>
           <button
             class="theme-toggle"
             onclick="toggleTheme()"

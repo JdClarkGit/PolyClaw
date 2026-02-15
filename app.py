@@ -332,6 +332,75 @@ def dashboard():
     return send_from_directory('.', 'trades-dashboard.html')
 
 
+@app.route('/terminal')
+def terminal_mode():
+    return send_from_directory('.', 'terminal-mode.html')
+
+
+@app.route('/api/terminal/<wallet>', methods=['GET', 'OPTIONS'])
+def terminal_data(wallet):
+    """Fetch recent trades + analysis for the terminal live view."""
+    # Handle CORS preflight
+    if request.method == 'OPTIONS':
+        resp = app.make_default_options_response()
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+        resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return resp
+
+    limit = request.args.get('limit', 50, type=int)
+    result = fetch_trades_with_limit(wallet, min(limit, 100))
+    trades = result.get('trades', [])
+
+    # Slim analysis — only extract what the terminal UI needs
+    slim_analysis = {}
+    if trades:
+        full = analyze_trades(trades)
+        pnl_summary = full.get('pnl', {}).get('summary', {})
+        slim_analysis = {
+            'pnl': {'summary': {
+                'win_rate': pnl_summary.get('win_rate', 0),
+                'profit_factor': pnl_summary.get('profit_factor', 0),
+            }},
+            'pair_trades': {'total_pair_trades': full.get('pair_trades', {}).get('total_pair_trades', 0)},
+            'frequency': {'sub_second_percentage': full.get('frequency', {}).get('sub_second_percentage', 0)},
+            'trader_type': full.get('trader_classification', {}).get('type', 'Standard'),
+        }
+
+    # Slim trade objects
+    slim_trades = []
+    for t in trades:
+        slim_trades.append({
+            'ts': t.get('timestamp'),
+            's': t.get('side'),
+            'p': t.get('price'),
+            'sz': t.get('size'),
+            'v': t.get('usdcSize'),
+            't': (t.get('title') or '')[:80],
+            'o': t.get('outcome'),
+            'tx': (t.get('transactionHash') or '')[:12],
+        })
+
+    payload = {
+        "w": wallet,
+        "u": result.get('username'),
+        "n": len(slim_trades),
+        "trades": slim_trades,
+        "a": slim_analysis
+    }
+
+    # JSONP support for proxy environments
+    callback = request.args.get('callback')
+    if callback:
+        js = f"{callback}({json.dumps(payload)})"
+        resp = Response(js, mimetype='application/javascript')
+    else:
+        resp = jsonify(payload)
+
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
+
 @app.route('/api/trades/<wallet>')
 def get_trades(wallet):
     """Fetch trades - use mode=full for all history."""
