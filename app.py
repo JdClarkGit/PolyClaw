@@ -23,6 +23,7 @@ from analytics import (
     PRICING_TIERS, get_tier_info, check_feature_access, calculate_overage
 )
 from ai_analysis import run_ai_analysis, get_available_providers
+from terminal_analytics import run_terminal_analysis
 
 app = Flask(__name__, static_folder='.')
 
@@ -339,7 +340,7 @@ def terminal_mode():
 
 @app.route('/api/terminal/<wallet>', methods=['GET', 'OPTIONS'])
 def terminal_data(wallet):
-    """Fetch recent trades + analysis for the terminal live view."""
+    """Fetch trades + full terminal analysis for the wallet analyzer."""
     # Handle CORS preflight
     if request.method == 'OPTIONS':
         resp = app.make_default_options_response()
@@ -348,28 +349,20 @@ def terminal_data(wallet):
         resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
         return resp
 
-    limit = request.args.get('limit', 50, type=int)
-    result = fetch_trades_with_limit(wallet, min(limit, 100))
+    limit = request.args.get('limit', 200, type=int)
+    result = fetch_trades_with_limit(wallet, min(limit, 500))
     trades = result.get('trades', [])
 
-    # Slim analysis — only extract what the terminal UI needs
-    slim_analysis = {}
+    # Run full analysis pipeline
+    base_analysis = {}
+    terminal = {}
     if trades:
-        full = analyze_trades(trades)
-        pnl_summary = full.get('pnl', {}).get('summary', {})
-        slim_analysis = {
-            'pnl': {'summary': {
-                'win_rate': pnl_summary.get('win_rate', 0),
-                'profit_factor': pnl_summary.get('profit_factor', 0),
-            }},
-            'pair_trades': {'total_pair_trades': full.get('pair_trades', {}).get('total_pair_trades', 0)},
-            'frequency': {'sub_second_percentage': full.get('frequency', {}).get('sub_second_percentage', 0)},
-            'trader_type': full.get('trader_classification', {}).get('type', 'Standard'),
-        }
+        base_analysis = analyze_trades(trades)
+        terminal = run_terminal_analysis(trades, base_analysis)
 
-    # Slim trade objects
+    # Slim trade objects for the feed
     slim_trades = []
-    for t in trades:
+    for t in trades[:100]:  # Cap feed at 100
         slim_trades.append({
             'ts': t.get('timestamp'),
             's': t.get('side'),
@@ -381,12 +374,34 @@ def terminal_data(wallet):
             'tx': (t.get('transactionHash') or '')[:12],
         })
 
+    # Extract key data from base analysis
+    pnl = base_analysis.get('pnl', {}).get('summary', {})
+    summary = base_analysis.get('summary', {})
+    freq = base_analysis.get('frequency', {})
+
     payload = {
         "w": wallet,
         "u": result.get('username'),
-        "n": len(slim_trades),
+        "n": len(trades),
         "trades": slim_trades,
-        "a": slim_analysis
+        # Base metrics
+        "pnl": pnl,
+        "summary": summary,
+        "freq": {
+            "sub_second_pct": freq.get('gaps', {}).get('sub_second_percentage', 0),
+            "is_bot": freq.get('is_bot_like', False),
+            "bursts": freq.get('bursts', {}).get('total_bursts', 0),
+        },
+        # Terminal-specific metrics
+        "kelly": terminal.get('kelly', {}),
+        "risk": terminal.get('risk_adjusted', {}),
+        "hc": terminal.get('high_confidence', {}),
+        "flow": terminal.get('order_flow', {}),
+        "phases": terminal.get('phases', {}),
+        "exec": terminal.get('execution', {}),
+        "tpnl": terminal.get('time_pnl', {}),
+        "pos": terminal.get('positions', []),
+        "fp": terminal.get('fingerprint', {}),
     }
 
     # JSONP support for proxy environments

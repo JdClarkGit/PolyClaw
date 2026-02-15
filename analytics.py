@@ -267,7 +267,7 @@ def analyze_win_loss(trades: List[Dict], resolved_markets: Dict = None) -> Dict:
             "total_profit": round(total_profit, 2),
             "total_loss": round(total_loss, 2),
             "net_pnl": round(total_profit - total_loss, 2),
-            "profit_factor": round(total_profit / total_loss, 2) if total_loss > 0 else float('inf'),
+            "profit_factor": round(total_profit / total_loss, 2) if total_loss > 0 else 0,
         },
         "positions": position_results[:50],  # Top 50 by PnL
         "best_trade": position_results[0] if position_results else None,
