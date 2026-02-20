@@ -584,7 +584,7 @@ def download_trades(wallet, format):
 
         # Define styles
         header_font = Font(bold=True, color="FFFFFF")
-        header_fill = PatternFill(start_color="2E7D32", end_color="2E7D32", fill_type="solid")
+        header_fill = PatternFill(start_color="C62828", end_color="C62828", fill_type="solid")
         header_alignment = Alignment(horizontal="center", vertical="center")
         thin_border = Border(
             left=Side(style='thin'),
