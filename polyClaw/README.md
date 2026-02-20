@@ -1,16 +1,39 @@
-# PolyClaw - Polymarket Intelligence Agent
+# PolyClaw - Polymarket Intelligence & Bot Factory
 
-PolyClaw is the AI-powered brain of PolyEdge, built on the [OpenClaw](https://github.com/openclaw/openclaw) autonomous agent framework.
+PolyClaw is an AI-powered trading intelligence system and **bot factory** built on [OpenClaw](https://github.com/openclaw/openclaw). It aggregates data from multiple sources, analyzes successful traders, and helps you build automated trading bots.
 
-## What is PolyClaw?
+## Core Mission: Collect → Analyze → Build → Deploy
 
-PolyClaw serves as your personal Polymarket intelligence agent that can:
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   📊 COLLECT    │ -> │   🔍 ANALYZE    │ -> │   🔧 BUILD      │ -> │   🚀 DEPLOY     │
+│                 │    │                 │    │                 │    │                 │
+│ • Polymarket    │    │ • Pattern       │    │ • Bot configs   │    │ • Paper trade   │
+│ • Twitter/X     │    │   detection     │    │ • Python scripts│    │ • Live trading  │
+│ • Wallet data   │    │ • Strategy      │    │ • Ravn export   │    │ • Monitoring    │
+│ • On-chain      │    │   extraction    │    │ • Webhooks      │    │ • Optimization  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
-- **Analyze Trading Patterns** - Understand wallet behavior, identify trader types, and detect bot activity
-- **Craft Strategies** - Develop and backtest trading strategies using historical data
-- **Find Opportunities** - Detect arbitrage opportunities and mispriced markets
-- **Risk Management** - Calculate optimal position sizes using Kelly criterion
-- **Market Research** - Monitor market sentiment and track smart money flows
+## What Can PolyClaw Do?
+
+### 🔄 Data Aggregation
+- **Polymarket**: Real-time prices, volume, liquidity, order flow
+- **Twitter/X**: Sentiment analysis, influencer tracking, breaking news
+- **Wallet Analytics**: Deposits, withdrawals, P&L, trading patterns
+- **On-chain**: Smart money flows, whale movements, token transfers
+
+### 🧠 Strategy Mining
+- Reverse-engineer strategies from profitable wallets
+- Identify winning patterns (timing, sizing, market selection)
+- Track and copy whale movements
+- Detect arbitrage opportunities
+
+### 🤖 Bot Building
+- Generate trading bot configurations (JSON/YAML)
+- Create executable Python trading scripts
+- Export to platforms like Ravn (no-code bot builder)
+- Backtest strategies on historical data
 
 ## Setup
 
@@ -40,35 +63,95 @@ openclaw start --channel telegram
 
 ## Skills
 
-PolyClaw comes with custom skills for Polymarket:
-
+### Data Aggregation (`data-aggregator.js`)
 | Skill | Description |
 |-------|-------------|
-| `fetch_trades` | Fetch trading history for any wallet |
-| `analyze_wallet` | Get pattern analysis and performance metrics |
-| `compare_wallets` | Compare multiple wallets side-by-side |
-| `ai_deep_analysis` | Run AI-powered strategy/risk analysis |
-| `calculate_kelly` | Calculate optimal position size |
-| `find_arbitrage` | Detect arbitrage opportunities |
+| `analyze_twitter_sentiment` | Sentiment analysis for any topic/market |
+| `track_wallet_flows` | Deposit/withdrawal history analysis |
+| `find_top_traders` | Find profitable wallets by category |
+| `aggregate_market_data` | Real-time multi-market data |
+| `track_smart_money` | Whale movement tracking |
+
+### Bot Factory (`bot-factory.js`)
+| Skill | Description |
+|-------|-------------|
+| `generate_bot_config` | Create JSON bot configurations |
+| `generate_trading_script` | Generate Python trading bots |
+| `extract_wallet_strategy` | Reverse-engineer wallet strategies |
+| `backtest_strategy` | Test strategies on historical data |
+
+### PolyEdge API (`polyedge-api.js`)
+| Skill | Description |
+|-------|-------------|
+| `fetch_trades` | Fetch wallet trade history |
+| `analyze_wallet` | Pattern analysis and metrics |
+| `compare_wallets` | Multi-wallet comparison |
+| `ai_deep_analysis` | AI-powered strategy analysis |
+| `calculate_kelly` | Position sizing calculator |
+| `find_arbitrage` | Arbitrage opportunity detection |
 
 ## Example Prompts
 
-Ask PolyClaw things like:
+**Strategy Mining:**
+```
+"Find the top 10 profitable wallets in crypto markets"
+"Analyze @polymarket_whale's trading strategy"
+"What patterns do winning election traders use?"
+```
 
-- "Analyze the top 5 traders on the Presidential election market"
-- "What's the optimal position size for a $1000 bankroll on a 65% confidence trade?"
-- "Compare my wallet to this whale: 0x..."
-- "Find any arbitrage opportunities in crypto markets"
-- "Backtest a momentum strategy on political markets"
+**Bot Building:**
+```
+"Create a momentum bot that buys when price < 0.4"
+"Generate a copy-trade bot for wallet 0x..."
+"Build an arbitrage bot for correlated markets"
+```
+
+**Data Analysis:**
+```
+"What's the Twitter sentiment on Trump markets?"
+"Show deposits/withdrawals for this whale wallet"
+"Track smart money flows into sports markets"
+```
+
+**Risk Management:**
+```
+"Position size for $5000 bankroll, 65% confidence?"
+"Backtest this strategy over the last 90 days"
+"Calculate max drawdown for my current positions"
+```
 
 ## Architecture
 
 ```
 polyClaw/
-├── SOUL.md              # Agent personality & configuration
+├── SOUL.md                      # Agent brain - personality & capabilities
 ├── skills/
-│   └── polyedge-api.js  # Custom PolyEdge API integrations
-└── README.md            # This file
+│   ├── polyedge-api.js          # PolyEdge API integrations
+│   ├── data-aggregator.js       # Twitter, on-chain, market data
+│   └── bot-factory.js           # Bot generation & backtesting
+├── bots/                        # Generated bot configs (gitignored)
+└── README.md                    # This file
+```
+
+## Bot Output Examples
+
+### JSON Config (for Ravn or custom runners)
+```json
+{
+  "name": "Election Momentum Bot",
+  "strategy": "momentum",
+  "entry": { "priceBelow": 0.4, "volumeMin": 50000 },
+  "exit": { "takeProfit": 0.75, "stopLoss": 0.25 },
+  "risk": { "maxPosition": 500, "maxDaily": 5 }
+}
+```
+
+### Python Script (executable)
+```python
+# Auto-generated by PolyClaw
+class MomentumBot:
+    def check_entry(self, data):
+        return data['price'] < 0.4 and data['volume'] > 50000
 ```
 
 ## Security
