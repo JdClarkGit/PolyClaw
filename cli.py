@@ -3,24 +3,41 @@
 PolyClaw CLI - Command line interface for Polymarket trading intelligence
 
 Usage:
-    polyclaw onboard              Interactive setup wizard
-    polyclaw tui                  Launch interactive TUI
-    polyclaw analyze <wallet>     Analyze a wallet
-    polyclaw track <wallet>       Start tracking a wallet
-    polyclaw untrack <wallet>     Stop tracking a wallet
-    polyclaw list                 List tracked wallets
-    polyclaw leaderboard          Show top performers
-    polyclaw compare <w1> <w2>    Compare two wallets
-    polyclaw chat <message>       Chat with AI assistant
-    polyclaw export <wallet>      Export trades to CSV
-    polyclaw daemon start         Start background monitoring
-    polyclaw daemon stop          Stop background monitoring
-    polyclaw daemon status        Check daemon status
-    polyclaw config get <key>     Get config value
-    polyclaw config set <k> <v>   Set config value
-    polyclaw doctor               Run diagnostics
-    polyclaw doctor --fix         Fix detected issues
-    polyclaw version              Show version
+    polyclaw onboard                  Interactive setup wizard
+    polyclaw tui                      Launch interactive TUI
+    polyclaw status                   Show comprehensive system status
+    polyclaw dashboard                Open web dashboard
+
+    polyclaw analyze <wallet>         Analyze a wallet
+    polyclaw track <wallet>           Start tracking a wallet
+    polyclaw untrack <wallet>         Stop tracking a wallet
+    polyclaw list                     List tracked wallets
+    polyclaw leaderboard              Show top performers
+    polyclaw compare <w1> <w2>        Compare two wallets
+    polyclaw chat <message>           Chat with AI assistant
+    polyclaw export <wallet>          Export trades to CSV
+
+    polyclaw daemon start             Start background monitoring
+    polyclaw daemon stop              Stop background monitoring
+    polyclaw daemon status            Check daemon status
+    polyclaw logs [-f] [-n 50]        View daemon logs
+
+    polyclaw skills list              List all skills/plugins
+    polyclaw skills enable <name>     Enable a skill
+    polyclaw skills disable <name>    Disable a skill
+
+    polyclaw sessions list            List chat sessions
+    polyclaw sessions new [name]      Create new session
+
+    polyclaw security audit           Run security audit
+    polyclaw security audit --deep    Deep security scan
+
+    polyclaw config get <key>         Get config value
+    polyclaw config set <k> <v>       Set config value
+    polyclaw doctor                   Run diagnostics
+    polyclaw doctor --fix             Fix detected issues
+    polyclaw history                  Show command history
+    polyclaw version                  Show version
 """
 
 import argparse
@@ -1175,6 +1192,451 @@ def cmd_version(args):
     logo()
 
 
+# ============================================================
+# NEW OPENCLAW-LIKE COMMANDS
+# ============================================================
+
+SESSIONS_DIR = CONFIG_DIR / "sessions"
+HISTORY_FILE = CONFIG_DIR / "history.json"
+
+
+def cmd_skills_list(args):
+    """List all skills"""
+    print(f"\n{BOLD}PolyClaw Skills{RESET}")
+    print(f"{BOLD}{'─' * 60}{RESET}")
+    
+    try:
+        from skills import list_skills
+        skills = list_skills()
+        
+        enabled = [s for s in skills if s.get("enabled")]
+        disabled = [s for s in skills if not s.get("enabled")]
+        
+        print(f"\n  {GREEN}Enabled ({len(enabled)}){RESET}")
+        for s in enabled:
+            builtin = f" {DIM}(builtin){RESET}" if s.get("builtin") else ""
+            print(f"    {GREEN}✓{RESET} {s['name']}{builtin}")
+            print(f"      {DIM}{s.get('description', '')}{RESET}")
+        
+        if disabled:
+            print(f"\n  {DIM}Disabled ({len(disabled)}){RESET}")
+            for s in disabled:
+                print(f"    {DIM}○ {s['name']}{RESET}")
+        
+    except ImportError:
+        print(f"  {DIM}Skills system not initialized{RESET}")
+    
+    print()
+
+
+def cmd_skills_enable(args):
+    """Enable a skill"""
+    from skills import enable_skill, list_skills
+    
+    name = args.name
+    if enable_skill(name):
+        print(f"{GREEN}✓ Enabled skill: {name}{RESET}")
+    else:
+        print(f"{YELLOW}Skill '{name}' is already enabled{RESET}")
+
+
+def cmd_skills_disable(args):
+    """Disable a skill"""
+    from skills import disable_skill
+    
+    name = args.name
+    if disable_skill(name):
+        print(f"{GREEN}✓ Disabled skill: {name}{RESET}")
+    else:
+        print(f"{YELLOW}Skill '{name}' is already disabled{RESET}")
+
+
+def cmd_security_audit(args):
+    """Run security audit"""
+    logo()
+    
+    deep = args.deep if hasattr(args, 'deep') else False
+    fix = args.fix if hasattr(args, 'fix') else False
+    
+    print(f"{BOLD}🔒 Security Audit{RESET}")
+    if deep:
+        print(f"{DIM}Running deep scan...{RESET}")
+    print()
+    
+    issues = []
+    warnings = []
+    
+    config = load_config()
+    
+    # Check for exposed API keys
+    print(f"{BOLD}Checking credentials...{RESET}")
+    
+    if config.get("openai_api_key"):
+        print(f"  {GREEN}✓{RESET} OpenAI API key configured")
+        if not config["openai_api_key"].startswith("sk-"):
+            warnings.append("OpenAI key doesn't start with 'sk-'")
+    
+    if config.get("anthropic_api_key"):
+        print(f"  {GREEN}✓{RESET} Anthropic API key configured")
+        if not config["anthropic_api_key"].startswith("sk-ant-"):
+            warnings.append("Anthropic key doesn't start with 'sk-ant-'")
+    
+    if config.get("discord_webhook"):
+        print(f"  {GREEN}✓{RESET} Discord webhook configured")
+        if "discord.com/api/webhooks" not in config["discord_webhook"]:
+            warnings.append("Discord webhook URL looks invalid")
+    
+    if config.get("telegram_bot_token"):
+        print(f"  {GREEN}✓{RESET} Telegram bot token configured")
+    
+    print()
+    
+    # Check .env file
+    print(f"{BOLD}Checking file security...{RESET}")
+    
+    env_file = Path(__file__).parent / ".env"
+    if env_file.exists():
+        print(f"  {GREEN}✓{RESET} .env file exists")
+        
+        # Check if .env is in .gitignore
+        gitignore = Path(__file__).parent / ".gitignore"
+        if gitignore.exists():
+            with open(gitignore) as f:
+                if ".env" in f.read():
+                    print(f"  {GREEN}✓{RESET} .env is in .gitignore")
+                else:
+                    issues.append(".env is NOT in .gitignore - secrets may be exposed!")
+    
+    # Check config file permissions
+    if CONFIG_FILE.exists():
+        mode = oct(CONFIG_FILE.stat().st_mode)[-3:]
+        if mode in ["600", "700"]:
+            print(f"  {GREEN}✓{RESET} Config file has secure permissions ({mode})")
+        else:
+            warnings.append(f"Config file has permissive permissions ({mode})")
+    
+    print()
+    
+    # Deep scan
+    if deep:
+        print(f"{BOLD}Deep scan...{RESET}")
+        
+        # Check for hardcoded secrets in source files
+        source_dir = Path(__file__).parent
+        secret_patterns = ["sk-", "sk-ant-", "discord.com/api/webhooks"]
+        
+        for py_file in source_dir.glob("*.py"):
+            if py_file.name in ["cli.py"]:
+                continue
+            with open(py_file) as f:
+                content = f.read()
+                for pattern in secret_patterns:
+                    if pattern in content and "example" not in content.lower():
+                        warnings.append(f"Possible hardcoded secret in {py_file.name}")
+        
+        print(f"  {GREEN}✓{RESET} Source files scanned")
+        print()
+    
+    # Network security
+    print(f"{BOLD}Checking network security...{RESET}")
+    
+    gateway_url = config.get("gateway_url", "")
+    if "localhost" in gateway_url or "127.0.0.1" in gateway_url:
+        print(f"  {GREEN}✓{RESET} Gateway bound to localhost (safe)")
+    else:
+        issues.append(f"Gateway exposed to network: {gateway_url}")
+    
+    print()
+    
+    # Summary
+    print(f"{BOLD}{'─' * 60}{RESET}")
+    
+    if issues:
+        print(f"\n{RED}Issues ({len(issues)}):{RESET}")
+        for issue in issues:
+            print(f"  {RED}✗{RESET} {issue}")
+    
+    if warnings:
+        print(f"\n{YELLOW}Warnings ({len(warnings)}):{RESET}")
+        for warning in warnings:
+            print(f"  {YELLOW}⚠{RESET} {warning}")
+    
+    if not issues and not warnings:
+        print(f"\n{GREEN}✓ No security issues found{RESET}")
+    
+    if fix and (issues or warnings):
+        print(f"\n{BOLD}Applying fixes...{RESET}")
+        # Set secure permissions on config
+        if CONFIG_FILE.exists():
+            os.chmod(CONFIG_FILE, 0o600)
+            print(f"  {GREEN}✓{RESET} Set secure permissions on config file")
+    
+    print()
+
+
+def cmd_sessions_list(args):
+    """List chat sessions"""
+    SESSIONS_DIR.mkdir(exist_ok=True)
+    
+    sessions = list(SESSIONS_DIR.glob("*.json"))
+    
+    print(f"\n{BOLD}Chat Sessions{RESET}")
+    print(f"{BOLD}{'─' * 60}{RESET}")
+    
+    if not sessions:
+        print(f"  {DIM}No sessions found{RESET}")
+        print(f"  {DIM}Start a chat: polyclaw tui{RESET}")
+    else:
+        for session_file in sorted(sessions, key=lambda x: x.stat().st_mtime, reverse=True)[:10]:
+            with open(session_file) as f:
+                session = json.load(f)
+            
+            name = session.get("name", session_file.stem)
+            msgs = len(session.get("messages", []))
+            modified = datetime.fromtimestamp(session_file.stat().st_mtime)
+            age = (datetime.now() - modified).total_seconds() / 60
+            
+            if age < 60:
+                age_str = f"{int(age)}m ago"
+            elif age < 1440:
+                age_str = f"{int(age/60)}h ago"
+            else:
+                age_str = f"{int(age/1440)}d ago"
+            
+            print(f"  • {name} ({msgs} msgs, {age_str})")
+    
+    print()
+
+
+def cmd_sessions_new(args):
+    """Create new session"""
+    SESSIONS_DIR.mkdir(exist_ok=True)
+    
+    name = args.name if hasattr(args, 'name') and args.name else f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    
+    session = {
+        "name": name,
+        "created": datetime.now().isoformat(),
+        "messages": [],
+    }
+    
+    session_file = SESSIONS_DIR / f"{name}.json"
+    with open(session_file, 'w') as f:
+        json.dump(session, f, indent=2)
+    
+    # Set as active session
+    config = load_config()
+    config["active_session"] = name
+    save_config(config)
+    
+    print(f"{GREEN}✓ Created session: {name}{RESET}")
+
+
+def cmd_dashboard(args):
+    """Open web dashboard"""
+    config = load_config()
+    url = config.get("gateway_url", "http://localhost:8080")
+    
+    no_open = args.no_open if hasattr(args, 'no_open') else False
+    
+    print(f"\n{BOLD}PolyClaw Dashboard{RESET}")
+    print(f"{BOLD}{'─' * 50}{RESET}")
+    print(f"  URL: {CYAN}{url}{RESET}")
+    
+    # Check if gateway is running
+    try:
+        requests.get(url, timeout=2)
+        print(f"  Status: {GREEN}Running{RESET}")
+    except:
+        print(f"  Status: {RED}Not running{RESET}")
+        print(f"  {DIM}Start with: python app.py{RESET}")
+        return
+    
+    if not no_open:
+        import webbrowser
+        webbrowser.open(url)
+        print(f"\n{GREEN}✓ Opened in browser{RESET}")
+    
+    print()
+
+
+def cmd_history(args):
+    """Show command history"""
+    if not HISTORY_FILE.exists():
+        print(f"{DIM}No history yet{RESET}")
+        return
+    
+    with open(HISTORY_FILE) as f:
+        history = json.load(f)
+    
+    entries = history.get("entries", [])[-20:]  # Last 20
+    
+    print(f"\n{BOLD}Recent Commands{RESET}")
+    print(f"{BOLD}{'─' * 60}{RESET}")
+    
+    for entry in reversed(entries):
+        cmd = entry.get("command", "?")
+        ts = entry.get("timestamp", "")
+        if ts:
+            dt = datetime.fromisoformat(ts)
+            age = (datetime.now() - dt).total_seconds() / 60
+            if age < 60:
+                age_str = f"{int(age)}m"
+            else:
+                age_str = f"{int(age/60)}h"
+        else:
+            age_str = "?"
+        
+        print(f"  {DIM}{age_str:>4}{RESET}  {cmd}")
+    
+    print()
+
+
+def log_command(command):
+    """Log a command to history"""
+    if not HISTORY_FILE.exists():
+        history = {"entries": []}
+    else:
+        with open(HISTORY_FILE) as f:
+            history = json.load(f)
+    
+    history["entries"].append({
+        "command": command,
+        "timestamp": datetime.now().isoformat(),
+    })
+    
+    # Keep last 100
+    history["entries"] = history["entries"][-100:]
+    
+    with open(HISTORY_FILE, 'w') as f:
+        json.dump(history, f, indent=2)
+
+
+def cmd_logs(args):
+    """View daemon logs"""
+    if not LOG_FILE.exists():
+        print(f"{DIM}No logs yet{RESET}")
+        print(f"{DIM}Start daemon: polyclaw daemon start{RESET}")
+        return
+    
+    lines = args.lines if hasattr(args, 'lines') else 50
+    follow = args.follow if hasattr(args, 'follow') else False
+    
+    print(f"{BOLD}Daemon Logs{RESET} ({LOG_FILE})")
+    print(f"{BOLD}{'─' * 60}{RESET}")
+    
+    with open(LOG_FILE) as f:
+        all_lines = f.readlines()
+        for line in all_lines[-lines:]:
+            print(line.rstrip())
+    
+    if follow:
+        print(f"\n{DIM}Following... (Ctrl+C to stop){RESET}\n")
+        import time
+        try:
+            with open(LOG_FILE) as f:
+                f.seek(0, 2)  # End of file
+                while True:
+                    line = f.readline()
+                    if line:
+                        print(line.rstrip())
+                    else:
+                        time.sleep(0.5)
+        except KeyboardInterrupt:
+            pass
+
+
+def cmd_status(args):
+    """Comprehensive system status"""
+    logo()
+    
+    config = load_config()
+    tracking = load_tracking()
+    
+    # Gateway status
+    print(f"│")
+    gateway_ok = False
+    try:
+        result = api_request("/api/system/info")
+        gateway_ok = "error" not in result
+    except:
+        pass
+    
+    gateway_status = f"{GREEN}running{RESET}" if gateway_ok else f"{RED}stopped{RESET}"
+    
+    box("Gateway", [
+        f"URL: {config.get('gateway_url', '?')}",
+        f"Status: {gateway_status}",
+    ])
+    
+    # Daemon status
+    daemon_running = False
+    daemon_pid = None
+    if DAEMON_PID_FILE.exists():
+        with open(DAEMON_PID_FILE) as f:
+            daemon_pid = int(f.read().strip())
+        try:
+            os.kill(daemon_pid, 0)
+            daemon_running = True
+        except:
+            pass
+    
+    daemon_status = f"{GREEN}running (PID {daemon_pid}){RESET}" if daemon_running else f"{DIM}stopped{RESET}"
+    launchd = "installed" if LAUNCHD_PLIST.exists() else "not installed"
+    
+    box("Daemon", [
+        f"Status: {daemon_status}",
+        f"LaunchAgent: {launchd}",
+        f"Tracking: {len(tracking['wallets'])} wallet(s)",
+    ])
+    
+    # AI providers
+    ai_lines = []
+    if config.get("anthropic_api_key"):
+        ai_lines.append(f"Anthropic: {GREEN}configured{RESET}")
+    else:
+        ai_lines.append(f"Anthropic: {DIM}not configured{RESET}")
+    
+    if config.get("openai_api_key"):
+        ai_lines.append(f"OpenAI: {GREEN}configured{RESET}")
+    else:
+        ai_lines.append(f"OpenAI: {DIM}not configured{RESET}")
+    
+    ai_lines.append(f"Model: {config.get('default_model', 'not set')}")
+    
+    box("AI Providers", ai_lines)
+    
+    # Notifications
+    notif_lines = []
+    if config.get("discord_webhook"):
+        notif_lines.append(f"Discord: {GREEN}configured{RESET}")
+    else:
+        notif_lines.append(f"Discord: {DIM}not configured{RESET}")
+    
+    if config.get("telegram_bot_token"):
+        notif_lines.append(f"Telegram: {GREEN}configured{RESET}")
+    else:
+        notif_lines.append(f"Telegram: {DIM}not configured{RESET}")
+    
+    box("Notifications", notif_lines)
+    
+    # Skills
+    try:
+        from skills import list_skills
+        skills = list_skills()
+        enabled = len([s for s in skills if s.get("enabled")])
+        box("Skills", [
+            f"Enabled: {enabled}",
+            f"Total: {len(skills)}",
+        ])
+    except:
+        pass
+    
+    print(f"│")
+    print(f"└  {DIM}Run 'polyclaw doctor' for diagnostics{RESET}")
+    print()
+
+
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(
@@ -1280,6 +1742,60 @@ def main():
     p_version = subparsers.add_parser("version", help="Show version")
     p_version.set_defaults(func=cmd_version)
     
+    # skills
+    p_skills = subparsers.add_parser("skills", help="Manage skills/plugins")
+    skills_sub = p_skills.add_subparsers(dest="skills_cmd")
+    
+    p_skills_list = skills_sub.add_parser("list", help="List all skills")
+    p_skills_list.set_defaults(func=cmd_skills_list)
+    
+    p_skills_enable = skills_sub.add_parser("enable", help="Enable a skill")
+    p_skills_enable.add_argument("name", help="Skill name")
+    p_skills_enable.set_defaults(func=cmd_skills_enable)
+    
+    p_skills_disable = skills_sub.add_parser("disable", help="Disable a skill")
+    p_skills_disable.add_argument("name", help="Skill name")
+    p_skills_disable.set_defaults(func=cmd_skills_disable)
+    
+    # security
+    p_security = subparsers.add_parser("security", help="Security commands")
+    security_sub = p_security.add_subparsers(dest="security_cmd")
+    
+    p_security_audit = security_sub.add_parser("audit", help="Run security audit")
+    p_security_audit.add_argument("--deep", action="store_true", help="Deep scan")
+    p_security_audit.add_argument("--fix", action="store_true", help="Fix issues")
+    p_security_audit.set_defaults(func=cmd_security_audit)
+    
+    # sessions
+    p_sessions = subparsers.add_parser("sessions", help="Manage chat sessions")
+    sessions_sub = p_sessions.add_subparsers(dest="sessions_cmd")
+    
+    p_sessions_list = sessions_sub.add_parser("list", help="List sessions")
+    p_sessions_list.set_defaults(func=cmd_sessions_list)
+    
+    p_sessions_new = sessions_sub.add_parser("new", help="Create new session")
+    p_sessions_new.add_argument("name", nargs="?", help="Session name")
+    p_sessions_new.set_defaults(func=cmd_sessions_new)
+    
+    # dashboard
+    p_dashboard = subparsers.add_parser("dashboard", help="Open web dashboard")
+    p_dashboard.add_argument("--no-open", action="store_true", help="Don't open browser")
+    p_dashboard.set_defaults(func=cmd_dashboard)
+    
+    # history
+    p_history = subparsers.add_parser("history", help="Show command history")
+    p_history.set_defaults(func=cmd_history)
+    
+    # logs
+    p_logs = subparsers.add_parser("logs", help="View daemon logs")
+    p_logs.add_argument("-n", "--lines", type=int, default=50, help="Number of lines")
+    p_logs.add_argument("-f", "--follow", action="store_true", help="Follow log output")
+    p_logs.set_defaults(func=cmd_logs)
+    
+    # status (comprehensive)
+    p_status = subparsers.add_parser("status", help="Show system status")
+    p_status.set_defaults(func=cmd_status)
+    
     args = parser.parse_args()
     
     if args.command is None:
@@ -1294,6 +1810,21 @@ def main():
     if args.command == "config" and not hasattr(args, 'func'):
         print("Usage: polyclaw config {get|set} <key> [value]")
         return
+    
+    if args.command == "skills" and not hasattr(args, 'func'):
+        cmd_skills_list(args)
+        return
+    
+    if args.command == "security" and not hasattr(args, 'func'):
+        print("Usage: polyclaw security audit [--deep] [--fix]")
+        return
+    
+    if args.command == "sessions" and not hasattr(args, 'func'):
+        cmd_sessions_list(args)
+        return
+    
+    # Log command to history
+    log_command(" ".join(sys.argv[1:]))
     
     args.func(args)
 
