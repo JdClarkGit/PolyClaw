@@ -35,6 +35,15 @@ Usage:
     polyclaw security audit           Run security audit
     polyclaw security audit --deep    Deep security scan
 
+    polyclaw scan                     Scan markets for opportunities
+    polyclaw scan momentum            Find momentum plays
+    polyclaw scan value               Find mispriced markets
+    polyclaw scan closing             Markets closing soon
+
+    polyclaw strategy list            List available strategies
+    polyclaw strategy create <name>   Create new strategy
+    polyclaw strategy info <name>     Strategy details
+
     polyclaw config get <key>         Get config value
     polyclaw config set <k> <v>       Set config value
     polyclaw doctor                   Run diagnostics
@@ -1674,6 +1683,166 @@ def cmd_logs(args):
             pass
 
 
+# ============================================================
+# SCANNER COMMANDS
+# ============================================================
+
+def cmd_scan(args):
+    """Scan markets for opportunities"""
+    from scanner import get_scanner
+    
+    scan_type = args.scan_type if hasattr(args, 'scan_type') else "all"
+    scanner = get_scanner()
+    
+    print(f"\n{CYAN}🔍 Scanning markets...{RESET}\n")
+    
+    if scan_type == "momentum":
+        results = scanner.scan_momentum()
+        title = "Momentum Opportunities"
+    elif scan_type == "value":
+        results = scanner.scan_value()
+        title = "Value Opportunities"
+    elif scan_type == "closing":
+        results = scanner.scan_closing_soon()
+        title = "Closing Soon"
+    elif scan_type == "liquid":
+        results = scanner.scan_liquidity()
+        title = "Liquid Markets"
+    elif scan_type == "new":
+        results = scanner.scan_new_markets()
+        title = "New Markets"
+    else:
+        # All scans
+        all_results = scanner.scan_all()
+        
+        for scan_name, opportunities in all_results.items():
+            if scan_name == "scanned_at":
+                continue
+            
+            print(f"{BOLD}{scan_name.upper()}{RESET} ({len(opportunities)} found)")
+            for opp in opportunities[:3]:
+                question = opp.get("question", "?")[:50]
+                print(f"  • {question}...")
+            print()
+        
+        return
+    
+    print(f"{BOLD}{title}{RESET}")
+    print(f"{BOLD}{'─' * 60}{RESET}")
+    
+    if not results:
+        print(f"{DIM}No opportunities found{RESET}")
+        return
+    
+    for opp in results[:10]:
+        question = opp.get("question", "?")[:50]
+        signal = opp.get("signal", opp.get("type", ""))
+        
+        if opp.get("volume_24h"):
+            detail = f"Vol: ${opp['volume_24h']:,.0f}"
+        elif opp.get("liquidity"):
+            detail = f"Liq: ${opp['liquidity']:,.0f}"
+        elif opp.get("hours_remaining"):
+            detail = f"{opp['hours_remaining']:.1f}h left"
+        elif opp.get("price"):
+            detail = f"Price: {opp['price']:.2f}"
+        else:
+            detail = signal
+        
+        print(f"  {GREEN}•{RESET} {question}...")
+        print(f"    {DIM}{detail}{RESET}")
+    
+    print()
+
+
+# ============================================================
+# STRATEGY COMMANDS
+# ============================================================
+
+def cmd_strategy_list(args):
+    """List available strategies"""
+    from strategies import get_strategy_manager
+    
+    manager = get_strategy_manager()
+    
+    print(f"\n{BOLD}Built-in Strategies{RESET}")
+    print(f"{BOLD}{'─' * 50}{RESET}")
+    
+    for strat in manager.list_builtin():
+        print(f"  {GREEN}•{RESET} {strat['name']}")
+        print(f"    {DIM}{strat['description']}{RESET}")
+    
+    user_strats = manager.list_user()
+    if user_strats:
+        print(f"\n{BOLD}Your Strategies{RESET}")
+        print(f"{BOLD}{'─' * 50}{RESET}")
+        for strat in user_strats:
+            print(f"  {CYAN}•{RESET} {strat['name']} (based on {strat.get('base', '?')})")
+    
+    print()
+
+
+def cmd_strategy_info(args):
+    """Show strategy details"""
+    from strategies import get_strategy_manager, BUILT_IN_STRATEGIES
+    
+    name = args.name
+    
+    if name in BUILT_IN_STRATEGIES:
+        strategy = BUILT_IN_STRATEGIES[name]()
+        
+        print(f"\n{BOLD}{strategy.name}{RESET}")
+        print(f"{BOLD}{'─' * 50}{RESET}")
+        print(f"{DIM}{strategy.description}{RESET}")
+        print()
+        print(f"{BOLD}Category:{RESET} {strategy.category}")
+        print(f"\n{BOLD}Parameters:{RESET}")
+        for k, v in strategy.parameters.items():
+            print(f"  {k}: {v}")
+        
+        # Show docstring
+        if strategy.__class__.__doc__:
+            print(f"\n{BOLD}Details:{RESET}")
+            for line in strategy.__class__.__doc__.strip().split("\n"):
+                if line.strip():
+                    print(f"  {line.strip()}")
+    else:
+        manager = get_strategy_manager()
+        user_strats = {s["name"]: s for s in manager.list_user()}
+        
+        if name in user_strats:
+            strat = user_strats[name]
+            print(f"\n{BOLD}{name}{RESET}")
+            print(f"{BOLD}{'─' * 50}{RESET}")
+            print(f"Based on: {strat.get('base', '?')}")
+            print(f"Created: {strat.get('created', '?')}")
+            print(f"\n{BOLD}Parameters:{RESET}")
+            for k, v in strat.get("parameters", {}).items():
+                print(f"  {k}: {v}")
+        else:
+            print(f"{RED}Strategy not found: {name}{RESET}")
+    
+    print()
+
+
+def cmd_strategy_create(args):
+    """Create a new strategy"""
+    from strategies import get_strategy_manager
+    
+    name = args.name
+    base = args.base if hasattr(args, 'base') else "momentum"
+    
+    manager = get_strategy_manager()
+    result = manager.create_strategy(name, base)
+    
+    if result.get("success"):
+        print(f"{GREEN}✓ Created strategy: {name}{RESET}")
+        print(f"{DIM}  Based on: {base}{RESET}")
+        print(f"{DIM}  Edit parameters with: polyclaw strategy edit {name}{RESET}")
+    else:
+        print(f"{RED}✗ {result.get('error', 'Failed')}{RESET}")
+
+
 def cmd_status(args):
     """Comprehensive system status"""
     logo()
@@ -1865,6 +2034,29 @@ def main():
     p_gateway_token.add_argument("name", nargs="?", default="cli", help="Token name")
     p_gateway_token.set_defaults(func=cmd_gateway_token)
     
+    # scan
+    p_scan = subparsers.add_parser("scan", help="Scan markets for opportunities")
+    p_scan.add_argument("scan_type", nargs="?", default="all", 
+                        choices=["all", "momentum", "value", "closing", "liquid", "new"],
+                        help="Type of scan")
+    p_scan.set_defaults(func=cmd_scan)
+    
+    # strategy
+    p_strategy = subparsers.add_parser("strategy", help="Trading strategy management")
+    strategy_sub = p_strategy.add_subparsers(dest="strategy_cmd")
+    
+    p_strategy_list = strategy_sub.add_parser("list", help="List strategies")
+    p_strategy_list.set_defaults(func=cmd_strategy_list)
+    
+    p_strategy_info = strategy_sub.add_parser("info", help="Strategy details")
+    p_strategy_info.add_argument("name", help="Strategy name")
+    p_strategy_info.set_defaults(func=cmd_strategy_info)
+    
+    p_strategy_create = strategy_sub.add_parser("create", help="Create strategy")
+    p_strategy_create.add_argument("name", help="Strategy name")
+    p_strategy_create.add_argument("--base", default="momentum", help="Base strategy")
+    p_strategy_create.set_defaults(func=cmd_strategy_create)
+    
     # config
     p_config = subparsers.add_parser("config", help="Configuration management")
     config_sub = p_config.add_subparsers(dest="config_cmd")
@@ -1970,6 +2162,10 @@ def main():
     
     if args.command == "sessions" and not hasattr(args, 'func'):
         cmd_sessions_list(args)
+        return
+    
+    if args.command == "strategy" and not hasattr(args, 'func'):
+        cmd_strategy_list(args)
         return
     
     # Log command to history
