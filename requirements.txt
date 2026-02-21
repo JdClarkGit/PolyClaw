@@ -56,5 +56,9 @@ python-telegram-bot>=21.0
 # Discord bot
 discord.py>=2.3.0
 
-# CLI
+# CLI & TUI
 argparse
+rich>=13.7.0
+prompt_toolkit>=3.0.43
+questionary>=2.0.1
+textual>=0.47.0
