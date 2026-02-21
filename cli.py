@@ -44,6 +44,18 @@ Usage:
     polyclaw strategy create <name>   Create new strategy
     polyclaw strategy info <name>     Strategy details
 
+    polyclaw agent list               List AI agent profiles
+    polyclaw agent use <id>           Switch to agent profile
+    polyclaw agent create             Create custom agent
+
+    polyclaw workspace files          List workspace files
+    polyclaw workspace notes          List research notes
+    polyclaw workspace stats          Workspace statistics
+
+    polyclaw portfolio                View paper portfolio
+    polyclaw portfolio buy            Paper trade: buy
+    polyclaw portfolio sell           Paper trade: sell
+
     polyclaw config get <key>         Get config value
     polyclaw config set <k> <v>       Set config value
     polyclaw doctor                   Run diagnostics
@@ -1843,6 +1855,208 @@ def cmd_strategy_create(args):
         print(f"{RED}✗ {result.get('error', 'Failed')}{RESET}")
 
 
+# ============================================================
+# AGENT COMMANDS
+# ============================================================
+
+def cmd_agent_list(args):
+    """List AI agent profiles"""
+    from agents import get_agent_manager
+    
+    manager = get_agent_manager()
+    current = manager.get_current_agent()
+    
+    print(f"\n{BOLD}AI Agent Profiles{RESET}")
+    print(f"{BOLD}{'─' * 50}{RESET}")
+    
+    for agent in manager.list_agents():
+        marker = f"{GREEN}►{RESET}" if agent["id"] == current.id else " "
+        builtin = f"{DIM}(built-in){RESET}" if agent["builtin"] else ""
+        
+        print(f"  {marker} {agent['emoji']} {BOLD}{agent['name']}{RESET} {builtin}")
+        print(f"      {DIM}{agent['description']}{RESET}")
+    
+    print()
+    print(f"{DIM}Switch agents: polyclaw agent use <id>{RESET}")
+    print()
+
+
+def cmd_agent_use(args):
+    """Switch to a different agent"""
+    from agents import get_agent_manager
+    
+    agent_id = args.agent_id
+    manager = get_agent_manager()
+    
+    if manager.set_current_agent(agent_id):
+        agent = manager.get_current_agent()
+        print(f"{GREEN}✓ Switched to {agent.emoji} {agent.name}{RESET}")
+    else:
+        print(f"{RED}Agent not found: {agent_id}{RESET}")
+        print(f"{DIM}Use 'polyclaw agent list' to see available agents{RESET}")
+
+
+def cmd_agent_info(args):
+    """Show agent details"""
+    from agents import get_agent_manager
+    
+    agent_id = args.agent_id
+    manager = get_agent_manager()
+    agent = manager.get_agent(agent_id)
+    
+    if not agent:
+        print(f"{RED}Agent not found: {agent_id}{RESET}")
+        return
+    
+    print(f"\n{agent.emoji} {BOLD}{agent.name}{RESET}")
+    print(f"{BOLD}{'─' * 50}{RESET}")
+    print(f"{DIM}{agent.description}{RESET}")
+    print()
+    print(f"{BOLD}Model:{RESET} {agent.model}")
+    print(f"{BOLD}Temperature:{RESET} {agent.temperature}")
+    print(f"{BOLD}Tools:{RESET} {', '.join(agent.tools)}")
+    print()
+    print(f"{BOLD}Personality:{RESET}")
+    for line in agent.personality.split('\n')[:10]:
+        print(f"  {DIM}{line}{RESET}")
+    print()
+
+
+# ============================================================
+# WORKSPACE COMMANDS
+# ============================================================
+
+def cmd_workspace_files(args):
+    """List workspace files"""
+    from workspace import get_workspace
+    
+    ws = get_workspace()
+    files = ws.list_files()
+    
+    print(f"\n{BOLD}Workspace Files{RESET}")
+    print(f"{DIM}Location: {ws.root}{RESET}")
+    print(f"{BOLD}{'─' * 50}{RESET}")
+    
+    if not files:
+        print(f"  {DIM}No files yet{RESET}")
+    else:
+        for f in files[:20]:
+            print(f"  {f}")
+        if len(files) > 20:
+            print(f"  {DIM}... and {len(files) - 20} more{RESET}")
+    print()
+
+
+def cmd_workspace_notes(args):
+    """List research notes"""
+    from workspace import get_workspace
+    
+    ws = get_workspace()
+    notes = ws.list_files("notes")
+    
+    print(f"\n{BOLD}Research Notes{RESET}")
+    print(f"{BOLD}{'─' * 50}{RESET}")
+    
+    if not notes:
+        print(f"  {DIM}No notes yet{RESET}")
+        print(f"  {DIM}Create notes via AI chat or workspace.add_note(){RESET}")
+    else:
+        for note in notes:
+            content = ws.read_file(note)
+            preview = content[:60].replace('\n', ' ') + "..." if content else ""
+            print(f"  {GREEN}•{RESET} {note}")
+            print(f"    {DIM}{preview}{RESET}")
+    print()
+
+
+def cmd_workspace_stats(args):
+    """Show workspace statistics"""
+    from workspace import get_workspace
+    
+    ws = get_workspace()
+    stats = ws.get_stats()
+    
+    print(f"\n{BOLD}Workspace Statistics{RESET}")
+    print(f"{BOLD}{'─' * 50}{RESET}")
+    print(f"  Location: {stats['root']}")
+    print(f"  Analyses: {stats['analyses_count']}")
+    print(f"  Notes: {stats['notes_count']}")
+    print(f"  Exports: {stats['exports_count']}")
+    print(f"  Data files: {stats['data_count']}")
+    print(f"  Total size: {stats['total_size_bytes'] / 1024:.1f} KB")
+    print()
+
+
+# ============================================================
+# PORTFOLIO COMMANDS
+# ============================================================
+
+def cmd_portfolio(args):
+    """View paper portfolio"""
+    from workspace import get_workspace, Portfolio
+    
+    portfolio = Portfolio()
+    value = portfolio.get_value()
+    positions = portfolio.positions
+    
+    print(f"\n{BOLD}Paper Portfolio{RESET}")
+    print(f"{BOLD}{'─' * 50}{RESET}")
+    print(f"  Cash: ${value['cash']:,.2f}")
+    print(f"  Positions: ${value['positions_value']:,.2f}")
+    print(f"  {BOLD}Total: ${value['total_value']:,.2f}{RESET}")
+    
+    if value['unrealized_pnl'] != 0:
+        pnl_color = GREEN if value['unrealized_pnl'] > 0 else RED
+        print(f"  Unrealized P&L: {pnl_color}${value['unrealized_pnl']:,.2f}{RESET}")
+    
+    if positions:
+        print(f"\n{BOLD}Positions:{RESET}")
+        for key, pos in positions.items():
+            print(f"  • {pos['market_id'][:20]}... ({pos['outcome']})")
+            print(f"    {pos['shares']:.2f} shares @ ${pos['avg_cost']:.4f}")
+    print()
+
+
+def cmd_portfolio_buy(args):
+    """Paper trade: buy"""
+    from workspace import Portfolio
+    
+    portfolio = Portfolio()
+    
+    try:
+        trade = portfolio.buy(
+            market_id=args.market,
+            outcome=args.outcome,
+            amount=float(args.shares),
+            price=float(args.price),
+        )
+        print(f"{GREEN}✓ Bought {trade['shares']} shares at ${trade['price']:.4f}{RESET}")
+        print(f"  Cost: ${trade['cost']:.2f}")
+    except ValueError as e:
+        print(f"{RED}✗ {e}{RESET}")
+
+
+def cmd_portfolio_sell(args):
+    """Paper trade: sell"""
+    from workspace import Portfolio
+    
+    portfolio = Portfolio()
+    
+    try:
+        trade = portfolio.sell(
+            market_id=args.market,
+            outcome=args.outcome,
+            amount=float(args.shares),
+            price=float(args.price),
+        )
+        pnl_color = GREEN if trade['pnl'] > 0 else RED
+        print(f"{GREEN}✓ Sold {trade['shares']} shares at ${trade['price']:.4f}{RESET}")
+        print(f"  Proceeds: ${trade['proceeds']:.2f}")
+        print(f"  P&L: {pnl_color}${trade['pnl']:.2f}{RESET}")
+    except ValueError as e:
+        print(f"{RED}✗ {e}{RESET}")
+
+
 def cmd_status(args):
     """Comprehensive system status"""
     logo()
@@ -2094,6 +2308,55 @@ def main():
     p_skills_disable.add_argument("name", help="Skill name")
     p_skills_disable.set_defaults(func=cmd_skills_disable)
     
+    # agent
+    p_agent = subparsers.add_parser("agent", help="AI agent profiles")
+    agent_sub = p_agent.add_subparsers(dest="agent_cmd")
+    
+    p_agent_list = agent_sub.add_parser("list", help="List agents")
+    p_agent_list.set_defaults(func=cmd_agent_list)
+    
+    p_agent_use = agent_sub.add_parser("use", help="Switch to agent")
+    p_agent_use.add_argument("agent_id", help="Agent ID")
+    p_agent_use.set_defaults(func=cmd_agent_use)
+    
+    p_agent_info = agent_sub.add_parser("info", help="Agent details")
+    p_agent_info.add_argument("agent_id", help="Agent ID")
+    p_agent_info.set_defaults(func=cmd_agent_info)
+    
+    # workspace
+    p_workspace = subparsers.add_parser("workspace", help="Agent workspace")
+    ws_sub = p_workspace.add_subparsers(dest="workspace_cmd")
+    
+    p_ws_files = ws_sub.add_parser("files", help="List files")
+    p_ws_files.set_defaults(func=cmd_workspace_files)
+    
+    p_ws_notes = ws_sub.add_parser("notes", help="List notes")
+    p_ws_notes.set_defaults(func=cmd_workspace_notes)
+    
+    p_ws_stats = ws_sub.add_parser("stats", help="Workspace stats")
+    p_ws_stats.set_defaults(func=cmd_workspace_stats)
+    
+    # portfolio
+    p_portfolio = subparsers.add_parser("portfolio", help="Paper portfolio")
+    portfolio_sub = p_portfolio.add_subparsers(dest="portfolio_cmd")
+    
+    p_portfolio_view = portfolio_sub.add_parser("view", help="View portfolio")
+    p_portfolio_view.set_defaults(func=cmd_portfolio)
+    
+    p_portfolio_buy = portfolio_sub.add_parser("buy", help="Paper trade: buy")
+    p_portfolio_buy.add_argument("market", help="Market ID")
+    p_portfolio_buy.add_argument("outcome", help="Outcome (Yes/No)")
+    p_portfolio_buy.add_argument("shares", help="Number of shares")
+    p_portfolio_buy.add_argument("price", help="Price per share")
+    p_portfolio_buy.set_defaults(func=cmd_portfolio_buy)
+    
+    p_portfolio_sell = portfolio_sub.add_parser("sell", help="Paper trade: sell")
+    p_portfolio_sell.add_argument("market", help="Market ID")
+    p_portfolio_sell.add_argument("outcome", help="Outcome (Yes/No)")
+    p_portfolio_sell.add_argument("shares", help="Number of shares")
+    p_portfolio_sell.add_argument("price", help="Price per share")
+    p_portfolio_sell.set_defaults(func=cmd_portfolio_sell)
+    
     # security
     p_security = subparsers.add_parser("security", help="Security commands")
     security_sub = p_security.add_subparsers(dest="security_cmd")
@@ -2166,6 +2429,18 @@ def main():
     
     if args.command == "strategy" and not hasattr(args, 'func'):
         cmd_strategy_list(args)
+        return
+    
+    if args.command == "agent" and not hasattr(args, 'func'):
+        cmd_agent_list(args)
+        return
+    
+    if args.command == "workspace" and not hasattr(args, 'func'):
+        cmd_workspace_stats(args)
+        return
+    
+    if args.command == "portfolio" and not hasattr(args, 'func'):
+        cmd_portfolio(args)
         return
     
     # Log command to history
