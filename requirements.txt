@@ -62,3 +62,6 @@ rich>=13.7.0
 prompt_toolkit>=3.0.43
 questionary>=2.0.1
 textual>=0.47.0
+
+# WebSocket gateway
+websockets>=12.0

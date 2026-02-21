@@ -20,6 +20,9 @@ Usage:
     polyclaw daemon start             Start background monitoring
     polyclaw daemon stop              Stop background monitoring
     polyclaw daemon status            Check daemon status
+    polyclaw gateway start            Start WebSocket gateway
+    polyclaw gateway stop             Stop WebSocket gateway  
+    polyclaw gateway status           Gateway status & token
     polyclaw logs [-f] [-n 50]        View daemon logs
 
     polyclaw skills list              List all skills/plugins
@@ -1056,6 +1059,131 @@ def cmd_daemon_status(args):
     print()
 
 
+# ============================================================
+# GATEWAY COMMANDS
+# ============================================================
+
+GATEWAY_PID_FILE = CONFIG_DIR / "gateway.pid"
+GATEWAY_LOG_FILE = CONFIG_DIR / "gateway.log"
+
+
+def cmd_gateway_start(args):
+    """Start WebSocket gateway"""
+    if GATEWAY_PID_FILE.exists():
+        with open(GATEWAY_PID_FILE) as f:
+            pid = int(f.read().strip())
+        try:
+            os.kill(pid, 0)
+            print(f"{YELLOW}⚠ Gateway is already running (PID: {pid}){RESET}")
+            return
+        except OSError:
+            GATEWAY_PID_FILE.unlink()
+    
+    print(f"{CYAN}🚀 Starting PolyClaw Gateway...{RESET}")
+    
+    # Fork to background
+    pid = os.fork()
+    if pid > 0:
+        # Get token
+        token_file = CONFIG_DIR / "default_token"
+        token = token_file.read_text().strip() if token_file.exists() else "not set"
+        
+        print(f"{GREEN}✓ Gateway started (PID: {pid}){RESET}")
+        print(f"{DIM}  WebSocket: ws://127.0.0.1:18790{RESET}")
+        print(f"{DIM}  Token: {token[:16]}...{RESET}")
+        return
+    
+    os.setsid()
+    
+    with open(GATEWAY_PID_FILE, 'w') as f:
+        f.write(str(os.getpid()))
+    
+    # Redirect output
+    sys.stdout = open(GATEWAY_LOG_FILE, 'a')
+    sys.stderr = sys.stdout
+    
+    from gateway import run_gateway
+    run_gateway()
+
+
+def cmd_gateway_stop(args):
+    """Stop WebSocket gateway"""
+    if not GATEWAY_PID_FILE.exists():
+        print(f"{YELLOW}⚠ Gateway is not running{RESET}")
+        return
+    
+    with open(GATEWAY_PID_FILE) as f:
+        pid = int(f.read().strip())
+    
+    try:
+        os.kill(pid, signal.SIGTERM)
+        GATEWAY_PID_FILE.unlink()
+        print(f"{GREEN}✓ Gateway stopped{RESET}")
+    except OSError:
+        GATEWAY_PID_FILE.unlink()
+        print(f"{YELLOW}⚠ Gateway was not running (cleaned up stale PID file){RESET}")
+
+
+def cmd_gateway_status(args):
+    """Check gateway status and show token"""
+    config = load_config()
+    
+    print(f"\n{BOLD}Gateway Status{RESET}")
+    print(f"{BOLD}{'─' * 50}{RESET}")
+    
+    # Check HTTP gateway
+    try:
+        response = requests.get(f"{config['gateway_url']}/", timeout=2)
+        print(f"  {GREEN}✓{RESET} HTTP Gateway: {config['gateway_url']}")
+    except:
+        print(f"  {RED}✗{RESET} HTTP Gateway: not running")
+        print(f"    {DIM}Start with: python app.py{RESET}")
+    
+    # Check WebSocket gateway
+    ws_running = False
+    if GATEWAY_PID_FILE.exists():
+        with open(GATEWAY_PID_FILE) as f:
+            pid = int(f.read().strip())
+        try:
+            os.kill(pid, 0)
+            ws_running = True
+            print(f"  {GREEN}✓{RESET} WebSocket Gateway: ws://127.0.0.1:18790 (PID: {pid})")
+        except OSError:
+            GATEWAY_PID_FILE.unlink()
+            print(f"  {RED}✗{RESET} WebSocket Gateway: crashed")
+    else:
+        print(f"  {DIM}○{RESET} WebSocket Gateway: not running")
+        print(f"    {DIM}Start with: polyclaw gateway start{RESET}")
+    
+    # Show token
+    token_file = CONFIG_DIR / "default_token"
+    if token_file.exists():
+        token = token_file.read_text().strip()
+        print(f"\n  {BOLD}Token:{RESET} {token[:24]}...")
+        print(f"  {DIM}Use this token to connect TUI or external clients{RESET}")
+    else:
+        print(f"\n  {YELLOW}No token configured{RESET}")
+        print(f"  {DIM}Run: polyclaw gateway start{RESET}")
+    
+    print()
+
+
+def cmd_gateway_token(args):
+    """Generate new gateway token"""
+    from gateway import TokenManager
+    
+    manager = TokenManager()
+    token = manager.generate_token(args.name if hasattr(args, 'name') else "cli")
+    
+    # Save as default
+    token_file = CONFIG_DIR / "default_token"
+    token_file.write_text(token)
+    
+    print(f"{GREEN}✓ New token generated{RESET}")
+    print(f"\n  {BOLD}{token}{RESET}")
+    print(f"\n  {DIM}This token is now the default for TUI connections{RESET}")
+
+
 def cmd_config_get(args):
     """Get config value"""
     key = args.key
@@ -1720,6 +1848,23 @@ def main():
     p_daemon_status = daemon_sub.add_parser("status", help="Check daemon status")
     p_daemon_status.set_defaults(func=cmd_daemon_status)
     
+    # gateway
+    p_gateway = subparsers.add_parser("gateway", help="WebSocket gateway management")
+    gateway_sub = p_gateway.add_subparsers(dest="gateway_cmd")
+    
+    p_gateway_start = gateway_sub.add_parser("start", help="Start gateway")
+    p_gateway_start.set_defaults(func=cmd_gateway_start)
+    
+    p_gateway_stop = gateway_sub.add_parser("stop", help="Stop gateway")
+    p_gateway_stop.set_defaults(func=cmd_gateway_stop)
+    
+    p_gateway_status = gateway_sub.add_parser("status", help="Gateway status & token")
+    p_gateway_status.set_defaults(func=cmd_gateway_status)
+    
+    p_gateway_token = gateway_sub.add_parser("token", help="Generate new token")
+    p_gateway_token.add_argument("name", nargs="?", default="cli", help="Token name")
+    p_gateway_token.set_defaults(func=cmd_gateway_token)
+    
     # config
     p_config = subparsers.add_parser("config", help="Configuration management")
     config_sub = p_config.add_subparsers(dest="config_cmd")
@@ -1805,6 +1950,10 @@ def main():
     
     if args.command == "daemon" and not hasattr(args, 'func'):
         print("Usage: polyclaw daemon {start|stop|status}")
+        return
+    
+    if args.command == "gateway" and not hasattr(args, 'func'):
+        cmd_gateway_status(args)
         return
     
     if args.command == "config" and not hasattr(args, 'func'):
