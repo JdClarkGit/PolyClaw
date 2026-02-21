@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  polyclaw:
+    build: .
+    container_name: polyclaw
+    ports:
+      - "${PORT:-8080}:8080"
+    environment:
+      - PORT=8080
+      - DEBUG=${DEBUG:-false}
+      - SECRET_KEY=${SECRET_KEY:-change-me}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    volumes:
+      # Persist notification config and leaderboard data
+      - ./notifications_config.json:/app/notifications_config.json
+      - ./leaderboard_data.json:/app/leaderboard_data.json
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

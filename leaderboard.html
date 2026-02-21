@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PolyClaw - Leaderboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg2: #0f0f0f;
+      --bg3: #141414;
+      --card: #111111;
+      --border: #222;
+      --text: #f0f0f0;
+      --text-muted: #666;
+      --accent: #dc2626;
+      --accent-light: #ef4444;
+      --green: #22c55e;
+      --yellow: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Nav */
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 16px 24px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--text); }
+    .nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: all 0.2s;
+    }
+    .nav a:hover, .nav a.active {
+      color: var(--accent);
+      background: rgba(220, 38, 38, 0.1);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    /* Header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    .page-title {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    .page-title span { color: var(--accent); }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: "JetBrains Mono", monospace;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .filter-btn.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      border-color: transparent;
+      color: white;
+    }
+    .time-select {
+      padding: 10px 16px;
+      font-size: 13px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text);
+      cursor: pointer;
+      margin-left: auto;
+    }
+
+    /* Leaderboard Table */
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .leaderboard-table th {
+      text-align: left;
+      padding: 16px 20px;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+    }
+    .leaderboard-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .leaderboard-table tr:last-child td {
+      border-bottom: none;
+    }
+    .leaderboard-table tr:hover {
+      background: var(--bg3);
+    }
+
+    /* Rank Badge */
+    .rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .rank-1 { background: linear-gradient(135deg, #ffd700, #ffb800); color: #000; }
+    .rank-2 { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); color: #000; }
+    .rank-3 { background: linear-gradient(135deg, #cd7f32, #b8722e); color: #fff; }
+    .rank-default { background: var(--bg3); color: var(--text-muted); }
+
+    /* Wallet Cell */
+    .wallet-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .wallet-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .wallet-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .wallet-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+    .wallet-address {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    /* Stats */
+    .pnl-positive { color: var(--green); font-weight: 600; }
+    .pnl-negative { color: var(--accent); font-weight: 600; }
+    .win-rate { color: var(--yellow); font-weight: 600; }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+    .badge-hft { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+    .badge-swing { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .badge-scalper { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .badge-arb { background: rgba(220, 38, 38, 0.2); color: #ef4444; }
+    .badge-position { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+
+    /* Actions */
+    .action-btn {
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Submit Wallet Section */
+    .submit-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 32px;
+    }
+    .submit-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .submit-form {
+      display: flex;
+      gap: 12px;
+    }
+    .submit-input {
+      flex: 1;
+      padding: 14px 20px;
+      font-size: 14px;
+      font-family: "JetBrains Mono", monospace;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      color: var(--text);
+      outline: none;
+    }
+    .submit-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+    }
+    .submit-btn {
+      padding: 14px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      border: none;
+      border-radius: 24px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: var(--text-muted);
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      animation: slideIn 0.3s ease;
+      z-index: 1000;
+    }
+    .toast.success { border-left: 4px solid var(--green); }
+    .toast.error { border-left: 4px solid var(--accent); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .filters { flex-direction: column; }
+      .time-select { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="/" class="nav-logo">🦞 <span>Poly</span>Claw</a>
+    <a href="/">Trade Viewer</a>
+    <a href="/terminal">Terminal</a>
+    <a href="/leaderboard" class="active">Leaderboard</a>
+  </nav>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <h1 class="page-title">🏆 <span>Leaderboard</span></h1>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value" id="totalTraders">-</div>
+        <div class="stat-label">Total Traders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalVolume">-</div>
+        <div class="stat-label">Combined Volume</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="avgWinRate">-</div>
+        <div class="stat-label">Avg Win Rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="topPnl">-</div>
+        <div class="stat-label">Top P&L</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <button class="filter-btn active" onclick="setSort('pnl')">💰 P&L</button>
+      <button class="filter-btn" onclick="setSort('win_rate')">🎯 Win Rate</button>
+      <button class="filter-btn" onclick="setSort('volume')">📊 Volume</button>
+      <button class="filter-btn" onclick="setSort('trades')">🔄 Trade Count</button>
+      <button class="filter-btn" onclick="setSort('sharpe')">📈 Risk-Adj</button>
+      <select class="time-select" id="timeRange" onchange="loadLeaderboard()">
+        <option value="7d">Last 7 Days</option>
+        <option value="30d" selected>Last 30 Days</option>
+        <option value="90d">Last 90 Days</option>
+        <option value="all">All Time</option>
+      </select>
+    </div>
+
+    <!-- Leaderboard -->
+    <div id="leaderboardContent">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div>Loading leaderboard...</div>
+      </div>
+    </div>
+
+    <!-- Submit Wallet -->
+    <div class="submit-section">
+      <div class="submit-title">📝 Submit a Wallet to the Leaderboard</div>
+      <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;">
+        Add any Polymarket wallet to track and rank against others. We'll analyze their performance automatically.
+      </p>
+      <div class="submit-form">
+        <input type="text" class="submit-input" id="submitWallet" placeholder="0x... wallet address or username"/>
+        <button class="submit-btn" onclick="submitWallet()">Add to Leaderboard</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentSort = 'pnl';
+    let leaderboardData = [];
+
+    function setSort(sort) {
+      currentSort = sort;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderLeaderboard();
+    }
+
+    async function loadLeaderboard() {
+      const timeRange = document.getElementById('timeRange').value;
+      document.getElementById('leaderboardContent').innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <div>Loading leaderboard...</div>
+        </div>
+      `;
+
+      try {
+        const response = await fetch(`/api/leaderboard?period=${timeRange}`);
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        leaderboardData = data.wallets || [];
+        updateStats(data.stats || {});
+        renderLeaderboard();
+      } catch (error) {
+        document.getElementById('leaderboardContent').innerHTML = `
+          <div class="loading">
+            <div style="color: var(--accent);">Failed to load leaderboard</div>
+            <div style="margin-top: 8px; font-size: 12px;">${error.message}</div>
+          </div>
+        `;
+      }
+    }
+
+    function updateStats(stats) {
+      document.getElementById('totalTraders').textContent = stats.total_traders || 0;
+      document.getElementById('totalVolume').textContent = formatCurrency(stats.total_volume || 0);
+      document.getElementById('avgWinRate').textContent = (stats.avg_win_rate || 0).toFixed(1) + '%';
+      document.getElementById('topPnl').textContent = formatCurrency(stats.top_pnl || 0);
+    }
+
+    function renderLeaderboard() {
+      const sorted = [...leaderboardData].sort((a, b) => {
+        switch (currentSort) {
+          case 'pnl': return (b.net_pnl || 0) - (a.net_pnl || 0);
+          case 'win_rate': return (b.win_rate || 0) - (a.win_rate || 0);
+          case 'volume': return (b.total_volume || 0) - (a.total_volume || 0);
+          case 'trades': return (b.total_trades || 0) - (a.total_trades || 0);
+          case 'sharpe': return (b.sharpe_like || 0) - (a.sharpe_like || 0);
+          default: return 0;
+        }
+      });
+
+      if (sorted.length === 0) {
+        document.getElementById('leaderboardContent').innerHTML = `
+          <div class="loading">
+            <div>No wallets on the leaderboard yet</div>
+            <div style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">
+              Be the first to submit a wallet below!
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      let html = `
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Trader</th>
+              <th>P&L</th>
+              <th>Win Rate</th>
+              <th>Volume</th>
+              <th>Trades</th>
+              <th>Style</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      sorted.forEach((wallet, index) => {
+        const rank = index + 1;
+        const rankClass = rank <= 3 ? `rank-${rank}` : 'rank-default';
+        const pnlClass = (wallet.net_pnl || 0) >= 0 ? 'pnl-positive' : 'pnl-negative';
+        const styleClass = getStyleBadge(wallet.trader_type);
+
+        html += `
+          <tr>
+            <td><span class="rank ${rankClass}">${rank}</span></td>
+            <td>
+              <div class="wallet-cell">
+                <div class="wallet-avatar">${(wallet.username || wallet.wallet || '?')[0].toUpperCase()}</div>
+                <div class="wallet-info">
+                  <div class="wallet-name">${wallet.username || 'Anonymous'}</div>
+                  <div class="wallet-address">${shortenAddress(wallet.wallet)}</div>
+                </div>
+              </div>
+            </td>
+            <td class="${pnlClass}">${formatCurrency(wallet.net_pnl || 0)}</td>
+            <td class="win-rate">${(wallet.win_rate || 0).toFixed(1)}%</td>
+            <td>${formatCurrency(wallet.total_volume || 0)}</td>
+            <td>${(wallet.total_trades || 0).toLocaleString()}</td>
+            <td><span class="badge ${styleClass.class}">${styleClass.label}</span></td>
+            <td>
+              <button class="action-btn" onclick="analyzeWallet('${wallet.wallet}')">Analyze</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += '</tbody></table>';
+      document.getElementById('leaderboardContent').innerHTML = html;
+    }
+
+    function getStyleBadge(type) {
+      const styles = {
+        'high_frequency': { class: 'badge-hft', label: 'HFT' },
+        'scalper': { class: 'badge-scalper', label: 'Scalper' },
+        'swing_trader': { class: 'badge-swing', label: 'Swing' },
+        'arbitrageur': { class: 'badge-arb', label: 'Arb' },
+        'position_trader': { class: 'badge-position', label: 'Position' }
+      };
+      return styles[type] || { class: 'badge-position', label: type || 'Unknown' };
+    }
+
+    function shortenAddress(addr) {
+      if (!addr) return '???';
+      return addr.slice(0, 6) + '...' + addr.slice(-4);
+    }
+
+    function formatCurrency(val) {
+      if (Math.abs(val) >= 1e6) return '$' + (val / 1e6).toFixed(1) + 'M';
+      if (Math.abs(val) >= 1e3) return '$' + (val / 1e3).toFixed(1) + 'K';
+      return '$' + val.toFixed(0);
+    }
+
+    function analyzeWallet(wallet) {
+      window.location.href = `/?wallet=${wallet}`;
+    }
+
+    async function submitWallet() {
+      const wallet = document.getElementById('submitWallet').value.trim();
+      if (!wallet) {
+        showToast('Please enter a wallet address', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/leaderboard/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ wallet })
+        });
+
+        const data = await response.json();
+        
+        if (data.error) {
+          showToast(data.error, 'error');
+        } else {
+          showToast('Wallet added to leaderboard!', 'success');
+          document.getElementById('submitWallet').value = '';
+          loadLeaderboard();
+        }
+      } catch (error) {
+        showToast('Failed to submit wallet', 'error');
+      }
+    }
+
+    function showToast(message, type) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Handle enter key on submit input
+    document.getElementById('submitWallet').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') submitWallet();
+    });
+
+    // Load on page load
+    loadLeaderboard();
+  </script>
+</body>
+</html>

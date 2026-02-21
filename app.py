@@ -4,7 +4,7 @@ PolyClaw - AI-Powered Trading Strategy Platform
 Strategy ideation, analysis, diagnosis, and iteration for Polymarket.
 """
 
-from flask import Flask, jsonify, request, send_from_directory, send_file, Response
+from flask import Flask, jsonify, request, send_from_directory, send_file, Response, redirect
 import requests
 import json
 import csv
@@ -29,6 +29,12 @@ from strategy_engine import (
     STRATEGY_TEMPLATES, IDEATION_PROMPTS,
     analyze_wallet_strategy, generate_strategy_ideas,
     iterate_strategy, define_strategy
+)
+from notifications import (
+    add_discord_webhook, remove_discord_webhook,
+    add_telegram_config, remove_telegram_config,
+    subscribe_to_wallet, unsubscribe_from_wallet,
+    notify_trade, get_notification_channels
 )
 
 # Real-time tracking state
@@ -341,12 +347,308 @@ def index():
 
 @app.route('/dashboard')
 def dashboard():
-    return send_from_directory('.', 'trades-dashboard.html')
+    return redirect('/')
 
 
 @app.route('/terminal')
 def terminal_mode():
     return send_from_directory('.', 'terminal-mode.html')
+
+
+@app.route('/leaderboard')
+def leaderboard_page():
+    return send_from_directory('.', 'leaderboard.html')
+
+
+# Leaderboard data file
+LEADERBOARD_FILE = os.path.join(os.path.dirname(__file__), 'leaderboard_data.json')
+
+def load_leaderboard_data():
+    """Load leaderboard data from file."""
+    if os.path.exists(LEADERBOARD_FILE):
+        try:
+            with open(LEADERBOARD_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            pass
+    return {"wallets": {}, "last_updated": None}
+
+def save_leaderboard_data(data):
+    """Save leaderboard data to file."""
+    data["last_updated"] = datetime.now(timezone.utc).isoformat()
+    with open(LEADERBOARD_FILE, 'w') as f:
+        json.dump(data, f, indent=2)
+
+
+@app.route('/api/leaderboard')
+def get_leaderboard():
+    """Get leaderboard rankings."""
+    period = request.args.get('period', '30d')
+    
+    data = load_leaderboard_data()
+    wallets_data = data.get("wallets", {})
+    
+    # Convert to list and add computed fields
+    wallets = []
+    total_volume = 0
+    total_pnl = 0
+    win_rates = []
+    
+    for addr, info in wallets_data.items():
+        wallet_info = {
+            "wallet": addr,
+            "username": info.get("username"),
+            "net_pnl": info.get("net_pnl", 0),
+            "win_rate": info.get("win_rate", 0),
+            "total_volume": info.get("total_volume", 0),
+            "total_trades": info.get("total_trades", 0),
+            "sharpe_like": info.get("sharpe_like", 0),
+            "trader_type": info.get("trader_type", "unknown"),
+            "last_updated": info.get("last_updated")
+        }
+        wallets.append(wallet_info)
+        total_volume += wallet_info["total_volume"]
+        total_pnl = max(total_pnl, wallet_info["net_pnl"])
+        if wallet_info["win_rate"] > 0:
+            win_rates.append(wallet_info["win_rate"])
+    
+    # Sort by P&L by default
+    wallets.sort(key=lambda x: x.get("net_pnl", 0), reverse=True)
+    
+    return jsonify({
+        "wallets": wallets,
+        "stats": {
+            "total_traders": len(wallets),
+            "total_volume": total_volume,
+            "avg_win_rate": sum(win_rates) / len(win_rates) if win_rates else 0,
+            "top_pnl": total_pnl
+        },
+        "period": period
+    })
+
+
+@app.route('/api/leaderboard/submit', methods=['POST'])
+def submit_to_leaderboard():
+    """Submit a wallet to the leaderboard."""
+    req_data = request.get_json()
+    wallet = req_data.get('wallet', '').strip()
+    
+    if not wallet:
+        return jsonify({"error": "Wallet address required"}), 400
+    
+    # Fetch and analyze the wallet
+    try:
+        result = fetch_trades_with_limit(wallet, 1000)
+        trades = result.get('trades', [])
+        
+        if not trades:
+            return jsonify({"error": "No trades found for this wallet"}), 404
+        
+        # Analyze the wallet
+        analysis = analyze_trades(trades)
+        
+        # Load current leaderboard
+        data = load_leaderboard_data()
+        
+        # Add/update wallet
+        data["wallets"][wallet] = {
+            "username": result.get("username"),
+            "net_pnl": analysis.get("net_pnl", 0),
+            "win_rate": analysis.get("win_rate", 0),
+            "total_volume": analysis.get("total_volume", 0),
+            "total_trades": analysis.get("total_trades", 0),
+            "sharpe_like": analysis.get("sharpe_like", 0),
+            "max_drawdown": analysis.get("max_drawdown", 0),
+            "trader_type": analysis.get("trader_type", "unknown"),
+            "last_updated": datetime.now(timezone.utc).isoformat()
+        }
+        
+        # Save
+        save_leaderboard_data(data)
+        
+        return jsonify({
+            "success": True,
+            "wallet": wallet,
+            "username": result.get("username"),
+            "stats": data["wallets"][wallet]
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/leaderboard/refresh/<wallet>', methods=['POST'])
+def refresh_leaderboard_wallet(wallet):
+    """Refresh stats for a wallet on the leaderboard."""
+    data = load_leaderboard_data()
+    
+    if wallet not in data.get("wallets", {}):
+        return jsonify({"error": "Wallet not on leaderboard"}), 404
+    
+    try:
+        result = fetch_trades_with_limit(wallet, 1000)
+        trades = result.get('trades', [])
+        
+        if not trades:
+            return jsonify({"error": "No trades found"}), 404
+        
+        analysis = analyze_trades(trades)
+        
+        data["wallets"][wallet] = {
+            "username": result.get("username"),
+            "net_pnl": analysis.get("net_pnl", 0),
+            "win_rate": analysis.get("win_rate", 0),
+            "total_volume": analysis.get("total_volume", 0),
+            "total_trades": analysis.get("total_trades", 0),
+            "sharpe_like": analysis.get("sharpe_like", 0),
+            "max_drawdown": analysis.get("max_drawdown", 0),
+            "trader_type": analysis.get("trader_type", "unknown"),
+            "last_updated": datetime.now(timezone.utc).isoformat()
+        }
+        
+        save_leaderboard_data(data)
+        
+        return jsonify({"success": True, "stats": data["wallets"][wallet]})
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ============ NOTIFICATIONS API ============
+
+@app.route('/api/notifications/channels')
+def get_channels():
+    """Get all configured notification channels."""
+    return jsonify(get_notification_channels())
+
+
+@app.route('/api/notifications/discord', methods=['POST'])
+def add_discord():
+    """Add a Discord webhook."""
+    data = request.get_json()
+    name = data.get('name', '').strip()
+    webhook_url = data.get('webhook_url', '').strip()
+    
+    if not name or not webhook_url:
+        return jsonify({"error": "Name and webhook_url required"}), 400
+    
+    result = add_discord_webhook(name, webhook_url)
+    if result.get("error"):
+        return jsonify(result), 400
+    return jsonify(result)
+
+
+@app.route('/api/notifications/discord/<name>', methods=['DELETE'])
+def delete_discord(name):
+    """Remove a Discord webhook."""
+    result = remove_discord_webhook(name)
+    if result.get("error"):
+        return jsonify(result), 404
+    return jsonify(result)
+
+
+@app.route('/api/notifications/telegram', methods=['POST'])
+def add_telegram():
+    """Add a Telegram bot configuration."""
+    data = request.get_json()
+    name = data.get('name', '').strip()
+    bot_token = data.get('bot_token', '').strip()
+    chat_id = data.get('chat_id', '').strip()
+    
+    if not name or not bot_token or not chat_id:
+        return jsonify({"error": "Name, bot_token, and chat_id required"}), 400
+    
+    result = add_telegram_config(name, bot_token, chat_id)
+    if result.get("error"):
+        return jsonify(result), 400
+    return jsonify(result)
+
+
+@app.route('/api/notifications/telegram/<name>', methods=['DELETE'])
+def delete_telegram(name):
+    """Remove a Telegram configuration."""
+    result = remove_telegram_config(name)
+    if result.get("error"):
+        return jsonify(result), 404
+    return jsonify(result)
+
+
+@app.route('/api/notifications/subscribe', methods=['POST'])
+def subscribe_wallet():
+    """Subscribe notification channels to a wallet."""
+    data = request.get_json()
+    wallet = data.get('wallet', '').strip()
+    channels = data.get('channels', [])
+    
+    if not wallet:
+        return jsonify({"error": "Wallet required"}), 400
+    
+    if not channels:
+        return jsonify({"error": "At least one channel required"}), 400
+    
+    result = subscribe_to_wallet(wallet, channels)
+    return jsonify(result)
+
+
+@app.route('/api/notifications/unsubscribe', methods=['POST'])
+def unsubscribe_wallet():
+    """Unsubscribe notification channels from a wallet."""
+    data = request.get_json()
+    wallet = data.get('wallet', '').strip()
+    channels = data.get('channels')
+    
+    if not wallet:
+        return jsonify({"error": "Wallet required"}), 400
+    
+    result = unsubscribe_from_wallet(wallet, channels)
+    if result.get("error"):
+        return jsonify(result), 404
+    return jsonify(result)
+
+
+@app.route('/api/notifications/test', methods=['POST'])
+def test_notification():
+    """Send a test notification to a channel."""
+    data = request.get_json()
+    channel_type = data.get('type', '').strip()
+    channel_name = data.get('name', '').strip()
+    
+    if not channel_type or not channel_name:
+        return jsonify({"error": "Type and name required"}), 400
+    
+    config = get_notification_channels()
+    
+    if channel_type == 'discord':
+        from notifications import send_discord_notification, format_alert_discord_embed, load_notifications_config
+        full_config = load_notifications_config()
+        webhook = full_config.get('discord_webhooks', {}).get(channel_name, {})
+        if not webhook:
+            return jsonify({"error": "Discord webhook not found"}), 404
+        
+        embed = format_alert_discord_embed(
+            "Test Notification",
+            "This is a test notification from PolyClaw! 🦞\nYour Discord integration is working correctly.",
+            "info"
+        )
+        success = send_discord_notification(webhook['url'], embed)
+        return jsonify({"success": success})
+    
+    elif channel_type == 'telegram':
+        from notifications import send_telegram_notification, format_alert_telegram_message, load_notifications_config
+        full_config = load_notifications_config()
+        tg = full_config.get('telegram_configs', {}).get(channel_name, {})
+        if not tg:
+            return jsonify({"error": "Telegram config not found"}), 404
+        
+        message = format_alert_telegram_message(
+            "Test Notification",
+            "This is a test notification from PolyClaw! 🦞\nYour Telegram integration is working correctly.",
+            "info"
+        )
+        success = send_telegram_notification(tg['bot_token'], tg['chat_id'], message)
+        return jsonify({"success": success})
+    
+    return jsonify({"error": "Invalid channel type"}), 400
 
 
 @app.route('/api/terminal/<wallet>', methods=['GET', 'OPTIONS'])
@@ -808,6 +1110,106 @@ def get_ai_providers():
     return jsonify(providers)
 
 
+@app.route('/api/chat', methods=['POST'])
+def chat_with_polyclaw():
+    """PolyClaw chat endpoint - conversational AI for Polymarket trading."""
+    data = request.get_json()
+    message = data.get('message', '')
+    history = data.get('history', [])
+    context = data.get('context', {})
+    
+    if not message:
+        return jsonify({"error": "No message provided"}), 400
+    
+    # Check for available providers
+    providers = get_available_providers()
+    provider = None
+    if providers.get('anthropic', {}).get('available'):
+        provider = 'anthropic'
+    elif providers.get('openai', {}).get('available'):
+        provider = 'openai'
+    
+    if not provider:
+        return jsonify({
+            "error": "No AI provider configured",
+            "response": "I need an AI provider to chat! Please set OPENAI_API_KEY or ANTHROPIC_API_KEY in your .env file."
+        })
+    
+    # Build system prompt for PolyClaw
+    system_prompt = """You are PolyClaw 🦞, an AI trading assistant specialized in Polymarket prediction markets.
+
+Your expertise includes:
+- Analyzing wallet trading strategies and patterns
+- Helping users understand copy trading and find profitable traders
+- Building trading bots and automation strategies
+- Finding arbitrage opportunities across markets
+- Risk management and position sizing (Kelly Criterion)
+- Market analysis and sentiment interpretation
+
+Personality:
+- Friendly and approachable, but data-driven
+- You use 🦞 occasionally but not excessively  
+- You give specific, actionable advice
+- You explain complex concepts simply
+- You're honest about risks and uncertainties
+
+Current context:
+"""
+    
+    if context.get('current_wallet'):
+        system_prompt += f"\n- User is analyzing wallet: {context['current_wallet']}"
+    if context.get('trades_loaded'):
+        system_prompt += f"\n- {context['trades_loaded']} trades loaded"
+    if context.get('summary'):
+        summary = context['summary']
+        system_prompt += f"\n- Summary stats: {summary.get('total_trades', 'N/A')} trades, {summary.get('win_rate', 'N/A')}% win rate, ${summary.get('net_pnl', 'N/A')} net P&L"
+    
+    system_prompt += "\n\nBe helpful, specific, and data-driven in your responses. If you don't have enough information, ask clarifying questions."
+    
+    # Build messages for API
+    messages = [{"role": "system", "content": system_prompt}]
+    
+    # Add recent history (limited to avoid token limits)
+    for msg in history[-8:]:
+        if msg.get('role') in ['user', 'assistant']:
+            messages.append({
+                "role": msg['role'],
+                "content": msg['content']
+            })
+    
+    # Add current message
+    messages.append({"role": "user", "content": message})
+    
+    try:
+        if provider == 'anthropic':
+            import anthropic
+            client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
+            response = client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=1024,
+                system=system_prompt,
+                messages=[m for m in messages if m['role'] != 'system']
+            )
+            reply = response.content[0].text
+        else:
+            import openai
+            client = openai.OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                max_tokens=1024
+            )
+            reply = response.choices[0].message.content
+        
+        return jsonify({"response": reply, "provider": provider})
+    
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "response": f"Sorry, I had trouble processing that. Error: {str(e)}"
+        }), 500
+
+
 def fetch_trades_with_limit(wallet: str, limit: int) -> Dict:
     """Fetch trades up to a specific limit using pagination."""
     all_trades = []
@@ -1245,19 +1647,314 @@ def list_tracked_wallets():
     })
 
 
+# ============================================================
+# DAEMON CONTROL ENDPOINTS
+# ============================================================
+
+DAEMON_PID_FILE = os.path.expanduser("~/.polyclaw/daemon.pid")
+TRACKING_FILE = os.path.expanduser("~/.polyclaw/tracking.json")
+
+
+def load_cli_tracking():
+    """Load tracked wallets from CLI tracking file."""
+    if os.path.exists(TRACKING_FILE):
+        try:
+            with open(TRACKING_FILE) as f:
+                return json.load(f)
+        except:
+            pass
+    return {"wallets": []}
+
+
+def save_cli_tracking(data):
+    """Save tracked wallets to CLI tracking file."""
+    os.makedirs(os.path.dirname(TRACKING_FILE), exist_ok=True)
+    with open(TRACKING_FILE, 'w') as f:
+        json.dump(data, f, indent=2)
+
+
+@app.route('/api/daemon/status')
+def daemon_status():
+    """Get daemon status."""
+    import signal
+    
+    if not os.path.exists(DAEMON_PID_FILE):
+        return jsonify({
+            "running": False,
+            "message": "Daemon is not running"
+        })
+    
+    try:
+        with open(DAEMON_PID_FILE) as f:
+            pid = int(f.read().strip())
+        
+        # Check if process is running
+        os.kill(pid, 0)
+        
+        # Load tracking info
+        tracking = load_cli_tracking()
+        
+        return jsonify({
+            "running": True,
+            "pid": pid,
+            "tracked_wallets": tracking.get("wallets", []),
+            "tracked_count": len(tracking.get("wallets", []))
+        })
+    except (OSError, ValueError):
+        # Process not running, clean up stale PID file
+        try:
+            os.unlink(DAEMON_PID_FILE)
+        except:
+            pass
+        return jsonify({
+            "running": False,
+            "message": "Daemon is not running (cleaned stale PID)"
+        })
+
+
+@app.route('/api/daemon/start', methods=['POST'])
+def daemon_start():
+    """Start the background daemon."""
+    import subprocess
+    import signal
+    
+    # Check if already running
+    if os.path.exists(DAEMON_PID_FILE):
+        try:
+            with open(DAEMON_PID_FILE) as f:
+                pid = int(f.read().strip())
+            os.kill(pid, 0)
+            return jsonify({
+                "success": False,
+                "error": f"Daemon is already running (PID: {pid})"
+            })
+        except (OSError, ValueError):
+            try:
+                os.unlink(DAEMON_PID_FILE)
+            except:
+                pass
+    
+    # Start daemon in background
+    try:
+        daemon_path = os.path.join(os.path.dirname(__file__), 'daemon.py')
+        
+        # Start as background process
+        process = subprocess.Popen(
+            ['python', daemon_path],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True
+        )
+        
+        # Give it a moment to start and write PID
+        time.sleep(1)
+        
+        if os.path.exists(DAEMON_PID_FILE):
+            with open(DAEMON_PID_FILE) as f:
+                pid = int(f.read().strip())
+            return jsonify({
+                "success": True,
+                "message": f"Daemon started (PID: {pid})",
+                "pid": pid
+            })
+        else:
+            return jsonify({
+                "success": True,
+                "message": "Daemon starting...",
+                "pid": process.pid
+            })
+            
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
+
+@app.route('/api/daemon/stop', methods=['POST'])
+def daemon_stop():
+    """Stop the background daemon."""
+    import signal
+    
+    if not os.path.exists(DAEMON_PID_FILE):
+        return jsonify({
+            "success": False,
+            "error": "Daemon is not running"
+        })
+    
+    try:
+        with open(DAEMON_PID_FILE) as f:
+            pid = int(f.read().strip())
+        
+        os.kill(pid, signal.SIGTERM)
+        os.unlink(DAEMON_PID_FILE)
+        
+        return jsonify({
+            "success": True,
+            "message": f"Daemon stopped (was PID: {pid})"
+        })
+    except OSError:
+        try:
+            os.unlink(DAEMON_PID_FILE)
+        except:
+            pass
+        return jsonify({
+            "success": True,
+            "message": "Daemon was not running (cleaned up)"
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        })
+
+
+@app.route('/api/tracking/list')
+def get_tracking_list():
+    """Get list of tracked wallets from CLI tracking file."""
+    tracking = load_cli_tracking()
+    wallets = tracking.get("wallets", [])
+    
+    # Get basic info for each wallet
+    wallet_details = []
+    for wallet in wallets:
+        wallet_details.append({
+            "address": wallet,
+            "short": f"{wallet[:6]}...{wallet[-4:]}" if len(wallet) > 12 else wallet
+        })
+    
+    return jsonify({
+        "wallets": wallet_details,
+        "count": len(wallets)
+    })
+
+
+@app.route('/api/tracking/add', methods=['POST'])
+def add_tracking():
+    """Add a wallet to tracking list."""
+    data = request.json
+    wallet = data.get("wallet", "").strip()
+    
+    if not wallet:
+        return jsonify({"success": False, "error": "Wallet address required"})
+    
+    tracking = load_cli_tracking()
+    
+    if wallet in tracking["wallets"]:
+        return jsonify({"success": False, "error": "Wallet already tracked"})
+    
+    tracking["wallets"].append(wallet)
+    save_cli_tracking(tracking)
+    
+    return jsonify({
+        "success": True,
+        "message": f"Now tracking {wallet[:8]}...",
+        "count": len(tracking["wallets"])
+    })
+
+
+@app.route('/api/tracking/remove', methods=['POST'])
+def remove_tracking():
+    """Remove a wallet from tracking list."""
+    data = request.json
+    wallet = data.get("wallet", "").strip()
+    
+    if not wallet:
+        return jsonify({"success": False, "error": "Wallet address required"})
+    
+    tracking = load_cli_tracking()
+    
+    if wallet not in tracking["wallets"]:
+        return jsonify({"success": False, "error": "Wallet not tracked"})
+    
+    tracking["wallets"].remove(wallet)
+    save_cli_tracking(tracking)
+    
+    return jsonify({
+        "success": True,
+        "message": f"Stopped tracking {wallet[:8]}...",
+        "count": len(tracking["wallets"])
+    })
+
+
+@app.route('/api/system/info')
+def system_info():
+    """Get system information for control panel."""
+    import platform
+    
+    # Get daemon status
+    daemon_running = False
+    daemon_pid = None
+    if os.path.exists(DAEMON_PID_FILE):
+        try:
+            with open(DAEMON_PID_FILE) as f:
+                daemon_pid = int(f.read().strip())
+            os.kill(daemon_pid, 0)
+            daemon_running = True
+        except:
+            pass
+    
+    # Get tracking info
+    tracking = load_cli_tracking()
+    
+    # Get notification channels
+    try:
+        channels = get_notification_channels()
+        discord_count = len(channels.get("discord", {}))
+        telegram_count = len(channels.get("telegram", {}))
+    except:
+        discord_count = 0
+        telegram_count = 0
+    
+    # Get AI providers
+    try:
+        providers = get_available_providers()
+    except:
+        providers = []
+    
+    return jsonify({
+        "daemon": {
+            "running": daemon_running,
+            "pid": daemon_pid
+        },
+        "tracking": {
+            "count": len(tracking.get("wallets", [])),
+            "wallets": tracking.get("wallets", [])[:5]  # First 5
+        },
+        "channels": {
+            "discord": discord_count,
+            "telegram": telegram_count
+        },
+        "ai": {
+            "providers": providers,
+            "available": len(providers) > 0
+        },
+        "system": {
+            "platform": platform.system(),
+            "python": platform.python_version()
+        }
+    })
+
+
 if __name__ == '__main__':
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    print("\n🦞 PolyClaw - Trading Strategy Platform")
-    print("   http://localhost:8080")
-    print("\n   📊 Trade Data:")
-    print("      /api/trades/{wallet}")
-    print("      /api/trades/{wallet}?mode=full")
-    print("\n   🧠 Strategy Engine:")
-    print("      /api/strategy/templates")
-    print("      /api/strategy/diagnose/{wallet}")
-    print("      /api/strategy/ideate")
-    print("\n   📡 Real-time Tracking:")
-    print("      /api/track/{wallet}/start")
-    print("      /api/track/{wallet}/stream")
+    RED = '\033[91m'
+    DARK_RED = '\033[31m'
+    GRAY = '\033[90m'
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    
+    print(f"\n{RED}{BOLD}🦞 PolyClaw{RESET} {GRAY}- Trading Strategy Platform{RESET}")
+    print(f"   {DARK_RED}http://localhost:8080{RESET}")
+    print(f"\n   {RED}📊 Trade Data:{RESET}")
+    print(f"   {GRAY}   /api/trades/{{wallet}}{RESET}")
+    print(f"   {GRAY}   /api/trades/{{wallet}}?mode=full{RESET}")
+    print(f"\n   {RED}🧠 Strategy Engine:{RESET}")
+    print(f"   {GRAY}   /api/strategy/templates{RESET}")
+    print(f"   {GRAY}   /api/strategy/diagnose/{{wallet}}{RESET}")
+    print(f"   {GRAY}   /api/strategy/ideate{RESET}")
+    print(f"\n   {RED}📡 Real-time Tracking:{RESET}")
+    print(f"   {GRAY}   /api/track/{{wallet}}/start{RESET}")
+    print(f"   {GRAY}   /api/track/{{wallet}}/stream{RESET}")
     print()
     app.run(debug=True, port=8080, host='0.0.0.0')

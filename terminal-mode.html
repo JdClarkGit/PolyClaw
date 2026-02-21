@@ -1,43 +1,46 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>PolyEdge.io - Wallet Analyzer Terminal</title>
+  <title>PolyClaw - Wallet Analyzer Terminal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
-    :root{--bg:#0a0e14;--bg2:#0d1117;--bg3:#111820;--bg4:#131a24;--bdr:#1b2535;--bdr2:#2a3a4e;--tx:#c5cdd8;--txd:#4a5a6e;--txb:#e8edf3;--g:#00e676;--gd:#00a854;--gbg:rgba(0,230,118,.07);--r:#ff5252;--rd:#cc3333;--rbg:rgba(255,82,82,.07);--cy:#00bcd4;--yl:#ffd740;--mg:#e040fb;--or:#ff9100;--bl:#448aff}
+    :root{--bg:#0a0a0a;--bg2:#0f0f0f;--bg3:#141414;--bg4:#1a1a1a;--bdr:#252525;--bdr2:#333;--tx:#c5c5c5;--txd:#666;--txb:#f0f0f0;--g:#dc2626;--gd:#b91c1c;--gbg:rgba(220,38,38,.08);--r:#666;--rd:#444;--rbg:rgba(100,100,100,.08);--cy:#888;--yl:#f59e0b;--mg:#dc2626;--or:#dc2626;--bl:#dc2626;--accent:#dc2626}
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:"JetBrains Mono",monospace;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;font-size:11px}
-    body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);z-index:9999}
-    a{color:var(--g);text-decoration:none}a:hover{text-decoration:underline}
+    a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 
     /* NAV */
-    .nav{display:flex;align-items:center;gap:16px;padding:8px 16px;background:var(--bg2);border-bottom:1px solid var(--bdr)}
-    .nav-logo{font-size:14px;font-weight:700;color:var(--g)}
-    .nav a{font-size:11px;color:var(--txd);padding:4px 10px;border-radius:4px}
-    .nav a:hover,.nav a.active{color:var(--g);background:var(--gbg);text-decoration:none}
-    .nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+    .nav{display:flex;align-items:center;gap:16px;padding:10px 20px;background:var(--bg2);border-bottom:1px solid var(--bdr)}
+    .nav-logo{font-size:15px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:6px}
+    .nav-logo span{color:var(--txb)}
+    .nav a{font-size:11px;color:var(--txd);padding:6px 14px;border-radius:20px;transition:all .2s}
+    .nav a:hover,.nav a.active{color:var(--accent);background:var(--gbg);text-decoration:none}
+    .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
     .status-dot{width:8px;height:8px;border-radius:50%;background:var(--txd);display:inline-block}
-    .status-dot.live{background:var(--g);box-shadow:0 0 6px var(--g)}
+    .status-dot.live{background:var(--accent);box-shadow:0 0 8px var(--accent)}
 
     /* INPUT BAR */
-    .input-bar{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--bg2);border-bottom:1px solid var(--bdr)}
+    .input-bar{display:flex;align-items:center;gap:10px;padding:12px 20px;background:var(--bg2);border-bottom:1px solid var(--bdr)}
     .input-bar label{color:var(--txd);font-size:10px;text-transform:uppercase;letter-spacing:1px}
-    .input-bar input{background:var(--bg);border:1px solid var(--bdr);color:var(--g);padding:6px 10px;border-radius:4px;font-family:inherit;font-size:11px;width:340px}
-    .input-bar input:focus{outline:none;border-color:var(--g);box-shadow:0 0 8px rgba(0,230,118,.15)}
-    .input-bar select{background:#000;border:1px solid var(--bdr);color:var(--g);padding:6px 8px;border-radius:4px;font-family:inherit;font-size:11px}
-    .btn{padding:6px 14px;border:none;border-radius:4px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
-    .btn-go{background:var(--g);color:#000}.btn-go:hover{background:#00ff88}
-    .btn-stop{background:var(--r);color:#fff}.btn-stop:hover{background:#ff6b6b}
+    .input-bar input{background:var(--bg);border:1px solid var(--bdr);color:var(--accent);padding:10px 14px;border-radius:20px;font-family:inherit;font-size:11px;width:340px;transition:all .2s}
+    .input-bar input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 12px rgba(220,38,38,.2)}
+    .input-bar input::placeholder{color:var(--txd)}
+    .input-bar select{background:var(--bg);border:1px solid var(--bdr);color:var(--tx);padding:10px 12px;border-radius:20px;font-family:inherit;font-size:11px;cursor:pointer;transition:all .2s}
+    .input-bar select:hover{border-color:var(--accent)}
+    .btn{padding:10px 20px;border:none;border-radius:20px;font-family:"Inter",sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.5px}
+    .btn-go{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;box-shadow:0 2px 8px rgba(220,38,38,.3)}
+    .btn-go:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(220,38,38,.4)}
+    .btn-stop{background:var(--bg3);color:var(--tx);border:1px solid var(--bdr)}.btn-stop:hover{background:var(--bg4);border-color:var(--accent)}
     .hidden{display:none!important}
 
     /* STRATEGY BANNER */
-    .strategy-banner{padding:6px 16px;background:linear-gradient(90deg,rgba(0,230,118,.08),transparent);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px}
+    .strategy-banner{padding:10px 20px;background:linear-gradient(90deg,rgba(220,38,38,.1),transparent);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px}
     .sb-label{color:var(--txd);font-size:10px;text-transform:uppercase}
-    .sb-strategy{color:var(--g);font-weight:700;font-size:12px}
+    .sb-strategy{color:var(--accent);font-weight:700;font-size:12px}
     .sb-conf{color:var(--yl);font-size:10px;margin-left:auto}
 
     /* MAIN GRID */
@@ -45,23 +48,23 @@
     .main.three-col{grid-template-columns:1fr 1fr 1fr}
 
     /* PANELS */
-    .panel{background:var(--bg2);padding:10px 12px;min-height:80px}
-    .panel-title{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--txd);margin-bottom:8px;border-bottom:1px solid var(--bdr);padding-bottom:4px}
+    .panel{background:var(--bg2);padding:14px 16px;min-height:80px;border-radius:8px;margin:4px}
+    .panel-title{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:10px;border-bottom:1px solid var(--bdr);padding-bottom:6px}
     .panel.full{grid-column:1/-1}
     .panel.span2{grid-column:span 2}
 
     /* METRIC ROWS */
-    .metric{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(27,37,53,.5)}
+    .metric{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(40,40,40,.5)}
     .metric:last-child{border-bottom:none}
     .metric-label{color:var(--txd)}
     .metric-val{color:var(--txb);font-weight:500;text-align:right}
-    .metric-val.green{color:var(--g)}.metric-val.red{color:var(--r)}.metric-val.cyan{color:var(--cy)}.metric-val.yellow{color:var(--yl)}.metric-val.magenta{color:var(--mg)}
+    .metric-val.green{color:#22c55e}.metric-val.red{color:var(--accent)}.metric-val.cyan{color:#888}.metric-val.yellow{color:var(--yl)}.metric-val.magenta{color:var(--accent)}
 
     /* PNL TIME GRID */
-    .pnl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
-    .pnl-cell{background:var(--bg);padding:6px 8px;border-radius:3px;text-align:center}
+    .pnl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+    .pnl-cell{background:var(--bg);padding:10px 10px;border-radius:10px;text-align:center;border:1px solid var(--bdr)}
     .pnl-cell .pnl-label{font-size:9px;color:var(--txd);text-transform:uppercase}
-    .pnl-cell .pnl-val{font-size:12px;font-weight:600;margin-top:2px}
+    .pnl-cell .pnl-val{font-size:12px;font-weight:600;margin-top:4px}
 
     /* POSITIONS TABLE */
     .pos-table{width:100%;border-collapse:collapse;font-size:10px}
@@ -70,74 +73,73 @@
     .pos-table .mkt{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
     /* FINGERPRINT */
-    .fp-trait{display:flex;align-items:center;gap:6px;padding:3px 0}
-    .fp-check{width:16px;height:16px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
-    .fp-check.yes{background:var(--gbg);color:var(--g);border:1px solid var(--gd)}
-    .fp-check.no{background:var(--rbg);color:var(--r);border:1px solid var(--rd)}
+    .fp-trait{display:flex;align-items:center;gap:8px;padding:4px 0}
+    .fp-check{width:18px;height:18px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+    .fp-check.yes{background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+    .fp-check.no{background:rgba(220,38,38,.1);color:var(--accent);border:1px solid rgba(220,38,38,.3)}
     .fp-name{color:var(--tx)}
     .fp-val{margin-left:auto;color:var(--txd);font-size:10px}
 
     /* TRADE FEED */
     .feed-scroll{max-height:300px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--bdr) transparent}
-    .trade-row{display:flex;align-items:center;gap:6px;padding:3px 4px;border-bottom:1px solid rgba(27,37,53,.3);font-size:10px}
+    .trade-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid rgba(40,40,40,.3);font-size:10px;border-radius:4px;margin-bottom:2px}
     .trade-row:hover{background:var(--bg3)}
-    .trade-side{width:32px;text-align:center;font-weight:700;font-size:9px;padding:2px 4px;border-radius:2px}
-    .trade-side.buy{color:var(--g);background:var(--gbg)}
-    .trade-side.sell{color:var(--r);background:var(--rbg)}
+    .trade-side{width:36px;text-align:center;font-weight:700;font-size:9px;padding:4px 6px;border-radius:12px}
+    .trade-side.buy{color:#22c55e;background:rgba(34,197,94,.1)}
+    .trade-side.sell{color:var(--accent);background:rgba(220,38,38,.1)}
     .trade-mkt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txd)}
     .trade-shares{color:var(--txb);min-width:60px;text-align:right}
-    .trade-price{color:var(--cy);min-width:50px;text-align:right}
+    .trade-price{color:var(--tx);min-width:50px;text-align:right}
     .trade-val{min-width:55px;text-align:right}
     .trade-time{color:var(--txd);min-width:60px;text-align:right;font-size:9px}
 
     /* ORDERBOOK BARS */
-    .ob-row{display:flex;align-items:center;gap:4px;margin-bottom:2px;font-size:9px}
+    .ob-row{display:flex;align-items:center;gap:4px;margin-bottom:3px;font-size:9px}
     .ob-price{width:50px;text-align:right;color:var(--txd)}
-    .ob-bars{flex:1;display:flex;gap:2px;height:12px}
-    .ob-bid{background:var(--g);border-radius:1px;height:100%;opacity:.7}
-    .ob-ask{background:var(--r);border-radius:1px;height:100%;opacity:.7}
+    .ob-bars{flex:1;display:flex;gap:2px;height:14px}
+    .ob-bid{background:#22c55e;border-radius:3px;height:100%;opacity:.7}
+    .ob-ask{background:var(--accent);border-radius:3px;height:100%;opacity:.7}
 
     /* SIGNALS */
     .signal-row{display:flex;align-items:center;gap:6px;padding:2px 0;font-size:10px}
     .signal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .signal-dot.bull{background:var(--g)}.signal-dot.bear{background:var(--r)}.signal-dot.neutral{background:var(--yl)}
+    .signal-dot.bull{background:#22c55e}.signal-dot.bear{background:var(--accent)}.signal-dot.neutral{background:var(--yl)}
 
     /* TOAST */
-    .toast-box{position:fixed;top:12px;right:12px;z-index:10000;display:flex;flex-direction:column;gap:6px}
-    .toast{padding:8px 14px;border-radius:4px;font-size:11px;font-family:inherit;animation:fadeIn .2s}
-    .toast.ok{background:var(--gbg);color:var(--g);border:1px solid var(--gd)}
-    .toast.err{background:var(--rbg);color:var(--r);border:1px solid var(--rd)}
-    .toast.info{background:rgba(0,188,212,.1);color:var(--cy);border:1px solid rgba(0,188,212,.3)}
+    .toast-box{position:fixed;top:12px;right:12px;z-index:10000;display:flex;flex-direction:column;gap:8px}
+    .toast{padding:12px 18px;border-radius:20px;font-size:11px;font-family:inherit;animation:fadeIn .2s;backdrop-filter:blur(8px)}
+    .toast.ok{background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+    .toast.err{background:rgba(220,38,38,.1);color:var(--accent);border:1px solid rgba(220,38,38,.3)}
+    .toast.info{background:rgba(100,100,100,.1);color:var(--tx);border:1px solid rgba(100,100,100,.3)}
     @keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 
     /* EMPTY STATE */
     .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;color:var(--txd)}
-    .empty-state h2{color:var(--g);font-size:18px;margin-bottom:8px}
+    .empty-state h2{color:var(--accent);font-size:20px;margin-bottom:10px;font-weight:600}
     .empty-state p{font-size:12px}
 
     /* PHASE BAR */
-    .phase-bar{display:flex;height:18px;border-radius:3px;overflow:hidden;margin-top:4px}
-    .phase-seg{display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;color:#000}
-    .phase-early{background:var(--bl)}.phase-mid{background:var(--yl)}.phase-late{background:var(--r)}
+    .phase-bar{display:flex;height:20px;border-radius:10px;overflow:hidden;margin-top:6px}
+    .phase-seg{display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;color:#fff}
+    .phase-early{background:#3b82f6}.phase-mid{background:var(--yl)}.phase-late{background:var(--accent)}
 
     /* HC BAR */
-    .hc-bar{display:flex;align-items:center;gap:6px;padding:2px 0}
+    .hc-bar{display:flex;align-items:center;gap:8px;padding:4px 0}
     .hc-label{width:50px;color:var(--txd);font-size:9px}
-    .hc-fill{height:10px;border-radius:2px;background:var(--or);min-width:2px}
+    .hc-fill{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--accent),#ef4444);min-width:4px}
     .hc-val{font-size:9px;color:var(--txb)}
 
     /* BIAS BAR */
-    .bias-bar{height:14px;border-radius:3px;display:flex;overflow:hidden;margin-top:4px}
-    .bias-buy{background:var(--g);height:100%}
-    .bias-sell{background:var(--r);height:100%}
+    .bias-bar{height:16px;border-radius:8px;display:flex;overflow:hidden;margin-top:6px}
+    .bias-buy{background:#22c55e;height:100%}
+    .bias-sell{background:var(--accent);height:100%}
   </style>
 </head>
 <body>
   <!-- NAV -->
   <nav class="nav">
-    <span class="nav-logo">PolyEdge.io</span>
+    <span class="nav-logo">🦞 <span>Poly</span>Claw</span>
     <a href="/">Trade Viewer</a>
-    <a href="/dashboard">Dashboard</a>
     <a href="/terminal" class="active">Terminal</a>
     <div class="nav-right">
       <span class="status-dot" id="statusDot"></span>
@@ -166,9 +168,9 @@
 
   <!-- EMPTY STATE -->
   <div id="emptyState" class="empty-state">
-    <h2>WALLET ANALYZER TERMINAL</h2>
+    <h2>🦞 POLYCLAW TERMINAL</h2>
     <p>Enter a Polymarket wallet address to begin analysis</p>
-    <p style="margin-top:8px;font-size:10px;color:var(--txd)">Analyzes strategy, P&amp;L, Kelly criterion, risk metrics, and more</p>
+    <p style="margin-top:10px;font-size:10px;color:var(--txd)">Strategy detection • P&amp;L tracking • Kelly criterion • Risk metrics • Live feed</p>
   </div>
 
   <!-- MAIN DASHBOARD (hidden until data) -->
@@ -473,7 +475,7 @@
       pnlGrid.innerHTML=windows.map(w=>{
         const d=tpnl[w]||{};
         const v=d.pnl||0;
-        return`<div class="pnl-cell"><div class="pnl-label">${w}</div><div class="pnl-val" style="color:${v>=0?'var(--g)':'var(--r)'}">${fmtPnl(v)}</div></div>`;
+        return`<div class="pnl-cell"><div class="pnl-label">${w}</div><div class="pnl-val" style="color:${v>=0?'#22c55e':'var(--accent)'}">${fmtPnl(v)}</div></div>`;
       }).join('');
 
       // ---- EXECUTION METRICS ----
@@ -585,7 +587,7 @@
       const isBuy=side==='BUY';
       const row=document.createElement('div');
       row.className='trade-row';
-      row.innerHTML=`<div class="trade-side ${isBuy?'buy':'sell'}">${side}</div><div class="trade-mkt" title="${t.t||''}">${t.t||'—'}</div><div class="trade-shares">${fmt(t.sz)} sh</div><div class="trade-price">${fmtPrice(t.p)}</div><div class="trade-val" style="color:${isBuy?'var(--g)':'var(--r)'}">$${fmt(t.v)}</div><div class="trade-time">${t.ts?new Date(t.ts*1000).toLocaleTimeString():'—'}</div>`;
+      row.innerHTML=`<div class="trade-side ${isBuy?'buy':'sell'}">${side}</div><div class="trade-mkt" title="${t.t||''}">${t.t||'—'}</div><div class="trade-shares">${fmt(t.sz)} sh</div><div class="trade-price">${fmtPrice(t.p)}</div><div class="trade-val" style="color:${isBuy?'#22c55e':'var(--accent)'}">$${fmt(t.v)}</div><div class="trade-time">${t.ts?new Date(t.ts*1000).toLocaleTimeString():'—'}</div>`;
       if(prepend)feed.insertBefore(row,feed.firstChild);
       else feed.appendChild(row);
       while(feed.children.length>150)feed.removeChild(feed.lastChild);

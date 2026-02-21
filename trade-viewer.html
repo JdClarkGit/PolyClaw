@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,65 +12,65 @@
     />
     <style>
       :root {
-        --background: 45 20% 92%;
-        --foreground: 20 10% 15%;
-        --card: 40 20% 92%;
-        --card-foreground: 20 10% 15%;
-        --primary: 0 70% 45%;
-        --primary-foreground: 40 30% 96%;
-        --secondary: 40 15% 88%;
-        --secondary-foreground: 20 10% 15%;
-        --muted: 40 15% 85%;
-        --muted-foreground: 20 10% 45%;
-        --accent: 0 70% 45%;
-        --accent-foreground: 40 30% 96%;
-        --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 40 30% 96%;
-        --border: 40 15% 80%;
-        --input: 40 15% 85%;
-        --ring: 0 70% 45%;
+        --background: 0 0% 8%;
+        --foreground: 0 0% 95%;
+        --card: 0 0% 12%;
+        --card-foreground: 0 0% 95%;
+        --primary: 0 75% 50%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 0 0% 18%;
+        --secondary-foreground: 0 0% 95%;
+        --muted: 0 0% 15%;
+        --muted-foreground: 0 0% 60%;
+        --accent: 0 75% 50%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 75% 50%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 0 0% 20%;
+        --input: 0 0% 15%;
+        --ring: 0 75% 50%;
         --radius: 0.5rem;
       }
 
       :root.dark {
-        --background: 20 10% 10%;
-        --foreground: 40 20% 92%;
-        --card: 20 10% 14%;
-        --card-foreground: 40 20% 92%;
-        --primary: 0 70% 55%;
-        --primary-foreground: 20 10% 10%;
-        --secondary: 20 10% 18%;
-        --secondary-foreground: 40 20% 92%;
-        --muted: 20 10% 20%;
-        --muted-foreground: 40 15% 60%;
-        --accent: 0 70% 55%;
-        --accent-foreground: 20 10% 10%;
-        --destructive: 0 62.8% 50%;
-        --destructive-foreground: 40 30% 96%;
-        --border: 20 10% 25%;
-        --input: 20 10% 20%;
-        --ring: 142 50% 45%;
+        --background: 0 0% 6%;
+        --foreground: 0 0% 95%;
+        --card: 0 0% 10%;
+        --card-foreground: 0 0% 95%;
+        --primary: 0 75% 50%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 0 0% 15%;
+        --secondary-foreground: 0 0% 95%;
+        --muted: 0 0% 12%;
+        --muted-foreground: 0 0% 55%;
+        --accent: 0 75% 50%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 75% 50%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 0 0% 18%;
+        --input: 0 0% 12%;
+        --ring: 0 75% 50%;
       }
 
       @media (prefers-color-scheme: dark) {
         :root:not(.light) {
-          --background: 20 10% 10%;
-          --foreground: 40 20% 92%;
-          --card: 20 10% 14%;
-          --card-foreground: 40 20% 92%;
-          --primary: 142 50% 45%;
-          --primary-foreground: 20 10% 10%;
-          --secondary: 20 10% 18%;
-          --secondary-foreground: 40 20% 92%;
-          --muted: 20 10% 20%;
-          --muted-foreground: 40 15% 60%;
-          --accent: 142 50% 45%;
-          --accent-foreground: 20 10% 10%;
-          --destructive: 0 62.8% 50%;
-          --destructive-foreground: 40 30% 96%;
-          --border: 20 10% 25%;
-          --input: 20 10% 20%;
-          --ring: 0 70% 55%;
+          --background: 0 0% 6%;
+          --foreground: 0 0% 95%;
+          --card: 0 0% 10%;
+          --card-foreground: 0 0% 95%;
+          --primary: 0 75% 50%;
+          --primary-foreground: 0 0% 100%;
+          --secondary: 0 0% 15%;
+          --secondary-foreground: 0 0% 95%;
+          --muted: 0 0% 12%;
+          --muted-foreground: 0 0% 55%;
+          --accent: 0 75% 50%;
+          --accent-foreground: 0 0% 100%;
+          --destructive: 0 75% 50%;
+          --destructive-foreground: 0 0% 100%;
+          --border: 0 0% 18%;
+          --input: 0 0% 12%;
+          --ring: 0 75% 50%;
         }
       }
 
@@ -180,27 +180,27 @@
         gap: 8px;
         background: hsl(var(--background));
         border: 1px solid hsl(var(--border));
-        border-radius: 8px;
-        padding: 4px 8px 4px 4px;
+        border-radius: 24px;
+        padding: 4px 12px 4px 4px;
       }
 
       .trade-count-input {
         width: 100px;
-        padding: 10px 12px;
-        font-size: 14px;
+        padding: 10px 14px;
+        font-size: 13px;
         font-family: "JetBrains Mono", monospace;
         background: hsl(var(--card));
         border: 1px solid hsl(var(--border));
-        border-radius: 6px;
+        border-radius: 20px;
         color: hsl(var(--foreground));
         text-align: center;
-        transition: all 0.2s ease;
+        transition: all 0.25s ease;
       }
 
       .trade-count-input:focus {
         outline: none;
         border-color: hsl(var(--primary));
-        box-shadow: 0 0 0 3px hsla(var(--primary), 0.1);
+        box-shadow: 0 0 0 3px hsla(var(--primary), 0.15);
       }
 
       .trade-count-input:disabled {
@@ -287,55 +287,62 @@
       }
 
       .btn-quick-filter {
-        padding: 8px 14px;
-        font-size: 12px;
-        font-weight: 500;
-        background: hsl(220 10% 18%);
-        color: hsl(0 0% 98%);
-        border: 1px solid hsl(220 10% 28%);
-        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 11px;
+        font-weight: 600;
+        background: hsl(0 0% 12%);
+        color: hsl(0 0% 80%);
+        border: 1px solid hsl(0 0% 20%);
+        border-radius: 20px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.25s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
       }
       .btn-quick-filter:hover {
-        background: hsl(220 10% 24%);
-        border-color: hsl(220 10% 35%);
+        background: hsl(0 0% 16%);
+        border-color: hsl(0 75% 50%);
+        color: hsl(0 0% 100%);
       }
       .btn-quick-filter.active {
-        background: hsl(var(--primary));
-        color: hsl(var(--primary-foreground));
-        border-color: hsl(var(--primary));
+        background: linear-gradient(135deg, hsl(0 75% 45%), hsl(0 70% 50%));
+        color: hsl(0 0% 100%);
+        border-color: transparent;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
       }
 
       .btn-clear-dates {
-        padding: 8px 14px;
-        font-size: 12px;
-        font-weight: 500;
+        padding: 8px 16px;
+        font-size: 11px;
+        font-weight: 600;
         background: transparent;
         color: hsl(var(--muted-foreground));
         border: 1px solid hsl(var(--border));
-        border-radius: 6px;
+        border-radius: 20px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.25s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
       }
       .btn-clear-dates:hover {
         background: hsl(var(--muted));
         color: hsl(var(--foreground));
+        border-color: hsl(var(--primary));
       }
 
       input[type="text"],
       input[type="date"] {
         flex: 1;
         min-width: 280px;
-        padding: 12px 16px;
-        font-size: 14px;
+        padding: 14px 20px;
+        font-size: 13px;
         font-family: "JetBrains Mono", monospace;
         background: hsl(var(--input));
         border: 1px solid hsl(var(--border));
-        border-radius: 8px;
+        border-radius: 24px;
         color: hsl(var(--foreground));
         outline: none;
-        transition: all 0.2s ease;
+        transition: all 0.25s ease;
       }
       input[type="date"] {
         min-width: 140px;
@@ -344,7 +351,7 @@
       input[type="text"]:focus,
       input[type="date"]:focus {
         border-color: hsl(var(--ring));
-        box-shadow: 0 0 0 3px hsl(var(--ring) / 0.15);
+        box-shadow: 0 0 0 4px hsl(var(--ring) / 0.15);
       }
       input[type="text"]::placeholder,
       input[type="date"]::placeholder {
@@ -352,26 +359,26 @@
       }
 
       select {
-        padding: 12px 16px;
-        font-size: 14px;
+        padding: 14px 20px;
+        font-size: 13px;
         font-family: "Inter", sans-serif;
-        background: hsl(220 10% 18%);
-        border: 1px solid hsl(220 10% 25%);
-        border-radius: var(--radius);
-        color: hsl(0 0% 98%);
+        background: hsl(0 0% 10%);
+        border: 1px solid hsl(0 0% 18%);
+        border-radius: 20px;
+        color: hsl(0 0% 95%);
         outline: none;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.25s ease;
         -webkit-appearance: none;
         appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
-        background-position: right 12px center;
-        padding-right: 36px;
+        background-position: right 14px center;
+        padding-right: 40px;
       }
       select:hover {
-        background: hsl(220 10% 22%);
-        border-color: hsl(220 10% 30%);
+        background: hsl(0 0% 14%);
+        border-color: hsl(0 75% 50%);
       }
       select:focus {
         border-color: hsl(var(--ring));
@@ -383,58 +390,62 @@
       }
 
       button {
-        padding: 12px 20px;
-        font-size: 14px;
+        padding: 12px 24px;
+        font-size: 13px;
         font-family: "Inter", sans-serif;
-        font-weight: 500;
+        font-weight: 600;
         border: none;
-        border-radius: 8px;
+        border-radius: 24px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.25s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
       }
 
       .btn-primary,
       .btn-analyze {
-        background: hsl(142 45% 38%);
-        color: hsl(40 30% 96%);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(135deg, hsl(0 75% 45%), hsl(0 70% 50%));
+        color: hsl(0 0% 100%);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
       }
       .btn-primary:hover,
       .btn-analyze:hover {
-        background: hsl(142 45% 32%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        background: linear-gradient(135deg, hsl(0 75% 40%), hsl(0 70% 45%));
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
       }
 
       .btn-ai {
-        background: linear-gradient(135deg, hsl(280 60% 50%), hsl(200 70% 50%));
+        background: linear-gradient(135deg, hsl(0 70% 40%), hsl(0 75% 50%));
         color: white;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
       }
       .btn-ai:hover {
-        background: linear-gradient(135deg, hsl(280 60% 45%), hsl(200 70% 45%));
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        background: linear-gradient(135deg, hsl(0 70% 35%), hsl(0 75% 45%));
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
       }
 
       .btn-strategy {
-        background: linear-gradient(135deg, hsl(0 70% 55%), hsl(20 80% 50%));
+        background: linear-gradient(135deg, hsl(0 70% 50%), hsl(0 75% 55%));
         color: white;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
       }
       .btn-strategy:hover {
-        background: linear-gradient(135deg, hsl(0 70% 50%), hsl(20 80% 45%));
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        background: linear-gradient(135deg, hsl(0 70% 45%), hsl(0 75% 50%));
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
       }
 
       .btn-secondary {
         background: hsl(var(--secondary));
         color: hsl(var(--secondary-foreground));
         border: 1px solid hsl(var(--border));
+        border-radius: 24px;
       }
       .btn-secondary:hover {
         background: hsl(var(--muted));
+        transform: translateY(-1px);
       }
 
       button:disabled {
@@ -693,7 +704,7 @@
       }
 
       .toast.info {
-        border-left: 4px solid hsl(200 70% 50%);
+        border-left: 4px solid hsl(0 0% 60%);
       }
 
       .toast-icon {
@@ -813,7 +824,7 @@
 
       .progress-bar-fill {
         height: 100%;
-        background: linear-gradient(90deg, hsl(var(--primary)), hsl(142 60% 55%));
+        background: linear-gradient(90deg, hsl(0 75% 40%), hsl(0 75% 55%));
         border-radius: 4px;
         transition: width 0.3s ease;
         position: relative;
@@ -938,24 +949,26 @@
       .btn-terminal {
         display: flex;
         align-items: center;
-        gap: 6px;
-        padding: 8px 14px;
+        gap: 8px;
+        padding: 10px 18px;
         font-family: "JetBrains Mono", monospace;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-weight: 600;
-        color: hsl(0 70% 55%);
-        background: hsl(142 50% 45% / 0.1);
-        border: 1px solid hsl(142 50% 45% / 0.3);
-        border-radius: var(--radius);
+        color: hsl(0 75% 60%);
+        background: hsl(0 75% 50% / 0.08);
+        border: 1px solid hsl(0 75% 50% / 0.25);
+        border-radius: 20px;
         text-decoration: none;
-        transition: all 0.2s ease;
-        letter-spacing: 0.03em;
+        transition: all 0.25s ease;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
       }
       .btn-terminal:hover {
-        background: hsl(142 50% 45% / 0.2);
-        border-color: hsl(142 50% 45% / 0.5);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px hsl(142 50% 45% / 0.15);
+        background: hsl(0 75% 50% / 0.15);
+        border-color: hsl(0 75% 50% / 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px hsl(0 75% 50% / 0.2);
+        color: hsl(0 0% 100%);
       }
       .btn-terminal svg {
         width: 14px;
@@ -1194,10 +1207,10 @@
         font-weight: 600;
         background: linear-gradient(
           135deg,
-          hsl(var(--primary)),
-          hsl(200 70% 45%)
+          hsl(0 75% 40%),
+          hsl(0 75% 55%)
         );
-        color: hsl(var(--primary-foreground));
+        color: hsl(0 0% 100%);
         margin-bottom: 16px;
       }
 
@@ -1313,20 +1326,23 @@
       }
 
       .btn-small {
-        padding: 8px 14px;
-        font-size: 12px;
+        padding: 8px 16px;
+        font-size: 11px;
         background: hsl(var(--secondary));
         border: 1px solid hsl(var(--border));
-        border-radius: 8px;
+        border-radius: 20px;
         cursor: pointer;
         color: hsl(var(--foreground));
-        transition: all 0.2s ease;
-        font-weight: 500;
+        transition: all 0.25s ease;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
       }
       .btn-small:hover {
-        background: hsl(var(--primary) / 0.1);
-        border-color: hsl(var(--primary) / 0.3);
-        transform: translateY(-1px);
+        background: hsl(var(--primary) / 0.15);
+        border-color: hsl(var(--primary) / 0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px hsl(var(--primary) / 0.15);
       }
 
       .comparison-hint {
@@ -1655,7 +1671,7 @@
 
       .pair-trade-card.arbitrage {
         border-left: 3px solid hsl(0 70% 55%);
-        background: hsl(142 50% 45% / 0.05);
+        background: hsl(0 75% 50% / 0.05);
       }
 
       .pair-trade-header {
@@ -1862,7 +1878,7 @@
       }
 
       .frequency-flag.normal {
-        background: hsl(142 50% 45% / 0.1);
+        background: hsl(0 75% 50% / 0.1);
         border: 1px solid hsl(0 70% 55%);
         color: hsl(0 70% 55%);
       }
@@ -1914,7 +1930,7 @@
       }
 
       .ai-modal-title .ai-icon {
-        background: linear-gradient(135deg, hsl(280 60% 50%), hsl(200 70% 50%));
+        background: linear-gradient(135deg, hsl(0 75% 40%), hsl(0 75% 55%));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -1978,14 +1994,14 @@
         border-color: hsl(var(--muted-foreground));
       }
       .ai-provider-btn.active {
-        border-color: hsl(280 60% 50%);
-        background: hsl(280 60% 50% / 0.1);
-        color: hsl(280 60% 60%);
+        border-color: hsl(0 75% 50%);
+        background: hsl(0 75% 50% / 0.1);
+        color: hsl(0 75% 60%);
       }
       .ai-provider-btn.active.anthropic {
-        border-color: hsl(25 90% 55%);
-        background: hsl(25 90% 55% / 0.1);
-        color: hsl(25 90% 60%);
+        border-color: hsl(0 60% 45%);
+        background: hsl(0 60% 45% / 0.1);
+        color: hsl(0 60% 55%);
       }
 
       .ai-prompt-select {
@@ -2020,7 +2036,7 @@
         padding: 16px 24px;
         font-size: 1rem;
         font-weight: 600;
-        background: linear-gradient(135deg, hsl(280 60% 50%), hsl(200 70% 50%));
+        background: linear-gradient(135deg, hsl(0 75% 40%), hsl(0 75% 55%));
         color: white;
         border: none;
         border-radius: 10px;
@@ -2108,7 +2124,7 @@
         width: 48px;
         height: 48px;
         border: 3px solid hsl(var(--border));
-        border-top-color: hsl(280 60% 50%);
+        border-top-color: hsl(0 75% 50%);
         border-radius: 50%;
         animation: spin 1s linear infinite;
         margin: 0 auto 16px;
@@ -2139,6 +2155,16 @@
           </p>
         </div>
         <div class="header-right">
+          <button onclick="openCmdPalette()" class="btn-terminal" title="Command Palette (⌘K)" style="margin-right: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <span style="margin-left: 4px; font-size: 11px; opacity: 0.7;">⌘K</span>
+          </button>
+          <a href="/leaderboard" class="btn-terminal" title="Leaderboard" style="margin-right: 8px;">
+            🏆 Leaderboard
+          </a>
           <a href="/terminal" class="btn-terminal" title="Terminal Mode">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="4 17 10 11 4 5"></polyline>
@@ -2890,10 +2916,758 @@ Exit 24h before resolution"></textarea>
         border-bottom: none;
       }
       .trade-feed-item.buy {
-        border-left: 3px solid hsl(142 50% 45%);
+        border-left: 3px solid hsl(0 75% 50%);
       }
       .trade-feed-item.sell {
         border-left: 3px solid hsl(0 70% 55%);
+      }
+
+      /* Command Palette (Cmd+K) */
+      .cmd-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 2000;
+        display: none;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 15vh;
+      }
+      .cmd-overlay.open {
+        display: flex;
+      }
+      .cmd-palette {
+        width: 560px;
+        max-width: 90vw;
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+      }
+      .cmd-input-wrapper {
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid hsl(var(--border));
+        gap: 12px;
+      }
+      .cmd-input-wrapper svg {
+        width: 20px;
+        height: 20px;
+        color: hsl(var(--muted-foreground));
+      }
+      .cmd-input {
+        flex: 1;
+        background: none;
+        border: none;
+        font-size: 16px;
+        color: hsl(var(--foreground));
+        outline: none;
+        font-family: inherit;
+      }
+      .cmd-input::placeholder {
+        color: hsl(var(--muted-foreground));
+      }
+      .cmd-kbd {
+        background: hsl(var(--muted));
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-family: "JetBrains Mono", monospace;
+        color: hsl(var(--muted-foreground));
+      }
+      .cmd-results {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 8px;
+      }
+      .cmd-group {
+        padding: 8px 0;
+      }
+      .cmd-group-title {
+        font-size: 11px;
+        font-weight: 600;
+        color: hsl(var(--muted-foreground));
+        padding: 4px 12px 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .cmd-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        gap: 12px;
+        transition: background 0.15s ease;
+      }
+      .cmd-item:hover, .cmd-item.selected {
+        background: hsl(var(--muted));
+      }
+      .cmd-item-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: hsl(var(--background));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+      .cmd-item-content {
+        flex: 1;
+      }
+      .cmd-item-title {
+        font-weight: 500;
+        color: hsl(var(--foreground));
+      }
+      .cmd-item-desc {
+        font-size: 12px;
+        color: hsl(var(--muted-foreground));
+      }
+      .cmd-item-shortcut {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: hsl(var(--muted-foreground));
+        background: hsl(var(--background));
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+
+      /* Control Panel */
+      .control-panel {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 320px;
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        z-index: 900;
+        display: none;
+        overflow: hidden;
+      }
+      .control-panel.open {
+        display: block;
+      }
+      .control-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid hsl(var(--border));
+        background: hsl(var(--background));
+      }
+      .control-panel-header h3 {
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .control-panel-close {
+        background: none;
+        border: none;
+        color: hsl(var(--muted-foreground));
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+      }
+      .control-panel-close:hover {
+        background: hsl(var(--muted));
+        color: hsl(var(--foreground));
+      }
+      .control-section {
+        padding: 16px 20px;
+        border-bottom: 1px solid hsl(var(--border));
+      }
+      .control-section:last-child {
+        border-bottom: none;
+      }
+      .control-section-title {
+        font-size: 11px;
+        font-weight: 600;
+        color: hsl(var(--muted-foreground));
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 12px;
+      }
+      .daemon-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px;
+        background: hsl(var(--background));
+        border-radius: 10px;
+        margin-bottom: 12px;
+      }
+      .daemon-status-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .daemon-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: hsl(var(--muted-foreground));
+      }
+      .daemon-indicator.running {
+        background: #22c55e;
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+      }
+      .daemon-status-text {
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .daemon-status-sub {
+        font-size: 11px;
+        color: hsl(var(--muted-foreground));
+      }
+      .daemon-btn {
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: none;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .daemon-btn.start {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+      }
+      .daemon-btn.stop {
+        background: linear-gradient(135deg, hsl(0 75% 50%), hsl(0 70% 45%));
+        color: white;
+      }
+      .daemon-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      .tracked-wallets-list {
+        max-height: 180px;
+        overflow-y: auto;
+      }
+      .tracked-wallet-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        background: hsl(var(--background));
+        border-radius: 8px;
+        margin-bottom: 8px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+      }
+      .tracked-wallet-item:last-child {
+        margin-bottom: 0;
+      }
+      .tracked-wallet-addr {
+        color: hsl(var(--foreground));
+      }
+      .tracked-wallet-remove {
+        background: none;
+        border: none;
+        color: hsl(var(--muted-foreground));
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      .tracked-wallet-remove:hover {
+        background: hsl(0 75% 50% / 0.2);
+        color: hsl(0 75% 50%);
+      }
+      .add-tracking-form {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .add-tracking-input {
+        flex: 1;
+        padding: 10px 14px;
+        border-radius: 20px;
+        border: 1px solid hsl(var(--border));
+        background: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-size: 12px;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .add-tracking-btn {
+        padding: 10px 18px;
+        border-radius: 20px;
+        border: none;
+        background: linear-gradient(135deg, hsl(0 75% 50%), hsl(0 70% 45%));
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .add-tracking-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      }
+      .system-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .stat-box {
+        padding: 12px;
+        background: hsl(var(--background));
+        border-radius: 10px;
+        text-align: center;
+      }
+      .stat-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: hsl(var(--primary));
+      }
+      .stat-label {
+        font-size: 10px;
+        color: hsl(var(--muted-foreground));
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+      .control-btn {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        margin-top: 8px;
+        border-radius: 20px;
+        border: 1px solid hsl(var(--border));
+        background: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        text-decoration: none;
+      }
+      .control-btn:hover {
+        background: hsl(var(--muted));
+        border-color: hsl(var(--primary));
+      }
+
+      /* Control Panel Toggle Button */
+      .control-toggle {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        z-index: 899;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      .control-toggle:hover {
+        background: hsl(var(--muted));
+        transform: scale(1.05);
+      }
+
+      /* PolyClaw Chat Panel */
+      .chat-fab {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 60px;
+        height: 60px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, hsl(0 75% 45%), hsl(0 70% 55%));
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+      .chat-fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 30px rgba(220, 38, 38, 0.5);
+      }
+      .chat-fab.active {
+        transform: rotate(90deg);
+      }
+
+      .chat-panel {
+        position: fixed;
+        top: 0;
+        right: -420px;
+        width: 400px;
+        height: 100vh;
+        background: hsl(var(--card));
+        border-left: 1px solid hsl(var(--border));
+        display: flex;
+        flex-direction: column;
+        transition: right 0.3s ease;
+        z-index: 999;
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+      }
+      .chat-panel.open {
+        right: 0;
+      }
+
+      .chat-header {
+        padding: 20px;
+        background: linear-gradient(135deg, hsl(0 75% 40%), hsl(0 70% 50%));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .chat-header-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .chat-close {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 16px;
+        cursor: pointer;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+      .chat-close:hover {
+        background: rgba(255,255,255,0.3);
+      }
+
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .chat-message {
+        max-width: 85%;
+        padding: 12px 16px;
+        border-radius: 16px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .chat-message.user {
+        align-self: flex-end;
+        background: linear-gradient(135deg, hsl(0 75% 45%), hsl(0 70% 50%));
+        color: white;
+        border-bottom-right-radius: 4px;
+      }
+      .chat-message.assistant {
+        align-self: flex-start;
+        background: hsl(var(--secondary));
+        color: hsl(var(--foreground));
+        border-bottom-left-radius: 4px;
+      }
+      .chat-message.assistant pre {
+        background: hsl(var(--background));
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin: 8px 0;
+        overflow-x: auto;
+        font-size: 12px;
+      }
+      .chat-message.assistant code {
+        background: hsl(var(--background));
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+
+      .chat-typing {
+        display: flex;
+        gap: 4px;
+        padding: 12px 16px;
+        align-self: flex-start;
+      }
+      .chat-typing span {
+        width: 8px;
+        height: 8px;
+        background: hsl(var(--muted-foreground));
+        border-radius: 50%;
+        animation: typing 1.4s infinite;
+      }
+      .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+      .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+      @keyframes typing {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-4px); }
+      }
+
+      .chat-input-area {
+        padding: 16px;
+        border-top: 1px solid hsl(var(--border));
+        background: hsl(var(--background));
+      }
+      .chat-input-wrapper {
+        display: flex;
+        gap: 10px;
+      }
+      .chat-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 1px solid hsl(var(--border));
+        border-radius: 24px;
+        background: hsl(var(--card));
+        color: hsl(var(--foreground));
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s;
+      }
+      .chat-input:focus {
+        border-color: hsl(0 75% 50%);
+        box-shadow: 0 0 0 3px hsl(0 75% 50% / 0.15);
+      }
+      .chat-send {
+        width: 44px;
+        height: 44px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, hsl(0 75% 45%), hsl(0 70% 50%));
+        border: none;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+      .chat-send:hover {
+        transform: scale(1.05);
+      }
+      .chat-send:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .chat-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px 16px;
+        border-top: 1px solid hsl(var(--border));
+      }
+      .chat-suggestion {
+        padding: 8px 14px;
+        font-size: 12px;
+        background: hsl(var(--secondary));
+        border: 1px solid hsl(var(--border));
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: hsl(var(--foreground));
+      }
+      .chat-suggestion:hover {
+        background: hsl(0 75% 50% / 0.1);
+        border-color: hsl(0 75% 50% / 0.3);
+        color: hsl(0 75% 60%);
+      }
+
+      /* Settings Modal */
+      .settings-btn {
+        position: fixed;
+        bottom: 24px;
+        left: 24px;
+        width: 48px;
+        height: 48px;
+        border-radius: 24px;
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+      .settings-btn:hover {
+        background: hsl(var(--secondary));
+        border-color: hsl(var(--primary));
+        transform: rotate(45deg);
+      }
+
+      .settings-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.7);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+      }
+      .settings-modal.open { display: flex; }
+
+      .settings-content {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: 16px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .settings-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid hsl(var(--border));
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .settings-title {
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .settings-close {
+        background: hsl(var(--secondary));
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 16px;
+        cursor: pointer;
+        font-size: 18px;
+        color: hsl(var(--foreground));
+      }
+
+      .settings-body { padding: 24px; }
+
+      .settings-section {
+        margin-bottom: 24px;
+      }
+      .settings-section:last-child { margin-bottom: 0; }
+      .settings-section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: hsl(var(--primary));
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .channel-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .channel-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        border-radius: 12px;
+      }
+      .channel-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+      .channel-icon.discord { background: #5865F2; }
+      .channel-icon.telegram { background: #0088cc; }
+      .channel-info { flex: 1; }
+      .channel-name { font-weight: 500; }
+      .channel-status {
+        font-size: 12px;
+        color: hsl(var(--muted-foreground));
+      }
+      .channel-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .channel-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+        background: hsl(var(--secondary));
+        border: 1px solid hsl(var(--border));
+        border-radius: 16px;
+        cursor: pointer;
+        color: hsl(var(--foreground));
+        transition: all 0.2s;
+      }
+      .channel-btn:hover {
+        border-color: hsl(var(--primary));
+      }
+      .channel-btn.delete {
+        color: hsl(var(--primary));
+      }
+
+      .add-channel-form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+        background: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        border-radius: 12px;
+        margin-top: 12px;
+      }
+      .add-channel-input {
+        padding: 12px 16px;
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: 20px;
+        color: hsl(var(--foreground));
+        font-size: 14px;
+      }
+      .add-channel-input:focus {
+        outline: none;
+        border-color: hsl(var(--primary));
+      }
+      .add-channel-btn {
+        padding: 12px 20px;
+        background: linear-gradient(135deg, hsl(0 75% 45%), hsl(0 70% 50%));
+        border: none;
+        border-radius: 20px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .add-channel-btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .empty-channels {
+        text-align: center;
+        padding: 24px;
+        color: hsl(var(--muted-foreground));
+        font-size: 14px;
       }
     </style>
 
@@ -2903,22 +3677,17 @@ Exit 24h before resolution"></textarea>
       let currentData = null;
       let currentAnalysis = null;
 
-      // Theme management
+      // Theme management - default to dark mode
       function initTheme() {
         const saved = localStorage.getItem("theme");
-        if (saved === "dark") {
-          document.documentElement.classList.add("dark");
-          document.documentElement.classList.remove("light");
-          updateThemeUI(true);
-        } else if (saved === "light") {
+        if (saved === "light") {
           document.documentElement.classList.add("light");
           document.documentElement.classList.remove("dark");
           updateThemeUI(false);
         } else {
-          const prefersDark = window.matchMedia(
-            "(prefers-color-scheme: dark)",
-          ).matches;
-          updateThemeUI(prefersDark);
+          document.documentElement.classList.add("dark");
+          document.documentElement.classList.remove("light");
+          updateThemeUI(true);
         }
       }
 
@@ -4601,6 +5370,997 @@ Exit 24h before resolution"></textarea>
       // Check if pricing should be hidden
       if (localStorage.getItem("hidePricing") === "true") {
         document.getElementById("pricingBanner").style.display = "none";
+      }
+
+      // ============================================================
+      // COMMAND PALETTE & CONTROL PANEL
+      // ============================================================
+      
+      let controlPanelOpen = false;
+      let cmdPaletteOpen = false;
+      let daemonRunning = false;
+
+      // Keyboard shortcut: Cmd+K / Ctrl+K for command palette
+      document.addEventListener('keydown', function(e) {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+          e.preventDefault();
+          openCmdPalette();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === 'p' && !e.shiftKey) {
+          e.preventDefault();
+          toggleControlPanel();
+        }
+        if (e.key === 'c' && !e.target.matches('input, textarea')) {
+          toggleChat();
+        }
+        if (e.key === 'Escape') {
+          if (cmdPaletteOpen) closeCmdPalette();
+          if (controlPanelOpen) toggleControlPanel();
+        }
+      });
+
+      function openCmdPalette() {
+        cmdPaletteOpen = true;
+        document.getElementById('cmdOverlay').classList.add('open');
+        document.getElementById('cmdInput').value = '';
+        document.getElementById('cmdInput').focus();
+        filterCommands();
+      }
+
+      function closeCmdPalette(e) {
+        if (e && e.target !== document.getElementById('cmdOverlay')) return;
+        cmdPaletteOpen = false;
+        document.getElementById('cmdOverlay').classList.remove('open');
+      }
+
+      function filterCommands(e) {
+        const query = document.getElementById('cmdInput').value.toLowerCase();
+        const items = document.querySelectorAll('.cmd-item');
+        const groups = document.querySelectorAll('.cmd-group');
+        
+        items.forEach(item => {
+          const title = item.querySelector('.cmd-item-title').textContent.toLowerCase();
+          const desc = item.querySelector('.cmd-item-desc').textContent.toLowerCase();
+          const matches = title.includes(query) || desc.includes(query);
+          item.style.display = matches ? 'flex' : 'none';
+        });
+        
+        // Hide empty groups
+        groups.forEach(group => {
+          const visibleItems = group.querySelectorAll('.cmd-item[style="display: flex"], .cmd-item:not([style])');
+          const hasVisible = Array.from(group.querySelectorAll('.cmd-item')).some(item => item.style.display !== 'none');
+          group.style.display = hasVisible ? 'block' : 'none';
+        });
+      }
+
+      function handleCmdKeydown(e) {
+        if (e.key === 'Escape') {
+          closeCmdPalette();
+        } else if (e.key === 'Enter') {
+          const query = document.getElementById('cmdInput').value.trim();
+          if (query.startsWith('0x')) {
+            // Looks like a wallet address - analyze it
+            document.getElementById('walletInput').value = query;
+            fetchTrades();
+            closeCmdPalette();
+          }
+        }
+      }
+
+      function toggleControlPanel() {
+        controlPanelOpen = !controlPanelOpen;
+        document.getElementById('controlPanel').classList.toggle('open', controlPanelOpen);
+        if (controlPanelOpen) {
+          loadControlPanelData();
+        }
+      }
+
+      async function loadControlPanelData() {
+        try {
+          // Load system info
+          const sysRes = await fetch('/api/system/info');
+          const sysData = await sysRes.json();
+          
+          // Update daemon status
+          daemonRunning = sysData.daemon.running;
+          updateDaemonUI();
+          
+          // Update stats
+          document.getElementById('statTracked').textContent = sysData.tracking.count;
+          document.getElementById('statChannels').textContent = sysData.channels.discord + sysData.channels.telegram;
+          document.getElementById('statAI').textContent = sysData.ai.available ? '✓' : '✗';
+          document.getElementById('statDaemon').textContent = sysData.daemon.running ? '✓' : '✗';
+          
+          // Load tracked wallets
+          loadTrackedWallets();
+        } catch (err) {
+          console.error('Failed to load control panel data:', err);
+        }
+      }
+
+      function updateDaemonUI() {
+        const indicator = document.getElementById('daemonIndicator');
+        const statusText = document.getElementById('daemonStatusText');
+        const statusSub = document.getElementById('daemonStatusSub');
+        const btn = document.getElementById('daemonBtn');
+        
+        if (daemonRunning) {
+          indicator.classList.add('running');
+          statusText.textContent = 'Running';
+          statusSub.textContent = 'Monitoring tracked wallets';
+          btn.textContent = 'Stop';
+          btn.className = 'daemon-btn stop';
+        } else {
+          indicator.classList.remove('running');
+          statusText.textContent = 'Stopped';
+          statusSub.textContent = 'Not monitoring';
+          btn.textContent = 'Start';
+          btn.className = 'daemon-btn start';
+        }
+      }
+
+      async function toggleDaemon() {
+        const btn = document.getElementById('daemonBtn');
+        btn.disabled = true;
+        btn.textContent = '...';
+        
+        try {
+          const endpoint = daemonRunning ? '/api/daemon/stop' : '/api/daemon/start';
+          const res = await fetch(endpoint, { method: 'POST' });
+          const data = await res.json();
+          
+          if (data.success) {
+            daemonRunning = !daemonRunning;
+            updateDaemonUI();
+            showToast(daemonRunning ? 'Daemon started' : 'Daemon stopped');
+          } else {
+            showToast(data.error || 'Failed to toggle daemon', 'error');
+          }
+        } catch (err) {
+          showToast('Failed to toggle daemon', 'error');
+        }
+        
+        btn.disabled = false;
+        updateDaemonUI();
+      }
+
+      async function loadTrackedWallets() {
+        try {
+          const res = await fetch('/api/tracking/list');
+          const data = await res.json();
+          
+          const list = document.getElementById('trackedWalletsList');
+          
+          if (data.wallets.length === 0) {
+            list.innerHTML = '<div style="text-align: center; color: hsl(var(--muted-foreground)); padding: 20px; font-size: 13px;">No wallets tracked yet</div>';
+            return;
+          }
+          
+          list.innerHTML = data.wallets.map(w => `
+            <div class="tracked-wallet-item">
+              <span class="tracked-wallet-addr">${w.short}</span>
+              <button class="tracked-wallet-remove" onclick="removeTrackedWallet('${w.address}')" title="Remove">✕</button>
+            </div>
+          `).join('');
+        } catch (err) {
+          console.error('Failed to load tracked wallets:', err);
+        }
+      }
+
+      async function addTrackedWallet() {
+        const input = document.getElementById('addTrackingInput');
+        const wallet = input.value.trim();
+        
+        if (!wallet) return;
+        
+        try {
+          const res = await fetch('/api/tracking/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wallet })
+          });
+          const data = await res.json();
+          
+          if (data.success) {
+            input.value = '';
+            loadTrackedWallets();
+            loadControlPanelData();
+            showToast(`Now tracking ${wallet.slice(0,8)}...`);
+          } else {
+            showToast(data.error || 'Failed to add wallet', 'error');
+          }
+        } catch (err) {
+          showToast('Failed to add wallet', 'error');
+        }
+      }
+
+      async function removeTrackedWallet(wallet) {
+        try {
+          const res = await fetch('/api/tracking/remove', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wallet })
+          });
+          const data = await res.json();
+          
+          if (data.success) {
+            loadTrackedWallets();
+            loadControlPanelData();
+            showToast(`Stopped tracking ${wallet.slice(0,8)}...`);
+          }
+        } catch (err) {
+          showToast('Failed to remove wallet', 'error');
+        }
+      }
+
+      // Command palette actions
+      function cmdAnalyze() {
+        closeCmdPalette();
+        const wallet = prompt('Enter wallet address to analyze:');
+        if (wallet) {
+          document.getElementById('walletInput').value = wallet;
+          fetchTrades();
+        }
+      }
+
+      function cmdCompare() {
+        closeCmdPalette();
+        const w1 = prompt('Enter first wallet address:');
+        if (!w1) return;
+        const w2 = prompt('Enter second wallet address:');
+        if (!w2) return;
+        
+        // TODO: Implement comparison view
+        window.open(`/api/compare?wallets=${w1},${w2}`, '_blank');
+      }
+
+      function cmdTrack() {
+        closeCmdPalette();
+        const wallet = prompt('Enter wallet address to track:');
+        if (wallet) {
+          fetch('/api/tracking/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wallet })
+          }).then(r => r.json()).then(data => {
+            showToast(data.success ? `Now tracking ${wallet.slice(0,8)}...` : data.error);
+          });
+        }
+      }
+
+      function cmdListTracked() {
+        closeCmdPalette();
+        toggleControlPanel();
+      }
+
+      function cmdStrategy() {
+        closeCmdPalette();
+        toggleChat();
+        setTimeout(() => {
+          document.getElementById('chatInput').value = 'What trading strategies would you recommend for me?';
+          sendChatMessage();
+        }, 500);
+      }
+
+      function cmdDaemonToggle() {
+        closeCmdPalette();
+        toggleDaemon();
+      }
+
+      function cmdExportCSV() {
+        const wallet = document.getElementById('walletInput').value.trim();
+        if (!wallet) {
+          showToast('Load a wallet first', 'error');
+          closeCmdPalette();
+          return;
+        }
+        window.open(`/api/download/${wallet}/csv`, '_blank');
+        closeCmdPalette();
+      }
+
+      function cmdExportExcel() {
+        const wallet = document.getElementById('walletInput').value.trim();
+        if (!wallet) {
+          showToast('Load a wallet first', 'error');
+          closeCmdPalette();
+          return;
+        }
+        window.open(`/api/download/${wallet}/xlsx`, '_blank');
+        closeCmdPalette();
+      }
+
+      // Initialize control panel on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        // Check daemon status silently
+        fetch('/api/daemon/status').then(r => r.json()).then(data => {
+          daemonRunning = data.running;
+        }).catch(() => {});
+      });
+
+      // ============================================================
+      // POLYCLAW CHAT
+      // ============================================================
+      
+      // PolyClaw Chat
+      let chatHistory = [];
+      let chatOpen = false;
+
+      function toggleChat() {
+        chatOpen = !chatOpen;
+        document.getElementById('chatPanel').classList.toggle('open', chatOpen);
+        document.getElementById('chatFab').classList.toggle('active', chatOpen);
+        if (chatOpen && chatHistory.length === 0) {
+          addChatMessage('assistant', "Hey! I'm PolyClaw 🦞 your AI trading assistant for Polymarket.\n\nI can help you:\n• Analyze wallet strategies\n• Compare traders\n• Build trading bots\n• Find arbitrage opportunities\n• Develop your trading strategy\n\nWhat would you like to explore?");
+        }
+      }
+
+      function addChatMessage(role, content) {
+        chatHistory.push({ role, content });
+        renderChatMessages();
+      }
+
+      function renderChatMessages() {
+        const container = document.getElementById('chatMessages');
+        container.innerHTML = chatHistory.map(msg => `
+          <div class="chat-message ${msg.role}">
+            ${formatChatContent(msg.content)}
+          </div>
+        `).join('');
+        container.scrollTop = container.scrollHeight;
+      }
+
+      function formatChatContent(content) {
+        return content
+          .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+          .replace(/`([^`]+)`/g, '<code>$1</code>')
+          .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+          .replace(/\n/g, '<br>');
+      }
+
+      function showTyping() {
+        const container = document.getElementById('chatMessages');
+        container.innerHTML += '<div class="chat-typing" id="typingIndicator"><span></span><span></span><span></span></div>';
+        container.scrollTop = container.scrollHeight;
+      }
+
+      function hideTyping() {
+        const typing = document.getElementById('typingIndicator');
+        if (typing) typing.remove();
+      }
+
+      function useSuggestion(text) {
+        document.getElementById('chatInput').value = text;
+        sendChatMessage();
+      }
+
+      async function sendChatMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (!message) return;
+
+        input.value = '';
+        addChatMessage('user', message);
+        showTyping();
+        document.getElementById('chatSendBtn').disabled = true;
+
+        try {
+          const contextData = {
+            current_wallet: currentWallet || null,
+            trades_loaded: currentData ? currentData.trades?.length : 0,
+            summary: currentData?.summary || null
+          };
+
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message,
+              history: chatHistory.slice(-10),
+              context: contextData
+            })
+          });
+
+          hideTyping();
+          const data = await response.json();
+          
+          if (data.error) {
+            addChatMessage('assistant', "Sorry, I encountered an error: " + data.error + "\n\nMake sure you have an API key set in your .env file (OPENAI_API_KEY or ANTHROPIC_API_KEY).");
+          } else {
+            addChatMessage('assistant', data.response);
+          }
+        } catch (error) {
+          hideTyping();
+          addChatMessage('assistant', "I'm having trouble connecting right now. Make sure the server is running and you have API keys configured.\n\nError: " + error.message);
+        }
+
+        document.getElementById('chatSendBtn').disabled = false;
+      }
+
+      document.addEventListener('keypress', (e) => {
+        if (e.target.id === 'chatInput' && e.key === 'Enter') {
+          sendChatMessage();
+        }
+      });
+    </script>
+
+    <!-- PolyClaw Chat FAB -->
+    <!-- Control Panel Toggle -->
+    <button class="control-toggle" id="controlToggle" onclick="toggleControlPanel()" title="Control Panel (Ctrl+P)">
+      🎛️
+    </button>
+
+    <!-- Control Panel -->
+    <div class="control-panel" id="controlPanel">
+      <div class="control-panel-header">
+        <h3>🦞 PolyClaw Control</h3>
+        <button class="control-panel-close" onclick="toggleControlPanel()">✕</button>
+      </div>
+      
+      <div class="control-section">
+        <div class="control-section-title">Background Daemon</div>
+        <div class="daemon-status" id="daemonStatus">
+          <div class="daemon-status-info">
+            <div class="daemon-indicator" id="daemonIndicator"></div>
+            <div>
+              <div class="daemon-status-text" id="daemonStatusText">Checking...</div>
+              <div class="daemon-status-sub" id="daemonStatusSub"></div>
+            </div>
+          </div>
+          <button class="daemon-btn start" id="daemonBtn" onclick="toggleDaemon()">Start</button>
+        </div>
+      </div>
+      
+      <div class="control-section">
+        <div class="control-section-title">Tracked Wallets</div>
+        <div class="tracked-wallets-list" id="trackedWalletsList">
+          <div style="text-align: center; color: hsl(var(--muted-foreground)); padding: 20px; font-size: 13px;">
+            Loading...
+          </div>
+        </div>
+        <div class="add-tracking-form">
+          <input type="text" class="add-tracking-input" id="addTrackingInput" placeholder="0x... wallet address">
+          <button class="add-tracking-btn" onclick="addTrackedWallet()">Track</button>
+        </div>
+      </div>
+      
+      <div class="control-section">
+        <div class="control-section-title">System</div>
+        <div class="system-stats" id="systemStats">
+          <div class="stat-box">
+            <div class="stat-value" id="statTracked">-</div>
+            <div class="stat-label">Tracked</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="statChannels">-</div>
+            <div class="stat-label">Channels</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="statAI">-</div>
+            <div class="stat-label">AI</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="statDaemon">-</div>
+            <div class="stat-label">Daemon</div>
+          </div>
+        </div>
+        <a href="/terminal" class="control-btn">🖥️ Terminal Mode</a>
+        <a href="/leaderboard" class="control-btn">🏆 Leaderboard</a>
+      </div>
+    </div>
+
+    <!-- Command Palette (Cmd+K / Ctrl+K) -->
+    <div class="cmd-overlay" id="cmdOverlay" onclick="closeCmdPalette(event)">
+      <div class="cmd-palette" onclick="event.stopPropagation()">
+        <div class="cmd-input-wrapper">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <input type="text" class="cmd-input" id="cmdInput" placeholder="Search commands..." onkeyup="filterCommands(event)" onkeydown="handleCmdKeydown(event)">
+          <span class="cmd-kbd">ESC</span>
+        </div>
+        <div class="cmd-results" id="cmdResults">
+          <div class="cmd-group">
+            <div class="cmd-group-title">Analysis</div>
+            <div class="cmd-item" onclick="cmdAnalyze()">
+              <div class="cmd-item-icon">🔍</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">Analyze Wallet</div>
+                <div class="cmd-item-desc">Analyze any Polymarket wallet</div>
+              </div>
+              <span class="cmd-item-shortcut">Enter wallet</span>
+            </div>
+            <div class="cmd-item" onclick="cmdCompare()">
+              <div class="cmd-item-icon">⚖️</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">Compare Wallets</div>
+                <div class="cmd-item-desc">Compare two wallets side by side</div>
+              </div>
+            </div>
+            <div class="cmd-item" onclick="window.location.href='/leaderboard'">
+              <div class="cmd-item-icon">🏆</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">Leaderboard</div>
+                <div class="cmd-item-desc">View top performing wallets</div>
+              </div>
+            </div>
+          </div>
+          <div class="cmd-group">
+            <div class="cmd-group-title">Tracking</div>
+            <div class="cmd-item" onclick="cmdTrack()">
+              <div class="cmd-item-icon">🔔</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">Track Wallet</div>
+                <div class="cmd-item-desc">Subscribe to trade alerts</div>
+              </div>
+            </div>
+            <div class="cmd-item" onclick="cmdListTracked()">
+              <div class="cmd-item-icon">📋</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">List Tracked</div>
+                <div class="cmd-item-desc">View all tracked wallets</div>
+              </div>
+            </div>
+          </div>
+          <div class="cmd-group">
+            <div class="cmd-group-title">AI Assistant</div>
+            <div class="cmd-item" onclick="toggleChat(); closeCmdPalette();">
+              <div class="cmd-item-icon">🦞</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">Chat with PolyClaw</div>
+                <div class="cmd-item-desc">AI-powered trading assistant</div>
+              </div>
+              <span class="cmd-item-shortcut">C</span>
+            </div>
+            <div class="cmd-item" onclick="cmdStrategy()">
+              <div class="cmd-item-icon">🧠</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">Strategy Ideas</div>
+                <div class="cmd-item-desc">Generate strategy recommendations</div>
+              </div>
+            </div>
+          </div>
+          <div class="cmd-group">
+            <div class="cmd-group-title">System</div>
+            <div class="cmd-item" onclick="toggleControlPanel(); closeCmdPalette();">
+              <div class="cmd-item-icon">🎛️</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">Control Panel</div>
+                <div class="cmd-item-desc">Daemon, tracking, settings</div>
+              </div>
+              <span class="cmd-item-shortcut">Ctrl+P</span>
+            </div>
+            <div class="cmd-item" onclick="cmdDaemonToggle()">
+              <div class="cmd-item-icon">⚡</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">Toggle Daemon</div>
+                <div class="cmd-item-desc">Start/stop background monitoring</div>
+              </div>
+            </div>
+            <div class="cmd-item" onclick="openSettings(); closeCmdPalette();">
+              <div class="cmd-item-icon">⚙️</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">Settings</div>
+                <div class="cmd-item-desc">Discord, Telegram, notifications</div>
+              </div>
+            </div>
+            <div class="cmd-item" onclick="window.location.href='/terminal'">
+              <div class="cmd-item-icon">🖥️</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">Terminal Mode</div>
+                <div class="cmd-item-desc">Power user interface</div>
+              </div>
+            </div>
+          </div>
+          <div class="cmd-group">
+            <div class="cmd-group-title">Export</div>
+            <div class="cmd-item" onclick="cmdExportCSV()">
+              <div class="cmd-item-icon">📄</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">Export CSV</div>
+                <div class="cmd-item-desc">Download trades as CSV</div>
+              </div>
+            </div>
+            <div class="cmd-item" onclick="cmdExportExcel()">
+              <div class="cmd-item-icon">📊</div>
+              <div class="cmd-item-content">
+                <div class="cmd-item-title">Export Excel</div>
+                <div class="cmd-item-desc">Download trades as Excel</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="chat-fab" id="chatFab" onclick="toggleChat()" title="Chat with PolyClaw (C)">
+      🦞
+    </button>
+
+    <!-- PolyClaw Chat Panel -->
+    <div class="chat-panel" id="chatPanel">
+      <div class="chat-header">
+        <div class="chat-header-title">
+          <span>🦞</span>
+          <span>Chat with PolyClaw</span>
+        </div>
+        <button class="chat-close" onclick="toggleChat()">×</button>
+      </div>
+      
+      <div class="chat-messages" id="chatMessages"></div>
+      
+      <div class="chat-suggestions">
+        <button class="chat-suggestion" onclick="useSuggestion('What trading strategies work best on Polymarket?')">Best strategies</button>
+        <button class="chat-suggestion" onclick="useSuggestion('How do I find profitable wallets to copy?')">Copy trading</button>
+        <button class="chat-suggestion" onclick="useSuggestion('Help me build a trading bot')">Build a bot</button>
+        <button class="chat-suggestion" onclick="useSuggestion('Analyze the current wallet')">Analyze wallet</button>
+      </div>
+      
+      <div class="chat-input-area">
+        <div class="chat-input-wrapper">
+          <input 
+            type="text" 
+            class="chat-input" 
+            id="chatInput" 
+            placeholder="Ask PolyClaw anything..."
+          />
+          <button class="chat-send" id="chatSendBtn" onclick="sendChatMessage()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Button -->
+    <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
+
+    <!-- Settings Modal -->
+    <div class="settings-modal" id="settingsModal" onclick="if(event.target === this) closeSettings()">
+      <div class="settings-content">
+        <div class="settings-header">
+          <div class="settings-title">⚙️ Notification Settings</div>
+          <button class="settings-close" onclick="closeSettings()">×</button>
+        </div>
+        <div class="settings-body">
+          <!-- Discord Section -->
+          <div class="settings-section">
+            <div class="settings-section-title">
+              <span style="background: #5865F2; padding: 4px 8px; border-radius: 6px;">📢</span>
+              Discord Webhooks
+            </div>
+            <div class="channel-list" id="discordChannels">
+              <div class="empty-channels">Loading...</div>
+            </div>
+            <div class="add-channel-form" id="addDiscordForm" style="display: none;">
+              <input type="text" class="add-channel-input" id="discordName" placeholder="Name (e.g., 'my-alerts')"/>
+              <input type="text" class="add-channel-input" id="discordWebhook" placeholder="Discord webhook URL"/>
+              <div style="display: flex; gap: 8px;">
+                <button class="add-channel-btn" onclick="addDiscordWebhook()" style="flex: 1;">Add Webhook</button>
+                <button class="channel-btn" onclick="toggleAddDiscord()">Cancel</button>
+              </div>
+            </div>
+            <button class="channel-btn" id="addDiscordBtn" onclick="toggleAddDiscord()" style="margin-top: 12px; width: 100%;">+ Add Discord Webhook</button>
+          </div>
+
+          <!-- Telegram Section -->
+          <div class="settings-section">
+            <div class="settings-section-title">
+              <span style="background: #0088cc; padding: 4px 8px; border-radius: 6px;">✈️</span>
+              Telegram Bots
+            </div>
+            <div class="channel-list" id="telegramChannels">
+              <div class="empty-channels">Loading...</div>
+            </div>
+            <div class="add-channel-form" id="addTelegramForm" style="display: none;">
+              <input type="text" class="add-channel-input" id="telegramName" placeholder="Name (e.g., 'my-bot')"/>
+              <input type="text" class="add-channel-input" id="telegramToken" placeholder="Bot token (from @BotFather)"/>
+              <input type="text" class="add-channel-input" id="telegramChatId" placeholder="Chat ID"/>
+              <div style="display: flex; gap: 8px;">
+                <button class="add-channel-btn" onclick="addTelegramBot()" style="flex: 1;">Add Bot</button>
+                <button class="channel-btn" onclick="toggleAddTelegram()">Cancel</button>
+              </div>
+            </div>
+            <button class="channel-btn" id="addTelegramBtn" onclick="toggleAddTelegram()" style="margin-top: 12px; width: 100%;">+ Add Telegram Bot</button>
+          </div>
+
+          <!-- Wallet Subscriptions -->
+          <div class="settings-section">
+            <div class="settings-section-title">
+              <span style="background: var(--accent); padding: 4px 8px; border-radius: 6px;">🔔</span>
+              Wallet Alert Subscriptions
+            </div>
+            <div id="subscriptionsList">
+              <div class="empty-channels">No wallet subscriptions yet. Track a wallet and subscribe to get alerts.</div>
+            </div>
+            <div class="add-channel-form" style="margin-top: 12px;">
+              <input type="text" class="add-channel-input" id="subscribeWallet" placeholder="Wallet address to subscribe"/>
+              <select class="add-channel-input" id="subscribeChannel" style="padding: 12px;">
+                <option value="">Select notification channel...</option>
+              </select>
+              <button class="add-channel-btn" onclick="subscribeWallet()">Subscribe to Alerts</button>
+            </div>
+          </div>
+
+          <!-- Help -->
+          <div class="settings-section">
+            <div class="settings-section-title">📖 How It Works</div>
+            <div style="font-size: 13px; color: hsl(var(--muted-foreground)); line-height: 1.6;">
+              <p><strong>Discord:</strong> Create a webhook in your Discord server (Server Settings → Integrations → Webhooks) and paste the URL here.</p>
+              <p style="margin-top: 8px;"><strong>Telegram:</strong> Create a bot with @BotFather, get the token, then send a message to your bot and use @userinfobot to get your chat ID.</p>
+              <p style="margin-top: 8px;"><strong>Subscriptions:</strong> Subscribe to any wallet to receive real-time alerts when they trade.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Settings functions
+      function openSettings() {
+        document.getElementById('settingsModal').classList.add('open');
+        loadNotificationChannels();
+      }
+
+      function closeSettings() {
+        document.getElementById('settingsModal').classList.remove('open');
+      }
+
+      async function loadNotificationChannels() {
+        try {
+          const response = await fetch('/api/notifications/channels');
+          const data = await response.json();
+          
+          // Render Discord channels
+          const discordList = document.getElementById('discordChannels');
+          if (data.discord && data.discord.length > 0) {
+            discordList.innerHTML = data.discord.map(ch => `
+              <div class="channel-item">
+                <div class="channel-icon discord">📢</div>
+                <div class="channel-info">
+                  <div class="channel-name">${ch.name}</div>
+                  <div class="channel-status">${ch.enabled ? '✓ Active' : '✗ Disabled'}</div>
+                </div>
+                <div class="channel-actions">
+                  <button class="channel-btn" onclick="testChannel('discord', '${ch.name}')">Test</button>
+                  <button class="channel-btn delete" onclick="deleteDiscord('${ch.name}')">Delete</button>
+                </div>
+              </div>
+            `).join('');
+          } else {
+            discordList.innerHTML = '<div class="empty-channels">No Discord webhooks configured</div>';
+          }
+
+          // Render Telegram channels
+          const telegramList = document.getElementById('telegramChannels');
+          if (data.telegram && data.telegram.length > 0) {
+            telegramList.innerHTML = data.telegram.map(ch => `
+              <div class="channel-item">
+                <div class="channel-icon telegram">✈️</div>
+                <div class="channel-info">
+                  <div class="channel-name">${ch.name}</div>
+                  <div class="channel-status">${ch.enabled ? '✓ Active' : '✗ Disabled'}</div>
+                </div>
+                <div class="channel-actions">
+                  <button class="channel-btn" onclick="testChannel('telegram', '${ch.name}')">Test</button>
+                  <button class="channel-btn delete" onclick="deleteTelegram('${ch.name}')">Delete</button>
+                </div>
+              </div>
+            `).join('');
+          } else {
+            telegramList.innerHTML = '<div class="empty-channels">No Telegram bots configured</div>';
+          }
+
+          // Update subscription channel dropdown
+          const channelSelect = document.getElementById('subscribeChannel');
+          channelSelect.innerHTML = '<option value="">Select notification channel...</option>';
+          data.discord.forEach(ch => {
+            channelSelect.innerHTML += `<option value="discord:${ch.name}">Discord: ${ch.name}</option>`;
+          });
+          data.telegram.forEach(ch => {
+            channelSelect.innerHTML += `<option value="telegram:${ch.name}">Telegram: ${ch.name}</option>`;
+          });
+
+          // Render subscriptions
+          const subsList = document.getElementById('subscriptionsList');
+          const subs = data.subscriptions || {};
+          if (Object.keys(subs).length > 0) {
+            subsList.innerHTML = Object.entries(subs).map(([wallet, channels]) => {
+              const channelNames = [...(channels.discord || []).map(c => `Discord: ${c}`), ...(channels.telegram || []).map(c => `Telegram: ${c}`)];
+              return `
+                <div class="channel-item">
+                  <div class="channel-info">
+                    <div class="channel-name">${wallet.slice(0, 10)}...</div>
+                    <div class="channel-status">${channelNames.join(', ') || 'No channels'}</div>
+                  </div>
+                  <button class="channel-btn delete" onclick="unsubscribeWallet('${wallet}')">Remove</button>
+                </div>
+              `;
+            }).join('');
+          } else {
+            subsList.innerHTML = '<div class="empty-channels">No wallet subscriptions yet</div>';
+          }
+
+        } catch (error) {
+          console.error('Failed to load notification channels:', error);
+        }
+      }
+
+      function toggleAddDiscord() {
+        const form = document.getElementById('addDiscordForm');
+        const btn = document.getElementById('addDiscordBtn');
+        if (form.style.display === 'none') {
+          form.style.display = 'flex';
+          btn.style.display = 'none';
+        } else {
+          form.style.display = 'none';
+          btn.style.display = 'block';
+        }
+      }
+
+      function toggleAddTelegram() {
+        const form = document.getElementById('addTelegramForm');
+        const btn = document.getElementById('addTelegramBtn');
+        if (form.style.display === 'none') {
+          form.style.display = 'flex';
+          btn.style.display = 'none';
+        } else {
+          form.style.display = 'none';
+          btn.style.display = 'block';
+        }
+      }
+
+      async function addDiscordWebhook() {
+        const name = document.getElementById('discordName').value.trim();
+        const webhook = document.getElementById('discordWebhook').value.trim();
+        
+        if (!name || !webhook) {
+          showToast('Please fill in all fields', 'error');
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/notifications/discord', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, webhook_url: webhook })
+          });
+          const data = await response.json();
+          
+          if (data.error) {
+            showToast(data.error, 'error');
+          } else {
+            showToast('Discord webhook added!', 'success');
+            document.getElementById('discordName').value = '';
+            document.getElementById('discordWebhook').value = '';
+            toggleAddDiscord();
+            loadNotificationChannels();
+          }
+        } catch (error) {
+          showToast('Failed to add webhook', 'error');
+        }
+      }
+
+      async function addTelegramBot() {
+        const name = document.getElementById('telegramName').value.trim();
+        const token = document.getElementById('telegramToken').value.trim();
+        const chatId = document.getElementById('telegramChatId').value.trim();
+        
+        if (!name || !token || !chatId) {
+          showToast('Please fill in all fields', 'error');
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/notifications/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, bot_token: token, chat_id: chatId })
+          });
+          const data = await response.json();
+          
+          if (data.error) {
+            showToast(data.error, 'error');
+          } else {
+            showToast('Telegram bot added!', 'success');
+            document.getElementById('telegramName').value = '';
+            document.getElementById('telegramToken').value = '';
+            document.getElementById('telegramChatId').value = '';
+            toggleAddTelegram();
+            loadNotificationChannels();
+          }
+        } catch (error) {
+          showToast('Failed to add bot', 'error');
+        }
+      }
+
+      async function deleteDiscord(name) {
+        if (!confirm(`Delete Discord webhook "${name}"?`)) return;
+        
+        try {
+          await fetch(`/api/notifications/discord/${name}`, { method: 'DELETE' });
+          showToast('Webhook deleted', 'success');
+          loadNotificationChannels();
+        } catch (error) {
+          showToast('Failed to delete', 'error');
+        }
+      }
+
+      async function deleteTelegram(name) {
+        if (!confirm(`Delete Telegram bot "${name}"?`)) return;
+        
+        try {
+          await fetch(`/api/notifications/telegram/${name}`, { method: 'DELETE' });
+          showToast('Bot deleted', 'success');
+          loadNotificationChannels();
+        } catch (error) {
+          showToast('Failed to delete', 'error');
+        }
+      }
+
+      async function testChannel(type, name) {
+        try {
+          const response = await fetch('/api/notifications/test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, name })
+          });
+          const data = await response.json();
+          
+          if (data.success) {
+            showToast('Test notification sent!', 'success');
+          } else {
+            showToast('Failed to send test', 'error');
+          }
+        } catch (error) {
+          showToast('Test failed', 'error');
+        }
+      }
+
+      async function subscribeWallet() {
+        const wallet = document.getElementById('subscribeWallet').value.trim();
+        const channel = document.getElementById('subscribeChannel').value;
+        
+        if (!wallet || !channel) {
+          showToast('Please enter a wallet and select a channel', 'error');
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/notifications/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wallet, channels: [channel] })
+          });
+          const data = await response.json();
+          
+          if (data.error) {
+            showToast(data.error, 'error');
+          } else {
+            showToast('Subscribed to wallet alerts!', 'success');
+            document.getElementById('subscribeWallet').value = '';
+            loadNotificationChannels();
+          }
+        } catch (error) {
+          showToast('Failed to subscribe', 'error');
+        }
+      }
+
+      async function unsubscribeWallet(wallet) {
+        if (!confirm('Unsubscribe from this wallet?')) return;
+        
+        try {
+          await fetch('/api/notifications/unsubscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wallet })
+          });
+          showToast('Unsubscribed', 'success');
+          loadNotificationChannels();
+        } catch (error) {
+          showToast('Failed to unsubscribe', 'error');
+        }
       }
     </script>
   </body>
