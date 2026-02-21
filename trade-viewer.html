@@ -417,6 +417,17 @@
         box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
       }
 
+      .btn-strategy {
+        background: linear-gradient(135deg, hsl(0 70% 55%), hsl(20 80% 50%));
+        color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .btn-strategy:hover {
+        background: linear-gradient(135deg, hsl(0 70% 50%), hsl(20 80% 45%));
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      }
+
       .btn-secondary {
         background: hsl(var(--secondary));
         color: hsl(var(--secondary-foreground));
@@ -2205,6 +2216,9 @@
           <button class="btn-ai" id="aiBtn" onclick="showAIModal()">
             🤖 AI Analysis
           </button>
+          <button class="btn-strategy" id="strategyBtn" onclick="showStrategyModal()">
+            🦞 Strategy Lab
+          </button>
         </div>
         <div class="date-filter-row" style="margin-top: 16px">
           <span class="date-filter-label">Date Range</span>
@@ -2651,6 +2665,238 @@
       </div>
     </div>
 
+    <!-- Strategy Lab Modal -->
+    <div id="strategyModal" class="ai-modal hidden">
+      <div class="ai-modal-content" style="max-width: 900px;">
+        <div class="ai-modal-header">
+          <div class="ai-modal-title">
+            <span style="background: linear-gradient(135deg, hsl(0 70% 55%), hsl(20 80% 50%)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🦞</span> PolyClaw Strategy Lab
+          </div>
+          <button class="ai-modal-close" onclick="hideStrategyModal()">×</button>
+        </div>
+
+        <!-- Strategy Tabs -->
+        <div class="strategy-tabs">
+          <button class="strategy-tab active" onclick="showStrategyTab('diagnose')">🔍 Diagnose</button>
+          <button class="strategy-tab" onclick="showStrategyTab('ideate')">💡 Ideate</button>
+          <button class="strategy-tab" onclick="showStrategyTab('define')">📝 Define</button>
+          <button class="strategy-tab" onclick="showStrategyTab('track')">📡 Track</button>
+        </div>
+
+        <!-- Diagnose Tab -->
+        <div id="strategyTabDiagnose" class="strategy-tab-content active">
+          <p class="strategy-description">Analyze a wallet's trading strategy and get actionable insights.</p>
+          <button class="ai-submit-btn" onclick="diagnoseStrategy()" style="background: linear-gradient(135deg, hsl(0 70% 55%), hsl(20 80% 50%));">
+            🔍 Diagnose Current Wallet Strategy
+          </button>
+          <div id="diagnoseLoading" class="ai-loading hidden">
+            <div class="spinner"></div>
+            <div class="ai-loading-text">Analyzing trading patterns...</div>
+          </div>
+          <div id="diagnoseResult" class="strategy-result hidden"></div>
+        </div>
+
+        <!-- Ideate Tab -->
+        <div id="strategyTabIdeate" class="strategy-tab-content hidden">
+          <p class="strategy-description">Generate strategy ideas based on your goals and risk tolerance.</p>
+          <div class="ai-form-group">
+            <label class="ai-form-label">Risk Tolerance</label>
+            <select id="riskTolerance" class="ai-prompt-select">
+              <option value="low">🛡️ Low - Capital preservation focus</option>
+              <option value="medium" selected>⚖️ Medium - Balanced approach</option>
+              <option value="high">🔥 High - Aggressive growth</option>
+            </select>
+          </div>
+          <div class="ai-form-group">
+            <label class="ai-form-label">Market Category</label>
+            <select id="marketCategory" class="ai-prompt-select">
+              <option value="all">All Markets</option>
+              <option value="politics">🏛️ Politics</option>
+              <option value="crypto">₿ Crypto</option>
+              <option value="sports">⚽ Sports</option>
+              <option value="entertainment">🎬 Entertainment</option>
+            </select>
+          </div>
+          <div class="ai-form-group">
+            <label class="ai-form-label">Starting Capital (USDC)</label>
+            <input type="number" id="capitalInput" value="10000" min="100" step="100" class="trade-count-input" style="width: 150px;">
+          </div>
+          <button class="ai-submit-btn" onclick="generateIdeas()" style="background: linear-gradient(135deg, hsl(0 70% 55%), hsl(20 80% 50%));">
+            💡 Generate Strategy Ideas
+          </button>
+          <div id="ideateLoading" class="ai-loading hidden">
+            <div class="spinner"></div>
+            <div class="ai-loading-text">Brainstorming strategies...</div>
+          </div>
+          <div id="ideateResult" class="strategy-result hidden"></div>
+        </div>
+
+        <!-- Define Tab -->
+        <div id="strategyTabDefine" class="strategy-tab-content hidden">
+          <p class="strategy-description">Define your own strategy with clear rules.</p>
+          <div class="ai-form-group">
+            <label class="ai-form-label">Strategy Name</label>
+            <input type="text" id="strategyName" placeholder="My Momentum Strategy" class="trade-count-input" style="width: 100%;">
+          </div>
+          <div class="ai-form-group">
+            <label class="ai-form-label">Entry Rules (one per line)</label>
+            <textarea id="entryRules" class="ai-custom-prompt" placeholder="Price below 0.40
+Volume > $50,000 in 24h
+Positive news catalyst"></textarea>
+          </div>
+          <div class="ai-form-group">
+            <label class="ai-form-label">Exit Rules (one per line)</label>
+            <textarea id="exitRules" class="ai-custom-prompt" placeholder="Take profit at 0.75
+Stop loss at 20% decline
+Exit 24h before resolution"></textarea>
+          </div>
+          <div class="ai-form-group">
+            <label class="ai-form-label">Position Sizing</label>
+            <input type="text" id="positionSizing" placeholder="5-10% of bankroll per trade" class="trade-count-input" style="width: 100%;">
+          </div>
+          <button class="ai-submit-btn" onclick="defineStrategy()" style="background: linear-gradient(135deg, hsl(0 70% 55%), hsl(20 80% 50%));">
+            📝 Create Strategy
+          </button>
+          <div id="defineResult" class="strategy-result hidden"></div>
+        </div>
+
+        <!-- Track Tab -->
+        <div id="strategyTabTrack" class="strategy-tab-content hidden">
+          <p class="strategy-description">Track wallets in real-time and get alerts on new trades.</p>
+          <div class="ai-form-group">
+            <label class="ai-form-label">Wallet to Track</label>
+            <input type="text" id="trackWalletInput" placeholder="0x..." class="trade-count-input" style="width: 100%;">
+          </div>
+          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button class="ai-submit-btn" onclick="startTracking()" style="background: linear-gradient(135deg, hsl(0 70% 55%), hsl(20 80% 50%)); flex: 1;">
+              ▶️ Start Tracking
+            </button>
+            <button class="ai-submit-btn" onclick="stopTracking()" style="background: hsl(var(--secondary)); color: hsl(var(--foreground)); flex: 1;">
+              ⏹️ Stop Tracking
+            </button>
+          </div>
+          <div id="trackingStatus" class="strategy-result">
+            <div style="text-align: center; color: hsl(var(--muted-foreground));">
+              No wallets currently being tracked
+            </div>
+          </div>
+          <div id="trackingFeed" class="tracking-feed hidden">
+            <div class="tracking-feed-header">📡 Live Trade Feed</div>
+            <div id="tradeFeedContent"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      .strategy-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid hsl(var(--border));
+        padding-bottom: 10px;
+      }
+      .strategy-tab {
+        padding: 10px 16px;
+        border: none;
+        background: hsl(var(--secondary));
+        color: hsl(var(--foreground));
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+      .strategy-tab:hover {
+        background: hsl(var(--muted));
+      }
+      .strategy-tab.active {
+        background: linear-gradient(135deg, hsl(0 70% 55%), hsl(20 80% 50%));
+        color: white;
+      }
+      .strategy-tab-content {
+        display: none;
+      }
+      .strategy-tab-content.active {
+        display: block;
+      }
+      .strategy-description {
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 20px;
+        font-size: 14px;
+      }
+      .strategy-result {
+        margin-top: 20px;
+        padding: 20px;
+        background: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        border-radius: 8px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .strategy-result h3 {
+        color: hsl(0 70% 55%);
+        margin-bottom: 12px;
+        font-size: 16px;
+      }
+      .strategy-result h4 {
+        color: hsl(var(--foreground));
+        margin: 16px 0 8px 0;
+        font-size: 14px;
+      }
+      .strategy-result ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+      .strategy-result li {
+        margin: 4px 0;
+        color: hsl(var(--muted-foreground));
+      }
+      .strategy-metric {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid hsl(var(--border));
+      }
+      .strategy-metric:last-child {
+        border-bottom: none;
+      }
+      .strategy-metric-label {
+        color: hsl(var(--muted-foreground));
+      }
+      .strategy-metric-value {
+        color: hsl(var(--foreground));
+        font-weight: 600;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .tracking-feed {
+        margin-top: 20px;
+        border: 1px solid hsl(0 70% 55% / 0.3);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .tracking-feed-header {
+        background: linear-gradient(135deg, hsl(0 70% 55%), hsl(20 80% 50%));
+        color: white;
+        padding: 12px 16px;
+        font-weight: 600;
+      }
+      .trade-feed-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid hsl(var(--border));
+        animation: fadeIn 0.3s ease;
+      }
+      .trade-feed-item:last-child {
+        border-bottom: none;
+      }
+      .trade-feed-item.buy {
+        border-left: 3px solid hsl(142 50% 45%);
+      }
+      .trade-feed-item.sell {
+        border-left: 3px solid hsl(0 70% 55%);
+      }
+    </style>
+
     <script>
       let currentWallet = "";
       let currentLimit = 1000;
@@ -2761,6 +3007,316 @@
       function hideAIModal() {
         document.getElementById('aiModal').classList.add('hidden');
       }
+
+      // ==============================================
+      // STRATEGY LAB FUNCTIONS
+      // ==============================================
+
+      let trackingEventSource = null;
+      let trackedWalletsList = [];
+
+      function showStrategyModal() {
+        document.getElementById('strategyModal').classList.remove('hidden');
+        // Pre-fill wallet input if we have one
+        if (currentWallet) {
+          document.getElementById('trackWalletInput').value = currentWallet;
+        }
+      }
+
+      function hideStrategyModal() {
+        document.getElementById('strategyModal').classList.add('hidden');
+      }
+
+      function showStrategyTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.strategy-tab-content').forEach(tab => {
+          tab.classList.remove('active');
+          tab.classList.add('hidden');
+        });
+        document.querySelectorAll('.strategy-tab').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        
+        // Show selected tab
+        document.getElementById('strategyTab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.remove('hidden');
+        document.getElementById('strategyTab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('active');
+        event.target.classList.add('active');
+      }
+
+      async function diagnoseStrategy() {
+        if (!currentWallet) {
+          showToast('Please fetch trades first before diagnosing', 'error');
+          return;
+        }
+
+        const loading = document.getElementById('diagnoseLoading');
+        const result = document.getElementById('diagnoseResult');
+        
+        loading.classList.remove('hidden');
+        result.classList.add('hidden');
+
+        try {
+          const response = await fetch(`/api/strategy/diagnose/${currentWallet}?limit=${currentLimit}`);
+          const data = await response.json();
+
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          result.innerHTML = `
+            <h3>🔍 Strategy Diagnosis: ${data.username || data.wallet.slice(0, 10)}...</h3>
+            
+            <h4>Trading Style</h4>
+            <div class="strategy-metric">
+              <span class="strategy-metric-label">Classification</span>
+              <span class="strategy-metric-value">${data.summary?.trading_style || 'Unknown'}</span>
+            </div>
+            <div class="strategy-metric">
+              <span class="strategy-metric-label">Likely Strategy</span>
+              <span class="strategy-metric-value">${data.summary?.likely_strategy || 'Unknown'}</span>
+            </div>
+            
+            <h4>Key Metrics</h4>
+            <div class="strategy-metric">
+              <span class="strategy-metric-label">Avg Holding Period</span>
+              <span class="strategy-metric-value">${data.metrics?.avg_holding_hours?.toFixed(1) || 0} hours</span>
+            </div>
+            <div class="strategy-metric">
+              <span class="strategy-metric-label">Avg Trade Size</span>
+              <span class="strategy-metric-value">$${data.metrics?.avg_trade_size?.toFixed(2) || 0}</span>
+            </div>
+            <div class="strategy-metric">
+              <span class="strategy-metric-label">Avg Entry Price</span>
+              <span class="strategy-metric-value">${data.metrics?.avg_entry_price?.toFixed(3) || 0}</span>
+            </div>
+            <div class="strategy-metric">
+              <span class="strategy-metric-label">Market Concentration</span>
+              <span class="strategy-metric-value">${data.metrics?.market_concentration?.toFixed(1) || 0}%</span>
+            </div>
+            
+            <h4>✅ Strengths</h4>
+            <ul>${(data.strengths || []).map(s => `<li>${s}</li>`).join('') || '<li>No strengths identified yet</li>'}</ul>
+            
+            <h4>⚠️ Weaknesses</h4>
+            <ul>${(data.weaknesses || []).map(w => `<li>${w}</li>`).join('') || '<li>No weaknesses identified</li>'}</ul>
+            
+            <h4>💡 Recommendations</h4>
+            <ul>${(data.recommendations || []).map(r => `<li>${r}</li>`).join('') || '<li>Keep trading to generate more data</li>'}</ul>
+          `;
+          result.classList.remove('hidden');
+          
+        } catch (error) {
+          showToast('Error diagnosing strategy: ' + error.message, 'error');
+        } finally {
+          loading.classList.add('hidden');
+        }
+      }
+
+      async function generateIdeas() {
+        const loading = document.getElementById('ideateLoading');
+        const result = document.getElementById('ideateResult');
+        
+        loading.classList.remove('hidden');
+        result.classList.add('hidden');
+
+        try {
+          const response = await fetch('/api/strategy/ideate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              wallet: currentWallet || null,
+              risk_tolerance: document.getElementById('riskTolerance').value,
+              market_category: document.getElementById('marketCategory').value,
+              capital: parseFloat(document.getElementById('capitalInput').value) || 10000
+            })
+          });
+          const data = await response.json();
+
+          let ideasHtml = '<h3>💡 Strategy Ideas</h3>';
+          
+          for (const idea of data.strategy_ideas || []) {
+            ideasHtml += `
+              <div style="margin-bottom: 20px; padding: 15px; background: hsl(var(--card)); border-radius: 8px; border-left: 3px solid hsl(0 70% 55%);">
+                <h4 style="margin: 0 0 10px 0;">${idea.strategy}</h4>
+                <p style="color: hsl(var(--muted-foreground)); margin: 0 0 10px 0;">${idea.description}</p>
+                <strong>Entry Rules:</strong>
+                <ul style="margin: 5px 0;">${idea.entry_rules.map(r => `<li>${r}</li>`).join('')}</ul>
+                <strong>Exit Rules:</strong>
+                <ul style="margin: 5px 0;">${idea.exit_rules.map(r => `<li>${r}</li>`).join('')}</ul>
+                <strong>Position Sizing:</strong> ${idea.recommended_sizing}
+              </div>
+            `;
+          }
+
+          if (data.ideation_questions) {
+            ideasHtml += '<h4>🤔 Questions to Consider</h4>';
+            for (const category of data.ideation_questions) {
+              ideasHtml += `<strong>${category.category}:</strong><ul>`;
+              ideasHtml += category.questions.map(q => `<li>${q}</li>`).join('');
+              ideasHtml += '</ul>';
+            }
+          }
+
+          result.innerHTML = ideasHtml;
+          result.classList.remove('hidden');
+          
+        } catch (error) {
+          showToast('Error generating ideas: ' + error.message, 'error');
+        } finally {
+          loading.classList.add('hidden');
+        }
+      }
+
+      async function defineStrategy() {
+        const name = document.getElementById('strategyName').value.trim();
+        const entryRules = document.getElementById('entryRules').value.split('\n').filter(r => r.trim());
+        const exitRules = document.getElementById('exitRules').value.split('\n').filter(r => r.trim());
+        const positionSizing = document.getElementById('positionSizing').value.trim();
+
+        if (!name) {
+          showToast('Please enter a strategy name', 'error');
+          return;
+        }
+        if (entryRules.length === 0) {
+          showToast('Please enter at least one entry rule', 'error');
+          return;
+        }
+
+        const result = document.getElementById('defineResult');
+
+        try {
+          const response = await fetch('/api/strategy/define', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name,
+              entry_rules: entryRules,
+              exit_rules: exitRules,
+              position_sizing: positionSizing || '5% of bankroll'
+            })
+          });
+          const data = await response.json();
+
+          result.innerHTML = `
+            <h3>📝 Strategy Created: ${data.name}</h3>
+            <p style="color: hsl(var(--muted-foreground));">Version ${data.version} | Created ${new Date(data.created_at).toLocaleString()}</p>
+            
+            <h4>Entry Rules (ALL must be met)</h4>
+            <ul>${data.rules.entry.conditions.map(c => `<li>✓ ${c}</li>`).join('')}</ul>
+            
+            <h4>Exit Rules (ANY triggers exit)</h4>
+            <ul>${data.rules.exit.conditions.map(c => `<li>→ ${c}</li>`).join('')}</ul>
+            
+            <h4>Position Sizing</h4>
+            <p>${data.rules.position_sizing.method}</p>
+            
+            <h4>Risk Management</h4>
+            <div class="strategy-metric">
+              <span class="strategy-metric-label">Max Daily Loss</span>
+              <span class="strategy-metric-value">${data.risk_management.max_daily_loss_pct}%</span>
+            </div>
+            <div class="strategy-metric">
+              <span class="strategy-metric-label">Max Open Positions</span>
+              <span class="strategy-metric-value">${data.risk_management.max_open_positions}</span>
+            </div>
+            
+            <h4>Pre-Trade Checklist</h4>
+            <ul>${data.checklist.pre_trade.map(c => `<li>☐ ${c}</li>`).join('')}</ul>
+            
+            <div style="margin-top: 20px; padding: 10px; background: hsl(0 70% 55% / 0.1); border-radius: 8px;">
+              <strong>📋 Copy Strategy JSON:</strong>
+              <pre style="margin-top: 10px; padding: 10px; background: hsl(var(--background)); border-radius: 4px; overflow-x: auto; font-size: 11px;">${JSON.stringify(data, null, 2)}</pre>
+            </div>
+          `;
+          result.classList.remove('hidden');
+          showToast('Strategy created successfully!', 'success');
+          
+        } catch (error) {
+          showToast('Error creating strategy: ' + error.message, 'error');
+        }
+      }
+
+      async function startTracking() {
+        const wallet = document.getElementById('trackWalletInput').value.trim();
+        if (!wallet) {
+          showToast('Please enter a wallet address to track', 'error');
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/track/${wallet}/start`, { method: 'POST' });
+          const data = await response.json();
+
+          if (data.status === 'tracking_started' || data.status === 'already_tracking') {
+            showToast(`Now tracking ${data.username || wallet.slice(0, 10)}...`, 'success');
+            
+            // Start SSE connection
+            if (trackingEventSource) {
+              trackingEventSource.close();
+            }
+            
+            trackingEventSource = new EventSource(`/api/track/${wallet}/stream`);
+            
+            const feed = document.getElementById('trackingFeed');
+            const feedContent = document.getElementById('tradeFeedContent');
+            const status = document.getElementById('trackingStatus');
+            
+            feed.classList.remove('hidden');
+            status.innerHTML = `<div style="text-align: center; color: hsl(0 70% 55%);">🔴 Tracking ${data.username || wallet.slice(0, 10)}... (${data.current_trades || 0} trades)</div>`;
+            feedContent.innerHTML = '<div style="padding: 20px; text-align: center; color: hsl(var(--muted-foreground));">Waiting for new trades...</div>';
+            
+            trackingEventSource.onmessage = (event) => {
+              const msg = JSON.parse(event.data);
+              
+              if (msg.type === 'new_trades' && msg.trades) {
+                for (const trade of msg.trades) {
+                  const tradeHtml = `
+                    <div class="trade-feed-item ${trade.side?.toLowerCase()}">
+                      <strong>${trade.side}</strong> on ${trade.title?.slice(0, 40)}...
+                      <div style="font-size: 12px; color: hsl(var(--muted-foreground));">
+                        ${trade.outcome} @ $${trade.price?.toFixed(3)} | $${trade.usdcSize?.toFixed(2)}
+                      </div>
+                    </div>
+                  `;
+                  feedContent.innerHTML = tradeHtml + feedContent.innerHTML;
+                }
+                showToast(`${msg.count} new trade(s) detected!`, 'info');
+              }
+            };
+            
+            trackingEventSource.onerror = () => {
+              status.innerHTML = '<div style="text-align: center; color: hsl(var(--destructive));">Connection lost. Refresh to reconnect.</div>';
+            };
+          }
+          
+        } catch (error) {
+          showToast('Error starting tracking: ' + error.message, 'error');
+        }
+      }
+
+      function stopTracking() {
+        const wallet = document.getElementById('trackWalletInput').value.trim();
+        
+        if (trackingEventSource) {
+          trackingEventSource.close();
+          trackingEventSource = null;
+        }
+        
+        if (wallet) {
+          fetch(`/api/track/${wallet}/stop`, { method: 'POST' });
+        }
+        
+        document.getElementById('trackingFeed').classList.add('hidden');
+        document.getElementById('trackingStatus').innerHTML = '<div style="text-align: center; color: hsl(var(--muted-foreground));">Tracking stopped</div>';
+        showToast('Stopped tracking wallet', 'info');
+      }
+
+      // Close strategy modal on backdrop click
+      document.getElementById('strategyModal')?.addEventListener('click', (e) => {
+        if (e.target.classList.contains('ai-modal')) {
+          hideStrategyModal();
+        }
+      });
 
       function selectProvider(provider) {
         selectedAIProvider = provider;

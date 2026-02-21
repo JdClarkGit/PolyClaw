@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-PolyEdge.io - Trade Analytics Platform
-Full historical trade fetching with pattern detection and analytics.
+PolyClaw - AI-Powered Trading Strategy Platform
+Strategy ideation, analysis, diagnosis, and iteration for Polymarket.
 """
 
 from flask import Flask, jsonify, request, send_from_directory, send_file, Response
@@ -11,8 +11,10 @@ import csv
 import io
 import os
 import time
+import threading
 from datetime import datetime, timezone
 from typing import List, Dict, Set, Optional
+from collections import defaultdict
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -23,6 +25,15 @@ from analytics import (
     PRICING_TIERS, get_tier_info, check_feature_access, calculate_overage
 )
 from ai_analysis import run_ai_analysis, get_available_providers
+from strategy_engine import (
+    STRATEGY_TEMPLATES, IDEATION_PROMPTS,
+    analyze_wallet_strategy, generate_strategy_ideas,
+    iterate_strategy, define_strategy
+)
+
+# Real-time tracking state
+tracked_wallets: Dict[str, Dict] = {}
+wallet_update_callbacks: Dict[str, List] = defaultdict(list)
 from terminal_analytics import run_terminal_analysis
 
 app = Flask(__name__, static_folder='.')
@@ -987,11 +998,266 @@ def check_feature(feature):
     })
 
 
+# =============================================================================
+# POLYCLAW STRATEGY ENGINE ENDPOINTS
+# =============================================================================
+
+@app.route('/api/strategy/templates')
+def get_strategy_templates():
+    """Get all available strategy templates for ideation."""
+    return jsonify({
+        "templates": STRATEGY_TEMPLATES,
+        "ideation_prompts": IDEATION_PROMPTS
+    })
+
+
+@app.route('/api/strategy/diagnose/<wallet>')
+def diagnose_wallet_strategy(wallet):
+    """Analyze and diagnose the trading strategy of a wallet."""
+    limit = request.args.get('limit', 1000, type=int)
+    
+    # Fetch trades
+    result = fetch_trades_with_limit(wallet, limit)
+    trades = result.get('trades', [])
+    
+    if not trades:
+        return jsonify({"error": "No trades found", "wallet": wallet}), 404
+    
+    # Run strategy diagnosis
+    diagnosis = analyze_wallet_strategy(trades, wallet)
+    diagnosis["username"] = result.get("username")
+    diagnosis["trade_count"] = len(trades)
+    
+    return jsonify(diagnosis)
+
+
+@app.route('/api/strategy/ideate', methods=['POST'])
+def ideate_strategies():
+    """Generate strategy ideas based on parameters."""
+    data = request.get_json() or {}
+    
+    wallet = data.get('wallet')
+    wallet_analysis = None
+    
+    # If wallet provided, include its analysis
+    if wallet:
+        result = fetch_trades_with_limit(wallet, 1000)
+        trades = result.get('trades', [])
+        if trades:
+            wallet_analysis = analyze_wallet_strategy(trades, wallet)
+    
+    ideas = generate_strategy_ideas(
+        wallet_analysis=wallet_analysis,
+        market_category=data.get('market_category'),
+        risk_tolerance=data.get('risk_tolerance', 'medium'),
+        capital=data.get('capital', 10000)
+    )
+    
+    return jsonify(ideas)
+
+
+@app.route('/api/strategy/define', methods=['POST'])
+def create_strategy():
+    """Define a new trading strategy."""
+    data = request.get_json()
+    
+    if not data.get('name'):
+        return jsonify({"error": "Strategy name required"}), 400
+    if not data.get('entry_rules'):
+        return jsonify({"error": "Entry rules required"}), 400
+    
+    strategy = define_strategy(
+        name=data['name'],
+        entry_rules=data.get('entry_rules', []),
+        exit_rules=data.get('exit_rules', []),
+        position_sizing=data.get('position_sizing', '5% of bankroll'),
+        risk_params=data.get('risk_params')
+    )
+    
+    return jsonify(strategy)
+
+
+@app.route('/api/strategy/iterate', methods=['POST'])
+def iterate_existing_strategy():
+    """Iterate and improve a strategy based on performance."""
+    data = request.get_json()
+    
+    if not data.get('strategy'):
+        return jsonify({"error": "Current strategy required"}), 400
+    
+    iteration = iterate_strategy(
+        current_strategy=data['strategy'],
+        performance_data=data.get('performance', {}),
+        feedback=data.get('feedback')
+    )
+    
+    return jsonify(iteration)
+
+
+# =============================================================================
+# REAL-TIME WALLET TRACKING
+# =============================================================================
+
+@app.route('/api/track/<wallet>/start', methods=['POST'])
+def start_tracking(wallet):
+    """Start real-time tracking of a wallet."""
+    if wallet in tracked_wallets:
+        return jsonify({"status": "already_tracking", "wallet": wallet})
+    
+    # Initial fetch
+    result = fetch_recent_trades(wallet, 100)
+    
+    tracked_wallets[wallet] = {
+        "wallet": wallet,
+        "username": result.get("username"),
+        "started_at": datetime.now(timezone.utc).isoformat(),
+        "last_check": datetime.now(timezone.utc).isoformat(),
+        "trade_count": result.get("trade_count", 0),
+        "latest_trade_ts": result['trades'][0].get('timestamp') if result.get('trades') else None,
+        "new_trades": [],
+        "status": "active"
+    }
+    
+    return jsonify({
+        "status": "tracking_started",
+        "wallet": wallet,
+        "username": result.get("username"),
+        "current_trades": result.get("trade_count", 0)
+    })
+
+
+@app.route('/api/track/<wallet>/stop', methods=['POST'])
+def stop_tracking(wallet):
+    """Stop tracking a wallet."""
+    if wallet in tracked_wallets:
+        del tracked_wallets[wallet]
+        return jsonify({"status": "tracking_stopped", "wallet": wallet})
+    return jsonify({"status": "not_tracking", "wallet": wallet})
+
+
+@app.route('/api/track/<wallet>/status')
+def get_tracking_status(wallet):
+    """Get current tracking status and any new trades."""
+    if wallet not in tracked_wallets:
+        return jsonify({"status": "not_tracking", "wallet": wallet})
+    
+    tracking_data = tracked_wallets[wallet]
+    
+    # Check for new trades
+    result = fetch_recent_trades(wallet, 50)
+    new_trades = []
+    
+    if result.get('trades') and tracking_data.get('latest_trade_ts'):
+        for trade in result['trades']:
+            if trade.get('timestamp', 0) > tracking_data['latest_trade_ts']:
+                new_trades.append(trade)
+    
+    # Update tracking data
+    if new_trades:
+        tracking_data['new_trades'] = new_trades
+        tracking_data['latest_trade_ts'] = result['trades'][0].get('timestamp')
+        tracking_data['trade_count'] += len(new_trades)
+    
+    tracking_data['last_check'] = datetime.now(timezone.utc).isoformat()
+    
+    return jsonify({
+        "status": "tracking",
+        "wallet": wallet,
+        "username": tracking_data.get("username"),
+        "started_at": tracking_data.get("started_at"),
+        "last_check": tracking_data.get("last_check"),
+        "total_trades": tracking_data.get("trade_count"),
+        "new_trades_count": len(new_trades),
+        "new_trades": new_trades
+    })
+
+
+@app.route('/api/track/<wallet>/stream')
+def stream_wallet_updates(wallet):
+    """Stream real-time updates for a tracked wallet via SSE."""
+    def generate():
+        last_ts = None
+        
+        # Initial status
+        if wallet in tracked_wallets:
+            last_ts = tracked_wallets[wallet].get('latest_trade_ts')
+        else:
+            # Auto-start tracking
+            result = fetch_recent_trades(wallet, 50)
+            if result.get('trades'):
+                last_ts = result['trades'][0].get('timestamp')
+            
+            yield f"data: {json.dumps({'type': 'connected', 'wallet': wallet})}\n\n"
+        
+        check_count = 0
+        while True:
+            check_count += 1
+            
+            try:
+                result = fetch_recent_trades(wallet, 20)
+                new_trades = []
+                
+                if result.get('trades'):
+                    for trade in result['trades']:
+                        trade_ts = trade.get('timestamp', 0)
+                        if last_ts and trade_ts > last_ts:
+                            new_trades.append(trade)
+                    
+                    if new_trades:
+                        last_ts = result['trades'][0].get('timestamp')
+                        yield f"data: {json.dumps({'type': 'new_trades', 'count': len(new_trades), 'trades': new_trades})}\n\n"
+                
+                # Heartbeat every 10 checks
+                if check_count % 10 == 0:
+                    yield f"data: {json.dumps({'type': 'heartbeat', 'check': check_count})}\n\n"
+                
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            
+            time.sleep(10)  # Check every 10 seconds
+    
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no'
+        }
+    )
+
+
+@app.route('/api/track/list')
+def list_tracked_wallets():
+    """List all currently tracked wallets."""
+    return jsonify({
+        "tracked_wallets": list(tracked_wallets.keys()),
+        "count": len(tracked_wallets),
+        "details": [
+            {
+                "wallet": w,
+                "username": d.get("username"),
+                "started_at": d.get("started_at"),
+                "trade_count": d.get("trade_count")
+            }
+            for w, d in tracked_wallets.items()
+        ]
+    })
+
+
 if __name__ == '__main__':
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    print("\n🚀 Polymarket Trade Analyzer")
+    print("\n🦞 PolyClaw - Trading Strategy Platform")
     print("   http://localhost:8080")
-    print("\n   Quick fetch: /api/trades/{wallet}")
-    print("   Full history: /api/trades/{wallet}?mode=full")
-    print("   Download: /api/download/{wallet}/csv?mode=full\n")
+    print("\n   📊 Trade Data:")
+    print("      /api/trades/{wallet}")
+    print("      /api/trades/{wallet}?mode=full")
+    print("\n   🧠 Strategy Engine:")
+    print("      /api/strategy/templates")
+    print("      /api/strategy/diagnose/{wallet}")
+    print("      /api/strategy/ideate")
+    print("\n   📡 Real-time Tracking:")
+    print("      /api/track/{wallet}/start")
+    print("      /api/track/{wallet}/stream")
+    print()
     app.run(debug=True, port=8080, host='0.0.0.0')
