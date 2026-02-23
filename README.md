@@ -2,14 +2,21 @@
   <img src="https://em-content.zobj.net/source/twitter/376/lobster_1f99e.png" width="100" alt="PolyClaw Logo"/>
 </p>
 
-<h1 align="center">PolyClaw</h1>
+<h1 align="center">🦞 PolyClaw — AI Trading Intelligence for Polymarket</h1>
 
 <p align="center">
-  <strong>PolyClaw is a personal AI trading assistant for Polymarket you run on your own devices.</strong>
+  <strong>Your personal AI trading assistant for prediction markets. Run it locally. Own your alpha.</strong>
 </p>
 
 <p align="center">
-  It alerts you on the channels you already use (<strong>Discord</strong>, <strong>Telegram</strong>, <strong>WebChat</strong>), analyzes wallets, tracks whales, detects strategies, and helps you build trading bots. The Gateway is just the control plane — the product is the assistant.
+  <a href="https://github.com/JdClarkGit/PolyClaw/actions"><img src="https://img.shields.io/badge/CI-passing-brightgreen?style=flat-square" alt="CI status"/></a>
+  <a href="https://github.com/JdClarkGit/PolyClaw/releases"><img src="https://img.shields.io/github/v/release/JdClarkGit/PolyClaw?style=flat-square" alt="GitHub release"/></a>
+  <a href="https://discord.gg/polyclaw"><img src="https://img.shields.io/badge/Discord-Join-7289DA?style=flat-square&logo=discord&logoColor=white" alt="Discord"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License"/></a>
+</p>
+
+<p align="center">
+  <strong>PolyClaw</strong> is a <em>personal AI trading assistant</em> you run on your own devices. It alerts you on the channels you already use (<strong>Discord</strong>, <strong>Telegram</strong>, <strong>WebChat</strong>), analyzes wallets, tracks whales, detects strategies, and helps you build trading bots. The Gateway is just the control plane — the product is the assistant.
 </p>
 
 <p align="center">
@@ -17,33 +24,31 @@
 </p>
 
 <p align="center">
-  <a href="docs/getting-started.md">Getting Started</a> ·
+  <a href="https://polyclaw.io">Website</a> ·
   <a href="docs/index.md">Docs</a> ·
+  <a href="docs/getting-started.md">Getting Started</a> ·
   <a href="docs/vision.md">Vision</a> ·
   <a href="docs/configuration.md">Configuration</a> ·
   <a href="docs/channels.md">Channels</a> ·
-  <a href="docs/skills.md">Skills</a> ·
-  <a href="docs/security.md">Security</a> ·
   <a href="docs/faq.md">FAQ</a> ·
   <a href="https://discord.gg/polyclaw">Discord</a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License"/>
-  <img src="https://img.shields.io/badge/Python-3.9+-blue?style=flat-square" alt="Python"/>
-  <img src="https://img.shields.io/badge/Node-22+-green?style=flat-square" alt="Node"/>
+  <img src="https://img.shields.io/badge/Python-3.9+-blue?style=flat-square&logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/Polymarket-Ready-FF6B35?style=flat-square" alt="Polymarket"/>
   <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen?style=flat-square" alt="PRs Welcome"/>
 </p>
 
 ---
 
-**Preferred setup:** run the setup script (`./setup.sh`) in your terminal. The script guides you through setting up the gateway, environment, and dependencies. Works on macOS, Linux, and Windows (via WSL2; strongly recommended).
+**Preferred setup:** run the onboarding wizard (`polyclaw onboard`). It walks through gateway, workspace, channels, and skills. The CLI wizard is the recommended path and works on **macOS, Linux, and Windows (via WSL2; strongly recommended)**.
 
 **New install? Start here:** [Getting started](docs/getting-started.md)
 
 ---
 
-## AI Providers (selection + auth)
+## Models (selection + auth)
 
 | Provider | Subscription | Recommended For |
 |----------|--------------|-----------------|
@@ -56,33 +61,33 @@
 
 ## Install (recommended)
 
-**Runtime:** Python ≥3.9, Node ≥22 (for skills).
+**Runtime:** Python ≥3.9
 
 ```bash
-# Clone the repository
-git clone https://github.com/polyclaw/polyclaw.git
-cd polyclaw
+# Clone and setup
+git clone https://github.com/JdClarkGit/PolyClaw.git
+cd PolyClaw
 
-# Run the setup wizard
+# Run the onboarding wizard
 ./setup.sh
 
-# Start PolyClaw
-python app.py
+# Or use the CLI directly
+python cli.py onboard --install-daemon
 ```
 
-The setup script creates a virtual environment, installs dependencies, and generates your `.env` file.
+The wizard installs dependencies, configures channels, and optionally installs the daemon (launchd/systemd) so it stays running.
 
 ---
 
 ## Quick start (TL;DR)
 
-**Runtime:** Python ≥3.9.
+**Runtime:** Python ≥3.9
 
-**Full beginner guide (auth, channels, alerts):** [Getting started](docs/getting-started.md)
+**Full beginner guide (auth, pairing, channels):** [Getting started](docs/getting-started.md)
 
 ```bash
-# Setup
-./setup.sh
+# One-liner setup
+git clone https://github.com/JdClarkGit/PolyClaw.git && cd PolyClaw && ./setup.sh
 
 # Start the gateway (web interface)
 python app.py
@@ -90,14 +95,18 @@ python app.py
 # Open http://localhost:8080 in browser
 ```
 
-**CLI commands** (add alias to your shell profile):
+**CLI commands:**
 
 ```bash
+polyclaw onboard --install-daemon    # Interactive setup wizard
 polyclaw analyze 0x1234...           # Analyze a wallet
 polyclaw track 0x1234...             # Subscribe to alerts
+polyclaw scan momentum               # Find momentum opportunities
 polyclaw leaderboard                 # Show top performers
 polyclaw chat "What strategies?"     # Talk to AI
+polyclaw agent list                  # Switch AI agents
 polyclaw daemon start                # Start background monitoring
+polyclaw doctor                      # Run diagnostics
 ```
 
 **Interactive bots** (configure in `.env`):
@@ -107,7 +116,7 @@ python telegram_bot.py               # Start Telegram bot
 python discord_bot.py                # Start Discord bot
 ```
 
-**Upgrading?** Pull latest and reinstall deps: `git pull && pip install -r requirements.txt`
+**Upgrading?** `git pull && pip install -r requirements.txt` (and run `polyclaw doctor`)
 
 ---
 
@@ -115,8 +124,8 @@ python discord_bot.py                # Start Discord bot
 
 ```bash
 # Clone and run with Docker
-git clone https://github.com/polyclaw/polyclaw.git
-cd polyclaw
+git clone https://github.com/JdClarkGit/PolyClaw.git
+cd PolyClaw
 
 # Configure environment
 cp .env.example .env
@@ -167,7 +176,7 @@ PolyClaw runs locally on your machine. Treat it as a personal assistant.
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=polyclaw/polyclaw&type=Date)](https://star-history.com/#polyclaw/polyclaw&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=JdClarkGit/PolyClaw&type=Date)](https://star-history.com/#JdClarkGit/PolyClaw&Date)
 
 ---
 
@@ -798,16 +807,16 @@ A: Yes! That's the primary use case. Clone the repo, run setup, and you have you
 ## Support
 
 - 📖 [Documentation](docs/index.md)
-- 🐛 [Report a Bug](https://github.com/polyclaw/polyclaw/issues/new?template=bug_report.md)
-- 💡 [Request a Feature](https://github.com/polyclaw/polyclaw/issues/new?template=feature_request.md)
-- 💬 [Discussions](https://github.com/polyclaw/polyclaw/discussions)
+- 🐛 [Report a Bug](https://github.com/JdClarkGit/PolyClaw/issues/new?template=bug_report.md)
+- 💡 [Request a Feature](https://github.com/JdClarkGit/PolyClaw/issues/new?template=feature_request.md)
+- 💬 [Discussions](https://github.com/JdClarkGit/PolyClaw/discussions)
 - 🎮 [Discord](https://discord.gg/polyclaw)
 
 ---
 
 ## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. AI/vibe-coded PRs welcome! 🤖
 
 **Quick ways to contribute:**
 - ⭐ **Star the repo** if you find it useful
@@ -815,6 +824,12 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 - 💡 **Suggest features**
 - 📝 **Improve documentation**
 - 🔧 **Submit PRs**
+
+Thanks to all contributors:
+
+<a href="https://github.com/JdClarkGit/PolyClaw/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=JdClarkGit/PolyClaw" />
+</a>
 
 ---
 
@@ -843,6 +858,20 @@ We're building the same vision — but for Polymarket traders.
 </p>
 
 <p align="center">
-  <a href="https://github.com/polyclaw/polyclaw">⭐ Star us on GitHub</a> ·
+  <a href="https://github.com/JdClarkGit/PolyClaw">⭐ Star us on GitHub</a> ·
   <a href="https://discord.gg/polyclaw">Join our Discord</a>
+</p>
+
+---
+
+## Community
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, maintainers, and how to submit PRs.
+
+Special thanks to [OpenClaw](https://github.com/openclaw/openclaw) for the inspiration and architecture patterns. 🦞
+
+---
+
+<p align="center">
+  <sub>PolyClaw is for educational and research purposes. Trade responsibly.</sub>
 </p>
