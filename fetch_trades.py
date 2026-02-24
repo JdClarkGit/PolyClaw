@@ -28,7 +28,8 @@ def fetch_recent_trades(wallet_address: str, limit: int = 100) -> dict:
     print(f"Fetching {limit} recent trades for {wallet_address[:10]}...")
 
     try:
-        response = requests.get(url, params=params, timeout=30)
+        # Bypass any system proxy to connect directly to Polymarket API
+        response = requests.get(url, params=params, timeout=30, proxies={"http": None, "https": None})
         response.raise_for_status()
         data = response.json()
 

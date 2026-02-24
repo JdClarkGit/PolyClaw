@@ -4441,6 +4441,14 @@ Exit 24h before resolution"></textarea>
               return;
             }
 
+            // Handle wallets with no trading activity
+            if (data.trade_count === 0 && data.message) {
+              showError(data.message);
+              hideProgress();
+              showToast(data.message, 'warning');
+              return;
+            }
+
             document.getElementById('progressFill').style.width = '100%';
             document.getElementById('progressText').textContent = 
               `Complete! ${data.trades?.length?.toLocaleString() || 0} trades loaded`;
@@ -4459,6 +4467,14 @@ Exit 24h before resolution"></textarea>
             if (data.error) {
               showError(data.error);
               showLoading(false);
+              return;
+            }
+
+            // Handle wallets with no trading activity
+            if (data.trade_count === 0 && data.message) {
+              showError(data.message);
+              showLoading(false);
+              showToast(data.message, 'warning');
               return;
             }
 

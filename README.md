@@ -98,15 +98,37 @@ python app.py
 **CLI commands:**
 
 ```bash
+# Setup & Status
 polyclaw onboard --install-daemon    # Interactive setup wizard
+polyclaw status                      # Show comprehensive system status
+polyclaw doctor                      # Run diagnostics
+
+# Wallet Analysis
 polyclaw analyze 0x1234...           # Analyze a wallet
 polyclaw track 0x1234...             # Subscribe to alerts
-polyclaw scan momentum               # Find momentum opportunities
 polyclaw leaderboard                 # Show top performers
+polyclaw scan momentum               # Find momentum opportunities
+
+# OpenClaw-Style Autonomous Features
+polyclaw heartbeat start             # Start autonomous heartbeat
+polyclaw heartbeat now               # Trigger heartbeat immediately
+polyclaw cron list                   # List scheduled jobs
+
+# PredictHub Marketplace (like ClawHub)
+polyclaw predicthub search "whale"   # Search for skills
+polyclaw predicthub install <id>     # Install a skill
+
+# Multi-Channel Messaging
+polyclaw channels list               # List configured channels
+polyclaw channels setup discord      # Setup Discord integration
+
+# Local Models (zero API cost)
+polyclaw model set ollama llama3.1   # Use local Ollama model
+polyclaw model status                # Show current model
+
+# AI Chat & Agents
 polyclaw chat "What strategies?"     # Talk to AI
-polyclaw agent list                  # Switch AI agents
-polyclaw daemon start                # Start background monitoring
-polyclaw doctor                      # Run diagnostics
+polyclaw agent list                  # List AI agents
 ```
 
 **Interactive bots** (configure in `.env`):
@@ -157,7 +179,34 @@ PolyClaw runs locally on your machine. Treat it as a personal assistant.
 
 ---
 
+## What Makes PolyClaw Different
+
+Unlike chatbots that wait for you to type, PolyClaw is an **autonomous agent** — just like [OpenClaw](https://github.com/openclaw/openclaw), but specialized for prediction markets.
+
+| Feature | Traditional Tools | PolyClaw |
+|---------|------------------|----------|
+| Execution | Manual triggers | **Autonomous heartbeat** |
+| Scope | Single function | **Full system access** (wallets, markets, AI, channels) |
+| Memory | Session-based | **Persistent local memory** |
+| Integrations | None | **Discord, Telegram, Slack, WhatsApp, Signal** |
+| Hosting | Cloud service | **Runs on your machine** |
+| Privacy | Data sent to provider | **All data stays local** |
+| Cost | Per-API-call | **Free with Ollama (local models)** |
+
+---
+
 ## Highlights
+
+### 🦞 OpenClaw-Style Features
+
+- **💓 Heartbeat System** — autonomous scheduled tasks via `HEARTBEAT.md`
+- **⏰ Cron Jobs** — persistent scheduled task execution
+- **🏪 PredictHub Marketplace** — community skill sharing (like ClawHub)
+- **🌐 Multi-Channel** — Discord, Telegram, Slack, WhatsApp, Signal
+- **🤖 Local Models** — Ollama integration for $0 API costs
+- **🌐 Browser Automation** — Playwright for web scraping
+
+### 📊 Prediction Market Features
 
 - **🔍 Wallet Intelligence** — analyze any Polymarket wallet instantly
 - **🤖 AI Chat** — conversational assistant for strategy development

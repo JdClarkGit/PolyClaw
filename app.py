@@ -132,7 +132,7 @@ def fetch_all_trades(wallet: str, callback=None) -> Dict:
         max_retries = 3
         for retry in range(max_retries):
             try:
-                response = requests.get(f"{DATA_API}/activity", params=params, timeout=30)
+                response = requests.get(f"{DATA_API}/activity", params=params, timeout=15, proxies={"http": None, "https": None})
                 response.raise_for_status()
                 trades = response.json()
                 break
@@ -141,9 +141,27 @@ def fetch_all_trades(wallet: str, callback=None) -> Dict:
                     time.sleep(2 ** retry)  # Exponential backoff: 1s, 2s, 4s
                     continue
                 else:
-                    break
+                    # Return empty result on failure
+                    return {
+                        "wallet": wallet,
+                        "username": None,
+                        "fetched_at": datetime.utcnow().isoformat() + "Z",
+                        "trade_count": 0,
+                        "trades": [],
+                        "error": str(e)
+                    }
 
-        if not trades or not isinstance(trades, list):
+        if not trades or not isinstance(trades, list) or len(trades) == 0:
+            # No trades found - return quickly
+            if batch_num == 1:
+                return {
+                    "wallet": wallet,
+                    "username": None,
+                    "fetched_at": datetime.utcnow().isoformat() + "Z",
+                    "trade_count": 0,
+                    "trades": [],
+                    "message": "No trading activity found for this wallet on Polymarket"
+                }
             break
 
         # Get username
@@ -216,13 +234,24 @@ def fetch_recent_trades(wallet: str, limit: int = 100) -> Dict:
     params = {"user": wallet, "limit": limit}
 
     try:
-        response = requests.get(f"{DATA_API}/activity", params=params, timeout=30)
+        response = requests.get(f"{DATA_API}/activity", params=params, timeout=15, proxies={"http": None, "https": None})
         response.raise_for_status()
         trades = response.json() if isinstance(response.json(), list) else []
 
         username = None
         if trades and trades[0].get('name'):
             username = trades[0].get('name')
+
+        # Handle empty wallets with clear message
+        if not trades:
+            return {
+                "wallet": wallet,
+                "username": None,
+                "fetched_at": datetime.now(timezone.utc).isoformat(),
+                "trade_count": 0,
+                "trades": [],
+                "message": "No trading activity found for this wallet on Polymarket"
+            }
 
         return {
             "wallet": wallet,
@@ -271,7 +300,7 @@ def fetch_trades_stream(wallet: str, target_limit: int = None):
         max_retries = 3
         for retry in range(max_retries):
             try:
-                response = requests.get(f"{DATA_API}/activity", params=params, timeout=30)
+                response = requests.get(f"{DATA_API}/activity", params=params, timeout=30, proxies={"http": None, "https": None})
                 response.raise_for_status()
                 trades = response.json()
                 break
@@ -1224,7 +1253,7 @@ def fetch_trades_with_limit(wallet: str, limit: int) -> Dict:
             params["end"] = end_ts
 
         try:
-            response = requests.get(f"{DATA_API}/activity", params=params, timeout=30)
+            response = requests.get(f"{DATA_API}/activity", params=params, timeout=30, proxies={"http": None, "https": None})
             response.raise_for_status()
             trades = response.json()
         except Exception as e:

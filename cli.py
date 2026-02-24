@@ -2,12 +2,15 @@
 """
 PolyClaw CLI - Command line interface for Polymarket trading intelligence
 
+Like OpenClaw, but for prediction markets. 🦞
+
 Usage:
     polyclaw onboard                  Interactive setup wizard
     polyclaw tui                      Launch interactive TUI
     polyclaw status                   Show comprehensive system status
     polyclaw dashboard                Open web dashboard
 
+    === WALLET ANALYSIS ===
     polyclaw analyze <wallet>         Analyze a wallet
     polyclaw track <wallet>           Start tracking a wallet
     polyclaw untrack <wallet>         Stop tracking a wallet
@@ -17,6 +20,38 @@ Usage:
     polyclaw chat <message>           Chat with AI assistant
     polyclaw export <wallet>          Export trades to CSV
 
+    === AUTONOMOUS AGENT (OpenClaw-style) ===
+    polyclaw heartbeat status         Show heartbeat system status
+    polyclaw heartbeat start          Start autonomous heartbeat
+    polyclaw heartbeat stop           Stop heartbeat
+    polyclaw heartbeat now            Trigger heartbeat immediately
+    polyclaw heartbeat tasks          List scheduled tasks
+
+    polyclaw cron list                List scheduled cron jobs
+    polyclaw cron add <name> <sched>  Add a cron job
+    polyclaw cron remove <id>         Remove a cron job
+
+    === PREDICTHUB MARKETPLACE ===
+    polyclaw predicthub search <q>    Search for skills
+    polyclaw predicthub browse        Browse skill categories
+    polyclaw predicthub install <id>  Install a skill
+    polyclaw predicthub installed     List installed skills
+    polyclaw predicthub security <id> Security report for skill
+
+    === MESSAGING CHANNELS ===
+    polyclaw channels list            List configured channels
+    polyclaw channels status          Channel connection status
+    polyclaw channels setup <ch>      Setup Discord/Telegram/Slack/WhatsApp/Signal
+
+    === MODEL MANAGEMENT ===
+    polyclaw model list               List available models
+    polyclaw model set <prov> <name>  Set current model (openai/anthropic/ollama/groq)
+    polyclaw model status             Current model configuration
+
+    === BROWSER AUTOMATION ===
+    polyclaw browser snapshot [url]   Take page snapshot
+
+    === DAEMON & GATEWAY ===
     polyclaw daemon start             Start background monitoring
     polyclaw daemon stop              Stop background monitoring
     polyclaw daemon status            Check daemon status
@@ -25,16 +60,15 @@ Usage:
     polyclaw gateway status           Gateway status & token
     polyclaw logs [-f] [-n 50]        View daemon logs
 
+    === SKILLS & AGENTS ===
     polyclaw skills list              List all skills/plugins
     polyclaw skills enable <name>     Enable a skill
     polyclaw skills disable <name>    Disable a skill
 
-    polyclaw sessions list            List chat sessions
-    polyclaw sessions new [name]      Create new session
+    polyclaw agent list               List AI agent profiles
+    polyclaw agent use <id>           Switch to agent profile
 
-    polyclaw security audit           Run security audit
-    polyclaw security audit --deep    Deep security scan
-
+    === STRATEGIES & SCANNING ===
     polyclaw scan                     Scan markets for opportunities
     polyclaw scan momentum            Find momentum plays
     polyclaw scan value               Find mispriced markets
@@ -44,10 +78,7 @@ Usage:
     polyclaw strategy create <name>   Create new strategy
     polyclaw strategy info <name>     Strategy details
 
-    polyclaw agent list               List AI agent profiles
-    polyclaw agent use <id>           Switch to agent profile
-    polyclaw agent create             Create custom agent
-
+    === WORKSPACE & PORTFOLIO ===
     polyclaw workspace files          List workspace files
     polyclaw workspace notes          List research notes
     polyclaw workspace stats          Workspace statistics
@@ -56,10 +87,12 @@ Usage:
     polyclaw portfolio buy            Paper trade: buy
     polyclaw portfolio sell           Paper trade: sell
 
+    === UTILITIES ===
     polyclaw config get <key>         Get config value
     polyclaw config set <k> <v>       Set config value
     polyclaw doctor                   Run diagnostics
-    polyclaw doctor --fix             Fix detected issues
+    polyclaw security audit           Run security audit
+    polyclaw sessions list            List chat sessions
     polyclaw history                  Show command history
     polyclaw version                  Show version
 """
@@ -2057,6 +2090,545 @@ def cmd_portfolio_sell(args):
         print(f"{RED}✗ {e}{RESET}")
 
 
+# ============== HEARTBEAT COMMANDS ==============
+
+def cmd_heartbeat_status(args):
+    """Show heartbeat status"""
+    try:
+        from heartbeat import get_heartbeat_engine
+        engine = get_heartbeat_engine()
+        status = engine.get_status()
+        
+        status_color = GREEN if status['running'] else DIM
+        
+        box("Heartbeat System", [
+            f"Status: {status_color}{'running' if status['running'] else 'stopped'}{RESET}",
+            f"Enabled: {'Yes' if status['enabled'] else 'No'}",
+            f"Interval: {status['interval_minutes']} minutes",
+            f"Tasks: {status['tasks_count']}",
+            f"Quiet Hours: {status['quiet_hours_config']['start']} - {status['quiet_hours_config']['end']}",
+            f"In Quiet Hours: {'Yes' if status['quiet_hours'] else 'No'}",
+            f"Last Beat: {status['last_heartbeat'] or 'Never'}",
+            f"Total Beats: {status['heartbeat_count']}",
+        ])
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+def cmd_heartbeat_start(args):
+    """Start the heartbeat system"""
+    try:
+        from heartbeat import get_heartbeat_engine, setup_default_callbacks
+        engine = get_heartbeat_engine()
+        setup_default_callbacks(engine)
+        engine.start()
+        print(f"{GREEN}✓ Heartbeat started{RESET}")
+        print(f"  Interval: {engine.config.interval // 60} minutes")
+        print(f"  Tasks: {len(engine.tasks)}")
+    except Exception as e:
+        print(f"{RED}✗ Failed to start heartbeat: {e}{RESET}")
+
+
+def cmd_heartbeat_stop(args):
+    """Stop the heartbeat system"""
+    try:
+        from heartbeat import get_heartbeat_engine
+        engine = get_heartbeat_engine()
+        engine.stop()
+        print(f"{GREEN}✓ Heartbeat stopped{RESET}")
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+def cmd_heartbeat_now(args):
+    """Trigger a heartbeat now"""
+    try:
+        from heartbeat import get_heartbeat_engine, setup_default_callbacks
+        engine = get_heartbeat_engine()
+        setup_default_callbacks(engine)
+        
+        print(f"{CYAN}💓 Running heartbeat...{RESET}")
+        results = engine.run_heartbeat(force=True)
+        
+        print(f"\n{GREEN}✓ Heartbeat complete{RESET}")
+        print(f"  Tasks run: {results['tasks_run']}")
+        print(f"  Tasks skipped: {results['tasks_skipped']}")
+        print(f"  Errors: {results['errors']}")
+        
+        if results['actions']:
+            print(f"\n{CYAN}Actions:{RESET}")
+            for action in results['actions']:
+                status_color = GREEN if action['response'] != 'ERROR' else RED
+                print(f"  {status_color}●{RESET} {action['description'][:50]}")
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+def cmd_heartbeat_tasks(args):
+    """List heartbeat tasks"""
+    try:
+        from heartbeat import get_heartbeat_engine
+        engine = get_heartbeat_engine()
+        tasks = engine.list_tasks()
+        
+        if not tasks:
+            print(f"{DIM}No heartbeat tasks defined{RESET}")
+            print(f"Edit ~/.polyclaw/HEARTBEAT.md to add tasks")
+            return
+        
+        print(f"\n{BOLD}Heartbeat Tasks ({len(tasks)}){RESET}\n")
+        
+        by_freq = {}
+        for task in tasks:
+            freq = task['frequency']
+            if freq not in by_freq:
+                by_freq[freq] = []
+            by_freq[freq].append(task)
+        
+        for freq, freq_tasks in by_freq.items():
+            print(f"{CYAN}  {freq.upper()}{RESET}")
+            for task in freq_tasks:
+                status = GREEN + "●" + RESET if task['enabled'] else DIM + "○" + RESET
+                print(f"    {status} {task['description'][:60]}")
+            print()
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+# ============== CRON COMMANDS ==============
+
+def cmd_cron_list(args):
+    """List cron jobs"""
+    try:
+        from cron import get_cron_manager
+        manager = get_cron_manager()
+        jobs = manager.list_jobs()
+        
+        if not jobs:
+            print(f"{DIM}No cron jobs configured{RESET}")
+            return
+        
+        print(f"\n{BOLD}Cron Jobs ({len(jobs)}){RESET}\n")
+        
+        for job in jobs:
+            status = GREEN + "●" + RESET if job['enabled'] else DIM + "○" + RESET
+            print(f"  {status} {job['name']}")
+            print(f"    {DIM}ID: {job['id']} | Schedule: {job['schedule']} | Action: {job['action']}{RESET}")
+            if job['next_run']:
+                print(f"    {DIM}Next: {job['next_run']}{RESET}")
+            print()
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+def cmd_cron_add(args):
+    """Add a cron job"""
+    try:
+        from cron import get_cron_manager, ScheduleType
+        manager = get_cron_manager()
+        
+        # Determine schedule type
+        if args.schedule.endswith(('s', 'm', 'h', 'd', 'w')):
+            schedule_type = ScheduleType.EVERY
+        elif 'T' in args.schedule or '-' in args.schedule:
+            schedule_type = ScheduleType.AT
+        else:
+            schedule_type = ScheduleType.CRON
+        
+        job = manager.create_job(
+            name=args.name,
+            schedule_type=schedule_type,
+            schedule=args.schedule,
+            action=args.action
+        )
+        
+        print(f"{GREEN}✓ Created cron job: {job.name}{RESET}")
+        print(f"  ID: {job.id}")
+        print(f"  Schedule: {job.schedule}")
+        print(f"  Next run: {job.next_run}")
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+def cmd_cron_remove(args):
+    """Remove a cron job"""
+    try:
+        from cron import get_cron_manager
+        manager = get_cron_manager()
+        
+        if manager.delete_job(args.job_id):
+            print(f"{GREEN}✓ Removed cron job: {args.job_id}{RESET}")
+        else:
+            print(f"{RED}✗ Job not found: {args.job_id}{RESET}")
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+# ============== PREDICTHUB COMMANDS ==============
+
+def cmd_hub_search(args):
+    """Search PredictHub for skills"""
+    try:
+        from predicthub import get_predicthub
+        hub = get_predicthub()
+        skills = hub.search(args.query)
+        
+        if not skills:
+            print(f"{DIM}No skills found for '{args.query}'{RESET}")
+            return
+        
+        print(f"\n{BOLD}PredictHub Skills ({len(skills)} results){RESET}\n")
+        
+        for skill in skills[:10]:
+            verified = GREEN + "✓" + RESET if skill.status.value == "verified" else YELLOW + "?" + RESET
+            print(f"  {verified} {BOLD}{skill.name}{RESET} v{skill.version}")
+            print(f"    {DIM}{skill.description[:60]}...{RESET}")
+            print(f"    {DIM}by {skill.author} | ⬇ {skill.downloads} | ★ {skill.rating:.1f}{RESET}")
+            print()
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+def cmd_hub_browse(args):
+    """Browse PredictHub by category"""
+    try:
+        from predicthub import get_predicthub
+        hub = get_predicthub()
+        
+        if args.category:
+            skills = hub.browse(category=args.category)
+            print(f"\n{BOLD}PredictHub - {args.category.title()}{RESET}\n")
+        else:
+            # Show categories
+            categories = hub.get_categories()
+            print(f"\n{BOLD}PredictHub Categories{RESET}\n")
+            for cat in categories:
+                print(f"  {CYAN}●{RESET} {cat['name']} ({cat['count']} skills)")
+            print(f"\n{DIM}Use: polyclaw predicthub browse --category <name>{RESET}")
+            return
+        
+        for skill in skills[:10]:
+            verified = GREEN + "✓" + RESET if skill.status.value == "verified" else YELLOW + "?" + RESET
+            print(f"  {verified} {skill.name} ({skill.id})")
+            print(f"    {DIM}⬇ {skill.downloads} | ★ {skill.rating:.1f}{RESET}")
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+def cmd_hub_install(args):
+    """Install a skill from PredictHub"""
+    try:
+        from predicthub import get_predicthub
+        hub = get_predicthub()
+        
+        # Get skill info first
+        skill = hub.info(args.skill_id)
+        if not skill:
+            print(f"{RED}✗ Skill not found: {args.skill_id}{RESET}")
+            return
+        
+        # Show security warnings
+        report = hub.security_report(args.skill_id)
+        if report.get('warnings'):
+            print(f"\n{YELLOW}⚠ Security Warnings:{RESET}")
+            for warning in report['warnings']:
+                print(f"  {YELLOW}●{RESET} {warning}")
+            print()
+        
+        print(f"Installing {skill.name}...")
+        if hub.install(args.skill_id):
+            print(f"{GREEN}✓ Installed {skill.name} v{skill.version}{RESET}")
+        else:
+            print(f"{RED}✗ Installation failed{RESET}")
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+def cmd_hub_uninstall(args):
+    """Uninstall a skill"""
+    try:
+        from predicthub import get_predicthub
+        hub = get_predicthub()
+        
+        if hub.uninstall(args.skill_id):
+            print(f"{GREEN}✓ Uninstalled {args.skill_id}{RESET}")
+        else:
+            print(f"{RED}✗ Skill not installed: {args.skill_id}{RESET}")
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+def cmd_hub_installed(args):
+    """List installed skills"""
+    try:
+        from predicthub import get_predicthub
+        hub = get_predicthub()
+        skills = hub.list_installed()
+        
+        if not skills:
+            print(f"{DIM}No skills installed{RESET}")
+            print(f"Use: polyclaw predicthub search <query>")
+            return
+        
+        print(f"\n{BOLD}Installed Skills ({len(skills)}){RESET}\n")
+        
+        for skill in skills:
+            print(f"  {GREEN}●{RESET} {skill.name} v{skill.version}")
+            print(f"    {DIM}{skill.id}{RESET}")
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+def cmd_hub_security(args):
+    """Get security report for a skill"""
+    try:
+        from predicthub import get_predicthub
+        hub = get_predicthub()
+        
+        report = hub.security_report(args.skill_id)
+        
+        if 'error' in report:
+            print(f"{RED}✗ {report['error']}{RESET}")
+            return
+        
+        risk_colors = {'low': GREEN, 'medium': YELLOW, 'high': RED}
+        risk_color = risk_colors.get(report['risk_level'], WHITE)
+        
+        box(f"Security Report: {report['name']}", [
+            f"Status: {GREEN if report['verified'] else YELLOW}{'Verified' if report['verified'] else 'Unverified'}{RESET}",
+            f"Risk Level: {risk_color}{report['risk_level'].upper()}{RESET}",
+            f"Permissions: {', '.join(report['permissions']) or 'None'}",
+        ])
+        
+        if report['warnings']:
+            print(f"\n{YELLOW}Warnings:{RESET}")
+            for warning in report['warnings']:
+                print(f"  {YELLOW}●{RESET} {warning}")
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+# ============== CHANNEL COMMANDS ==============
+
+def cmd_channels_list(args):
+    """List configured channels"""
+    channels = [
+        ("Discord", "discord", "Discord bot for server integration"),
+        ("Telegram", "telegram", "Telegram bot for messaging"),
+        ("Slack", "slack", "Slack app for workspace integration"),
+        ("WhatsApp", "whatsapp", "WhatsApp via whatsapp-web.js bridge"),
+        ("Signal", "signal", "Signal via signal-cli"),
+        ("WebChat", "webchat", "Built-in web chat interface"),
+    ]
+    
+    print(f"\n{BOLD}Messaging Channels{RESET}\n")
+    
+    config = load_config()
+    ch_config = config.get('channels', {})
+    
+    for name, key, desc in channels:
+        enabled = ch_config.get(key, {}).get('enabled', False)
+        status = GREEN + "●" + RESET if enabled else DIM + "○" + RESET
+        print(f"  {status} {name}")
+        print(f"    {DIM}{desc}{RESET}")
+    
+    print(f"\n{DIM}Use: polyclaw channels setup <channel>{RESET}")
+
+
+def cmd_channels_status(args):
+    """Show channel connection status"""
+    config = load_config()
+    ch_config = config.get('channels', {})
+    
+    print(f"\n{BOLD}Channel Status{RESET}\n")
+    
+    # Check Discord
+    if ch_config.get('discord', {}).get('enabled'):
+        print(f"  {GREEN}●{RESET} Discord: Connected")
+    else:
+        print(f"  {DIM}○{RESET} Discord: Not configured")
+    
+    # Check Telegram
+    if ch_config.get('telegram', {}).get('bot_token'):
+        print(f"  {GREEN}●{RESET} Telegram: Configured")
+    else:
+        print(f"  {DIM}○{RESET} Telegram: Not configured")
+    
+    # Check others
+    for ch in ['slack', 'whatsapp', 'signal']:
+        if ch_config.get(ch, {}).get('enabled'):
+            print(f"  {GREEN}●{RESET} {ch.title()}: Configured")
+        else:
+            print(f"  {DIM}○{RESET} {ch.title()}: Not configured")
+
+
+def cmd_channels_setup(args):
+    """Setup a messaging channel"""
+    channel = args.channel.lower()
+    
+    setup_guides = {
+        'discord': """
+{BOLD}Discord Setup{RESET}
+
+1. Create a Discord Bot:
+   - Go to https://discord.com/developers/applications
+   - Create New Application → Bot → Reset Token
+   - Copy the token
+
+2. Set the token:
+   export DISCORD_BOT_TOKEN="your-token"
+   
+   Or add to ~/.polyclaw/config.json:
+   {{"channels": {{"discord": {{"token": "...", "enabled": true}}}}}}
+
+3. Invite bot to server:
+   OAuth2 → URL Generator → Select bot + Send Messages
+""",
+        'telegram': """
+{BOLD}Telegram Setup{RESET}
+
+1. Create a Telegram Bot:
+   - Message @BotFather on Telegram
+   - Send /newbot and follow prompts
+   - Copy the token
+
+2. Set the token:
+   export TELEGRAM_BOT_TOKEN="your-token"
+   
+   Or add to ~/.polyclaw/config.json:
+   {{"channels": {{"telegram": {{"bot_token": "...", "enabled": true}}}}}}
+""",
+        'slack': """
+{BOLD}Slack Setup{RESET}
+
+1. Create Slack App at https://api.slack.com/apps
+2. Add Bot Token Scopes: chat:write, app_mentions:read
+3. Enable Socket Mode
+4. Install to workspace
+5. Set tokens:
+   export SLACK_BOT_TOKEN="xoxb-..."
+   export SLACK_APP_TOKEN="xapp-..."
+""",
+        'whatsapp': """
+{BOLD}WhatsApp Setup{RESET}
+
+WhatsApp requires a Node.js bridge using whatsapp-web.js.
+
+1. Install: npm install -g polyclaw-whatsapp-bridge
+2. Run: polyclaw-whatsapp-bridge
+3. Scan QR code with your phone
+4. Configure allowed contacts in config.json
+""",
+        'signal': """
+{BOLD}Signal Setup{RESET}
+
+Signal requires signal-cli.
+
+1. Install signal-cli:
+   brew install signal-cli  # macOS
+   
+2. Register your number:
+   signal-cli -u +1234567890 register
+   signal-cli -u +1234567890 verify <code>
+
+3. Configure in config.json
+""",
+    }
+    
+    guide = setup_guides.get(channel)
+    if guide:
+        print(guide.format(BOLD=BOLD, RESET=RESET))
+    else:
+        print(f"{RED}Unknown channel: {channel}{RESET}")
+        print(f"Available: discord, telegram, slack, whatsapp, signal")
+
+
+# ============== MODEL COMMANDS ==============
+
+def cmd_model_list(args):
+    """List available models"""
+    try:
+        from models import get_model_manager, OllamaProvider
+        manager = get_model_manager()
+        
+        all_models = manager.list_all_models()
+        
+        print(f"\n{BOLD}Available Models{RESET}\n")
+        
+        for provider, models in all_models.items():
+            print(f"  {CYAN}{provider.upper()}{RESET}")
+            if models:
+                for model in models[:5]:
+                    print(f"    ● {model}")
+                if len(models) > 5:
+                    print(f"    {DIM}... and {len(models) - 5} more{RESET}")
+            else:
+                print(f"    {DIM}(no models available){RESET}")
+            print()
+        
+        # Ollama status
+        if OllamaProvider.check_running():
+            print(f"  {GREEN}●{RESET} Ollama is running (local models available)")
+        else:
+            print(f"  {DIM}○{RESET} Ollama not running (start with: ollama serve)")
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+def cmd_model_set(args):
+    """Set the current model"""
+    try:
+        from models import get_model_manager
+        manager = get_model_manager()
+        
+        manager.set_model(args.provider, args.model_name)
+        
+        print(f"{GREEN}✓ Model set: {args.provider}/{args.model_name}{RESET}")
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+def cmd_model_status(args):
+    """Show current model status"""
+    try:
+        from models import get_model_manager
+        manager = get_model_manager()
+        status = manager.get_status()
+        
+        box("Model Configuration", [
+            f"Provider: {status['current']['provider'] if status['current'] else 'Not set'}",
+            f"Model: {status['current']['model'] if status['current'] else 'Not set'}",
+            f"Temperature: {status['current'].get('temperature', 0.7) if status['current'] else 'N/A'}",
+            f"Ollama: {'Running' if status['ollama_running'] else 'Not running'}",
+            f"Fallbacks: {status['fallbacks']}",
+        ])
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+
+
+# ============== BROWSER COMMANDS ==============
+
+def cmd_browser_snapshot(args):
+    """Take a browser snapshot"""
+    try:
+        from browser import snapshot_sync
+        
+        url = args.url if args.url else "https://polymarket.com"
+        print(f"Taking snapshot of {url}...")
+        
+        snapshot = snapshot_sync(url)
+        
+        print(f"{GREEN}✓ Snapshot taken{RESET}")
+        print(f"  URL: {snapshot.url}")
+        print(f"  Title: {snapshot.title}")
+        if snapshot.screenshot_path:
+            print(f"  Screenshot: {snapshot.screenshot_path}")
+        print(f"  Elements: {len(snapshot.elements)}")
+    except Exception as e:
+        print(f"{RED}✗ Error: {e}{RESET}")
+        print(f"{DIM}Make sure Playwright is installed: pip install playwright && playwright install{RESET}")
+
+
 def cmd_status(args):
     """Comprehensive system status"""
     logo()
@@ -2366,6 +2938,106 @@ def main():
     p_security_audit.add_argument("--fix", action="store_true", help="Fix issues")
     p_security_audit.set_defaults(func=cmd_security_audit)
     
+    # heartbeat - OpenClaw-style autonomous scheduling
+    p_heartbeat = subparsers.add_parser("heartbeat", help="Autonomous heartbeat system")
+    heartbeat_sub = p_heartbeat.add_subparsers(dest="heartbeat_cmd")
+    
+    p_hb_status = heartbeat_sub.add_parser("status", help="Heartbeat status")
+    p_hb_status.set_defaults(func=cmd_heartbeat_status)
+    
+    p_hb_start = heartbeat_sub.add_parser("start", help="Start heartbeat")
+    p_hb_start.set_defaults(func=cmd_heartbeat_start)
+    
+    p_hb_stop = heartbeat_sub.add_parser("stop", help="Stop heartbeat")
+    p_hb_stop.set_defaults(func=cmd_heartbeat_stop)
+    
+    p_hb_now = heartbeat_sub.add_parser("now", help="Trigger heartbeat now")
+    p_hb_now.set_defaults(func=cmd_heartbeat_now)
+    
+    p_hb_tasks = heartbeat_sub.add_parser("tasks", help="List heartbeat tasks")
+    p_hb_tasks.set_defaults(func=cmd_heartbeat_tasks)
+    
+    # cron - scheduled jobs
+    p_cron = subparsers.add_parser("cron", help="Cron job scheduler")
+    cron_sub = p_cron.add_subparsers(dest="cron_cmd")
+    
+    p_cron_list = cron_sub.add_parser("list", help="List cron jobs")
+    p_cron_list.set_defaults(func=cmd_cron_list)
+    
+    p_cron_add = cron_sub.add_parser("add", help="Add cron job")
+    p_cron_add.add_argument("name", help="Job name")
+    p_cron_add.add_argument("schedule", help="Cron expression or interval")
+    p_cron_add.add_argument("action", help="Action to run")
+    p_cron_add.set_defaults(func=cmd_cron_add)
+    
+    p_cron_remove = cron_sub.add_parser("remove", help="Remove cron job")
+    p_cron_remove.add_argument("job_id", help="Job ID")
+    p_cron_remove.set_defaults(func=cmd_cron_remove)
+    
+    # predicthub - skill marketplace
+    p_hub = subparsers.add_parser("predicthub", help="PredictHub skill marketplace")
+    hub_sub = p_hub.add_subparsers(dest="hub_cmd")
+    
+    p_hub_search = hub_sub.add_parser("search", help="Search skills")
+    p_hub_search.add_argument("query", nargs="?", default="", help="Search query")
+    p_hub_search.set_defaults(func=cmd_hub_search)
+    
+    p_hub_browse = hub_sub.add_parser("browse", help="Browse skills by category")
+    p_hub_browse.add_argument("--category", help="Filter by category")
+    p_hub_browse.set_defaults(func=cmd_hub_browse)
+    
+    p_hub_install = hub_sub.add_parser("install", help="Install a skill")
+    p_hub_install.add_argument("skill_id", help="Skill ID")
+    p_hub_install.set_defaults(func=cmd_hub_install)
+    
+    p_hub_uninstall = hub_sub.add_parser("uninstall", help="Uninstall a skill")
+    p_hub_uninstall.add_argument("skill_id", help="Skill ID")
+    p_hub_uninstall.set_defaults(func=cmd_hub_uninstall)
+    
+    p_hub_installed = hub_sub.add_parser("installed", help="List installed skills")
+    p_hub_installed.set_defaults(func=cmd_hub_installed)
+    
+    p_hub_security = hub_sub.add_parser("security", help="Security report for skill")
+    p_hub_security.add_argument("skill_id", help="Skill ID")
+    p_hub_security.set_defaults(func=cmd_hub_security)
+    
+    # channels - messaging integrations
+    p_channels = subparsers.add_parser("channels", help="Messaging channel integrations")
+    channels_sub = p_channels.add_subparsers(dest="channels_cmd")
+    
+    p_ch_list = channels_sub.add_parser("list", help="List configured channels")
+    p_ch_list.set_defaults(func=cmd_channels_list)
+    
+    p_ch_status = channels_sub.add_parser("status", help="Channel connection status")
+    p_ch_status.set_defaults(func=cmd_channels_status)
+    
+    p_ch_setup = channels_sub.add_parser("setup", help="Setup a channel")
+    p_ch_setup.add_argument("channel", help="Channel name (discord, telegram, slack, whatsapp, signal)")
+    p_ch_setup.set_defaults(func=cmd_channels_setup)
+    
+    # model - LLM provider management
+    p_model = subparsers.add_parser("model", help="LLM model management")
+    model_sub = p_model.add_subparsers(dest="model_cmd")
+    
+    p_model_list = model_sub.add_parser("list", help="List available models")
+    p_model_list.set_defaults(func=cmd_model_list)
+    
+    p_model_set = model_sub.add_parser("set", help="Set current model")
+    p_model_set.add_argument("provider", help="Provider (openai, anthropic, ollama, groq)")
+    p_model_set.add_argument("model_name", help="Model name")
+    p_model_set.set_defaults(func=cmd_model_set)
+    
+    p_model_status = model_sub.add_parser("status", help="Current model status")
+    p_model_status.set_defaults(func=cmd_model_status)
+    
+    # browser - browser automation
+    p_browser = subparsers.add_parser("browser", help="Browser automation")
+    browser_sub = p_browser.add_subparsers(dest="browser_cmd")
+    
+    p_browser_snapshot = browser_sub.add_parser("snapshot", help="Take page snapshot")
+    p_browser_snapshot.add_argument("url", nargs="?", help="URL to snapshot")
+    p_browser_snapshot.set_defaults(func=cmd_browser_snapshot)
+    
     # sessions
     p_sessions = subparsers.add_parser("sessions", help="Manage chat sessions")
     sessions_sub = p_sessions.add_subparsers(dest="sessions_cmd")
@@ -2441,6 +3113,30 @@ def main():
     
     if args.command == "portfolio" and not hasattr(args, 'func'):
         cmd_portfolio(args)
+        return
+    
+    if args.command == "heartbeat" and not hasattr(args, 'func'):
+        cmd_heartbeat_status(args)
+        return
+    
+    if args.command == "cron" and not hasattr(args, 'func'):
+        cmd_cron_list(args)
+        return
+    
+    if args.command == "predicthub" and not hasattr(args, 'func'):
+        cmd_hub_browse(args)
+        return
+    
+    if args.command == "channels" and not hasattr(args, 'func'):
+        cmd_channels_list(args)
+        return
+    
+    if args.command == "model" and not hasattr(args, 'func'):
+        cmd_model_status(args)
+        return
+    
+    if args.command == "browser" and not hasattr(args, 'func'):
+        print("Usage: polyclaw browser snapshot [url]")
         return
     
     # Log command to history
